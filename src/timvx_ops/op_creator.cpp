@@ -8,31 +8,31 @@
 
 namespace TIMVXPY
 {
-    extern void Activation_op_creator();
-    extern void Eltwise_op_creator();
-    extern void Conv2d_op_creator();
-    extern void FullyConnected_op_creator();
-    extern void Softmax_op_creator();
-    extern void Pool2d_op_creator();
-    extern void Reshape_op_creator();
-    extern void Resize_op_creator();
-    extern void Transpose_op_creator();
-    extern void Concat_op_creator();
+    extern void ActivationOpCreator();
+    extern void EltwiseOpCreator();
+    extern void Conv2dOpCreator();
+    extern void FullyConnectedOpCreator();
+    extern void SoftmaxOpCreator();
+    extern void Pool2dOpCreator();
+    extern void ReshapeOpCreator();
+    extern void ResizeOpCreator();
+    extern void TransposeOpCreator();
+    extern void ConcatOpCreator();
     void register_ops()
     {
-        Activation_op_creator();
-        Eltwise_op_creator();
-        Conv2d_op_creator();
-        FullyConnected_op_creator();
-        Softmax_op_creator();
-        Pool2d_op_creator();
-        Reshape_op_creator();
-        Resize_op_creator();
-        Transpose_op_creator();
-        Concat_op_creator();
+        ActivationOpCreator();
+        EltwiseOpCreator();
+        Conv2dOpCreator();
+        FullyConnectedOpCreator();
+        SoftmaxOpCreator();
+        Pool2dOpCreator();
+        ReshapeOpCreator();
+        ResizeOpCreator();
+        TransposeOpCreator();
+        ConcatOpCreator();
     }
 
-    bool OpCreator::parse_pool_type(const py::dict &op_info, const std::string &op_name, 
+    bool OpCreator::parsePoolType(const json &op_info, const std::string &op_name, 
             const std::string &attr_name, PoolType &pool_type, bool necessary)
     {
         std::string pool_type_str;
@@ -42,7 +42,7 @@ namespace TIMVXPY
         pool_type_map["L2"]          = PoolType::L2;
         pool_type_map["AVG_ANDROID"] = PoolType::AVG_ANDROID;
         const char* attr_c_name = attr_name.c_str();
-        bool parse_result = parse_value<py::str, std::string>(op_info, op_name, attr_name, pool_type_str, necessary);
+        bool parse_result = parseValue<py::str, std::string>(op_info, op_name, attr_name, pool_type_str, necessary);
         if (parse_result && necessary)
         {
             if (pool_type_map.find(pool_type_str) != pool_type_map.end())
@@ -57,7 +57,7 @@ namespace TIMVXPY
         return parse_result;
     }
 
-    bool OpCreator::parse_pad_type(const py::dict &op_info, const std::string &op_name, 
+    bool OpCreator::parse_pad_type(const json &op_info, const std::string &op_name, 
             const std::string &attr_name, PadType &pad_type, bool necessary)
     {
         std::string padding_type_str;
@@ -67,7 +67,7 @@ namespace TIMVXPY
         padding_map["VALID"] = PadType::VALID;
         padding_map["SAME"]  = PadType::SAME;
         const char* attr_c_name = attr_name.c_str();
-        bool parse_result = parse_value<py::str, std::string>(op_info, op_name, attr_name, padding_type_str, necessary);        
+        bool parse_result = parseValue<py::str, std::string>(op_info, op_name, attr_name, padding_type_str, necessary);        
         if (parse_result && necessary)
         {
             if (padding_map.find(padding_type_str) != padding_map.end())
@@ -82,7 +82,7 @@ namespace TIMVXPY
         return parse_result;
     }
     
-    bool OpCreator::parse_round_type(const py::dict &op_info, const std::string &op_name, 
+    bool OpCreator::parseRoundType(const json &op_info, const std::string &op_name, 
             const std::string &attr_name, RoundType &round_type, bool necessary)
     {
         std::string round_type_str;
@@ -90,7 +90,7 @@ namespace TIMVXPY
         round_type_map["CEILING"]    = RoundType::CEILING;
         round_type_map["FLOOR"]      = RoundType::FLOOR;
         const char* attr_c_name = attr_name.c_str();
-        bool parse_result = parse_value<py::str, std::string>(op_info, op_name, attr_name, round_type_str, necessary);        
+        bool parse_result = parseValue<py::str, std::string>(op_info, op_name, attr_name, round_type_str, necessary);        
         if (parse_result && necessary)
         {
             if (round_type_map.find(round_type_str) != round_type_map.end())
@@ -106,7 +106,7 @@ namespace TIMVXPY
     }
 
 
-    bool OpCreator::parse_overflow_policy_type(const py::dict &op_info, const std::string &op_name, 
+    bool OpCreator::parseOverflowPolicyType(const json &op_info, const std::string &op_name, 
             const std::string &attr_name, OverflowPolicy &overflow_policy_type, bool necessary)
     {
         std::string overflow_policy_str;
@@ -114,7 +114,7 @@ namespace TIMVXPY
         overflow_policy_map["WRAP"]       = OverflowPolicy::WRAP;
         overflow_policy_map["SATURATE"]   = OverflowPolicy::SATURATE;
         const char* attr_c_name = attr_name.c_str();
-        bool parse_result = parse_value<py::str, std::string>(op_info, op_name, attr_name, overflow_policy_str, necessary);        
+        bool parse_result = parseValue<py::str, std::string>(op_info, op_name, attr_name, overflow_policy_str, necessary);        
         if (parse_result && necessary)
         {
             if (overflow_policy_map.find(overflow_policy_str) != overflow_policy_map.end())
@@ -129,7 +129,7 @@ namespace TIMVXPY
         return parse_result;
     }
 
-    bool OpCreator::parse_rounding_policy_type(const py::dict &op_info, const std::string &op_name, 
+    bool OpCreator::parseRoundingPolicyType(const json &op_info, const std::string &op_name, 
             const std::string &attr_name, RoundingPolicy &rounding_policy_type, bool necessary)
     {
         std::string rounding_policy_str;
@@ -137,7 +137,7 @@ namespace TIMVXPY
         rounding_policy_map["TO_ZERO"]    = RoundingPolicy::TO_ZERO;
         rounding_policy_map["RTNE"]       = RoundingPolicy::RTNE;
         const char* attr_c_name = attr_name.c_str();
-        bool parse_result = parse_value<py::str, std::string>(op_info, op_name, attr_name, rounding_policy_str, necessary);        
+        bool parse_result = parseValue<py::str, std::string>(op_info, op_name, attr_name, rounding_policy_str, necessary);        
         if (parse_result && necessary)
         {
             if (rounding_policy_map.find(rounding_policy_str) != rounding_policy_map.end())
@@ -152,7 +152,7 @@ namespace TIMVXPY
         return parse_result;
     }
 
-    bool OpCreator::parse_resize_type(const py::dict &op_info, const std::string &op_name, 
+    bool OpCreator::parseResizeType(const json &op_info, const std::string &op_name, 
             const std::string &attr_name, ResizeType &resize_type, bool necessary)
     {
         std::string resize_type_str;
@@ -161,7 +161,7 @@ namespace TIMVXPY
         resize_type_map["BILINEAR"]            = ResizeType::BILINEAR;
         resize_type_map["AREA"]                = ResizeType::AREA;
         const char* attr_c_name = attr_name.c_str();
-        bool parse_result = parse_value<py::str, std::string>(op_info, op_name, attr_name, resize_type_str, necessary);        
+        bool parse_result = parseValue<py::str, std::string>(op_info, op_name, attr_name, resize_type_str, necessary);        
         if (parse_result && necessary)
         {
             if (resize_type_map.find(resize_type_str) != resize_type_map.end())
@@ -176,7 +176,7 @@ namespace TIMVXPY
         return parse_result;
     }
 
-    bool OpCreator::parse_data_layout_type(const py::dict &op_info, const std::string &op_name, 
+    bool OpCreator::parseDataLayoutType(const json &op_info, const std::string &op_name, 
             const std::string &attr_name, DataLayout &data_layout_type, bool necessary)
     {
         std::string data_layout_str;
@@ -191,7 +191,7 @@ namespace TIMVXPY
         data_layout_map["WCN"]    = DataLayout::WCN;       /*for conv1d*/
         data_layout_map["WIcOc"]  = DataLayout::WIcOc;     /*for conv1d*/        
         const char* attr_c_name = attr_name.c_str();
-        bool parse_result = parse_value<py::str, std::string>(op_info, op_name, attr_name, data_layout_str, necessary);        
+        bool parse_result = parseValue<py::str, std::string>(op_info, op_name, attr_name, data_layout_str, necessary);        
         if (parse_result && necessary)
         {
             if (data_layout_map.find(data_layout_str) != data_layout_map.end())
@@ -206,7 +206,7 @@ namespace TIMVXPY
         return parse_result;
     }
 
-    bool TimVXOp::add_creator(std::string op_type, OpCreator* creator)
+    bool TimVXOp::addCreator(std::string op_type, OpCreator* creator)
     {
         if (op_creator.find(op_type) != op_creator.end())
         {
@@ -218,7 +218,7 @@ namespace TIMVXPY
         return true;
     }
 
-    OpCreator* TimVXOp::get_creator(std::string op_type)
+    OpCreator* TimVXOp::getCreator(std::string op_type)
     {
         if (op_creator.find(op_type) != op_creator.end())
             return op_creator[op_type];

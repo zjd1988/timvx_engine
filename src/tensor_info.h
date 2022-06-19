@@ -14,119 +14,137 @@ namespace TIMVX
     class TensorSpecConstruct
     {
     public:
-        static bool construct_tensorspec(const py::dict &tensor_info, const std::string &tensor_name, 
+        static bool constructTensorspec(const json &tensor_info, const std::string &tensor_name, 
             TensorSpec& tensorspec);
 
     private:
-        static bool parse_tensor_data_type(const py::dict &tensor_info, const std::string &tensor_name, 
+        static bool parseTensorDataType(const json &tensor_info, const std::string &tensor_name, 
             const std::string &key_name, DataType &data_type);
-        static bool parse_tensor_attr(const py::dict &tensor_info, const std::string &tensor_name, 
+        static bool parseTensorAttr(const json &tensor_info, const std::string &tensor_name, 
             const std::string &key_name, TensorAttribute &tensor_attr);
-        static bool parse_tensor_quant_type(const py::dict &tensor_info, const std::string &tensor_name, 
-        const std::string &key_name, QuantType &quant_type);
+        static bool parseTensorQuantType(const json &tensor_info, const std::string &tensor_name, 
+            const std::string &key_name, QuantType &quant_type);
 
         template <class T>
-        static bool check_obj_type(const py::detail::item_accessor &item)
-        {
-            return py::isinstance<T>(item);
-        }
-
-        template <class T>
-        static bool check_list_item_type(const py::list &list_value)
+        static bool checkObjType(const json &item)
         {
             bool ret = true;
-            for (int i = 0; i < list_value.size(); i++)
+            try
             {
-                ret = py::isinstance<T>(list_value[i]);
-                if (false == ret)
-                    break;
+                T temp = item.get<T>();
+            }
+            catch(const std::exception& e)
+            {
+                std::cout << e.what() << std::endl;
+                ret = false;
             }
             return ret;
         }
 
-        template <class T, class NEW_T, int list_num>
-        static bool parse_fix_list(const py::dict &op_info, const std::string &tensor_name, 
-            const std::string &attr_name, std::array<NEW_T, list_num> parsed_value, bool necessary = true)
+        template <class T>
+        static bool checkListItemType(const json &list_value)
+        {
+            bool ret = true;
+            try
+            {
+                for (int i = 0; i < list_value.size(); i++)
+                {
+                    T temp = list_value[i].get<T>();
+                }
+            }
+            catch(const std::exception& e)
+            {
+                std::cout << e.what() << std::endl;
+                ret = false;
+            }
+            return ret;
+        }
+
+        template <class T, int list_num>
+        static bool parseFixList(const json &tensor_info, const std::string &tensor_name, 
+            const std::string &attr_name, std::array<T, list_num> parsed_value, bool necessary = true)
         {
             const char* attr_c_name = attr_name.c_str();
-            if (necessary && !op_info.contains(attr_c_name))
+            if (necessary && !tensor_info.contains(attr_c_name))
             {
                 std::cout << tensor_name << " tensor should contain " << attr_name << " attr, please check!" << std::endl;
                 return false;
             }
-            if (op_info.contains(attr_c_name))
+            if (tensor_info.contains(attr_c_name))
             {
-                if (!check_obj_type<py::list>(op_info[attr_c_name]))
+                if (!tensor_info[attr_c_name].is_array())
                 {
                     std::cout << tensor_name << " tensor's attr " << attr_name << " is not list!" << std::endl;
                     return false;
                 }
-                py::list list_value = py::list(op_info[attr_c_name]);
+                json list_value = tensor_info[attr_c_name];
                 if (list_value.size() != list_num)
                 {
                     std::cout << tensor_name << " tensor's attr " << attr_name << " len should be " << list_num << std::endl;
                     return false;
                 }
-                if (!check_list_item_type<T>(list_value))
+                if (!checkListItemType<T>(list_value))
                 {
                     std::cout << tensor_name << " tensor's attr " << attr_name << " item type wrong!" << std::endl;
                     return false;
                 }
                 for (int i = 0; i < list_value.size(); i++)
                 {
-                    parsed_value[i] = NEW_T(T(list_value[i]));
+                    T temp = list_value[i].get<T>();
+                    parsed_value[i] = temp;
                 }
             }
             return true;
         }
 
-        template <class T, class NEW_T>
-        static bool parse_dynamic_list(const json &op_info, const std::string &tensor_name, 
-            const std::string &attr_name, std::vector<NEW_T> &parsed_value, bool necessary = true)
+        template <class T>
+        static bool parseDynamicList(const json &tensor_info, const std::string &tensor_name, 
+            const std::string &attr_name, std::vector<T> &parsed_value, bool necessary = true)
         {
             parsed_value.clear();
             const char* attr_c_name = attr_name.c_str();
-            if (necessary && !op_info.contains(attr_c_name))
+            if (necessary && !tensor_info.contains(attr_c_name))
             {
                 std::cout << tensor_name << " tensor should contain " << attr_name << " attr, please check!" << std::endl;
                 return false;
             }
-            if (op_info.contains(attr_c_name))
+            if (tensor_info.contains(attr_c_name))
             {
-                if (!check_obj_type<py::list>(op_info[attr_c_name]))
+                if (!tensor_info[attr_c_name].is_array())
                 {
                     std::cout << tensor_name << " tensor's attr " << attr_name << " is not list!" << std::endl;
                     return false;
                 }
-                py::list list_value = py::list(op_info[attr_c_name]);
-                if (!check_list_item_type<T>(list_value))
+                json list_value = tensor_info[attr_c_name];
+                if (!checkListItemType<T>(list_value))
                 {
                     std::cout << tensor_name << " tensor's attr " << attr_name << " item type wrong!" << std::endl;
                     return false;
                 }
                 for (int i = 0; i < list_value.size(); i++)
                 {
-                    parsed_value.push_back(NEW_T(T(list_value[i])));
+                    T temp = list_value[i].get<T>();
+                    parsed_value.push_back(temp);
                 }
             }
             return true;
         }
 
-        template <class T, class NEW_T>
-        static bool parse_value(const py::dict &op_info, const std::string &tensor_name, 
-            const std::string &attr_name, NEW_T &parsed_value, bool necessary = true)
+        template <class T>
+        static bool parseValue(const json &tensor_info, const std::string &tensor_name, 
+            const std::string &attr_name, T &parsed_value, bool necessary = true)
         {
             const char* attr_c_name = attr_name.c_str();
-            if (necessary && !op_info.contains(attr_c_name))
+            if (necessary && !tensor_info.contains(attr_c_name))
             {
                 std::cout << tensor_name << " tensor should contain " << attr_name << " attr, please check!" << std::endl;
                 return false;
             }
-            if (op_info.contains(attr_c_name))
+            if (tensor_info.contains(attr_c_name))
             {
-                if (check_obj_type<T>(op_info[attr_c_name]))
+                if (checkObjType<T>(tensor_info[attr_c_name]))
                 {
-                    parsed_value = NEW_T(T(op_info[attr_c_name]));
+                    parsed_value = tensor_info[attr_c_name].get_to();
                 }
                 else
                 {

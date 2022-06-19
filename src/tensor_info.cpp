@@ -15,7 +15,7 @@ using namespace nlohmann;
 namespace TIMVXPY
 {
 
-    bool TensorSpecConstruct::parse_tensor_data_type(const json &tensor_info, const std::string &tensor_name, 
+    bool TensorSpecConstruct::parseTensorDataType(const json &tensor_info, const std::string &tensor_name, 
         const std::string &key_name, DataType &data_type)
     {
         std::string data_type_str;
@@ -29,8 +29,7 @@ namespace TIMVXPY
         data_type_map["FLOAT16"]  = DataType::FLOAT16;
         data_type_map["FLOAT32"]  = DataType::FLOAT32;
         data_type_map["BOOL8"]    = DataType::BOOL8;
-        bool parse_result = parse_value<py::str, std::string>(tensor_info, tensor_name, 
-            key_name, data_type_str);
+        bool parse_result = parseValue<std::string>(tensor_info, tensor_name, key_name, data_type_str);
         if (parse_result)
         {
             if (data_type_map.find(data_type_str) != data_type_map.end())
@@ -46,7 +45,7 @@ namespace TIMVXPY
     }
 
 
-    bool TensorSpecConstruct::parse_tensor_attr(const json &tensor_info, const std::string &tensor_name, 
+    bool TensorSpecConstruct::parseTensorAttr(const json &tensor_info, const std::string &tensor_name, 
         const std::string &key_name, TensorAttribute &tensor_attr)
     {
         std::string tensor_attr_str;
@@ -56,8 +55,7 @@ namespace TIMVXPY
         tensor_attr_map["VARIABLE"]     = TensorAttribute::VARIABLE;
         tensor_attr_map["INPUT"]        = TensorAttribute::INPUT;
         tensor_attr_map["OUTPUT"]       = TensorAttribute::OUTPUT;
-        bool parse_result = parse_value<py::str, std::string>(tensor_info, tensor_name, 
-            key_name, tensor_attr_str);
+        bool parse_result = parseValue<std::string>(tensor_info, tensor_name, key_name, tensor_attr_str);
         if (parse_result)
         {
             if (tensor_attr_map.find(tensor_attr_str) != tensor_attr_map.end())
@@ -73,7 +71,7 @@ namespace TIMVXPY
     }
 
 
-    bool TensorSpecConstruct::parse_tensor_quant_type(const py::dict &tensor_info, const std::string &tensor_name, 
+    bool TensorSpecConstruct::parseTensorQuantType(const py::dict &tensor_info, const std::string &tensor_name, 
         const std::string &key_name, QuantType &quant_type)
     {
         std::string quant_type_str;
@@ -81,7 +79,7 @@ namespace TIMVXPY
         quant_type_map["NONE"]                      = QuantType::NONE;
         quant_type_map["ASYMMETRIC"]                = QuantType::ASYMMETRIC;
         quant_type_map["SYMMETRIC_PER_CHANNEL"]     = QuantType::SYMMETRIC_PER_CHANNEL;
-        bool parse_result = parse_value<py::str, std::string>(tensor_info, tensor_name, key_name, quant_type_str);
+        bool parse_result = parseValue<std::string>(tensor_info, tensor_name, key_name, quant_type_str);
         if (parse_result)
         {
             if (quant_type_map.find(quant_type_str) != quant_type_map.end())
@@ -96,7 +94,7 @@ namespace TIMVXPY
         return parse_result;
     }
 
-    bool TensorSpecConstruct::construct_tensorspec(const json &tensor_info, 
+    bool TensorSpecConstruct::constructTensorspec(const json &tensor_info, 
         const std::string &tensor_name, TensorSpec& tensorspec)
     {
         float scale = 1.0;
@@ -108,31 +106,31 @@ namespace TIMVXPY
         QuantType quant_type;
         TensorAttribute tensor_attr;
         DataType data_type;
-        if (!parse_dynamic_list<py::int_, uint32_t>(tensor_info, tensor_name, "shape", shape)
-            || !parse_tensor_attr(tensor_info, tensor_name, "attribute", tensor_attr)
-            || !parse_tensor_data_type(tensor_info, tensor_name, "data_type", data_type))
+        if (!parseDynamicList<py::int_, uint32_t>(tensor_info, tensor_name, "shape", shape)
+            || !parseTensorAttr(tensor_info, tensor_name, "attribute", tensor_attr)
+            || !parseTensorDataType(tensor_info, tensor_name, "data_type", data_type))
             return false;
         if (tensor_info.contains("quant_info"))
         {
-            if (!check_obj_type<py::dict>(tensor_info["quant_info"]))
+            if (!tensor_info["quant_info"].is_object())
             {
                 std::cout << tensor_name << "'s quant_info should be a dict item!" << std::endl;
                 return false;
             }
-            py::dict quant_info = py::cast<py::dict>(tensor_info["quant_info"]);
-            if (!parse_tensor_quant_type(quant_info, tensor_name, "quant_type", quant_type))
+            json quant_info = tensor_info["quant_info"];
+            if (!parseTensorQuantType(quant_info, tensor_name, "quant_type", quant_type))
                 return false;
             if (quant_info.contains("channel_dim"))
             {
-                if (!parse_value<py::int_, int>(quant_info, tensor_name, "channel_dim", channel_dim))
+                if (!parseValue<int32_t>(quant_info, tensor_name, "channel_dim", channel_dim))
                     return false;
                 if (channel_dim < 0)
                 {
                     std::cout << tensor_name << "'s channel dim should greater than 0!" << std::endl;
                     return false;
                 }
-                if (!parse_dynamic_list<py::int_, int32_t>(quant_info, tensor_name, "zero_points", zero_points)
-                    || !parse_dynamic_list<py::float_, float>(quant_info, tensor_name, "scales", scales))
+                if (!parseDynamicList<int32_t>(quant_info, tensor_name, "zero_points", zero_points)
+                    || !parseDynamicList<float>(quant_info, tensor_name, "scales", scales))
                     return false;
                 if (zero_points.size() != channel_dim || scales.size() != channel_dim)
                 {
@@ -142,8 +140,8 @@ namespace TIMVXPY
             }
             else
             {
-                if (!parse_value<py::float_, float>(quant_info, tensor_name, "scale", scale, false)
-                    || !parse_value<py::int_, int32_t>(quant_info, tensor_name, "zero_point", zero_point, false))
+                if (!parseValue<float>(quant_info, tensor_name, "scale", scale, false)
+                    || !parseValue<int32_t>(quant_info, tensor_name, "zero_point", zero_point, false))
                     return false;
             }
             if (channel_dim < 0)

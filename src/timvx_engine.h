@@ -42,29 +42,28 @@ namespace TIMVX
         ~TimVXEngine();
 
         // tensor utils
-        size_t get_tensor_size(const std::string &tensor_name);
-        bool create_tensor(const std::string &tensor_name, const json &tensor_info, 
+        size_t getTensorSize(const std::string &tensor_name);
+        bool createTensor(const std::string &tensor_name, const json &tensor_info, 
             const char *weight_data = nullptr, const int weight_len = 0);
-        bool copy_data_from_tensor(const std::string &tensor_name, py::buffer &np_data);
-        bool copy_data_to_tensor(const std::string &tensor_name, py::buffer &np_data);
+        bool copyDataFromTensor(const std::string &tensor_name, char* data, const int data_len);
+        bool copyDataToTensor(const std::string &tensor_name, const char* data, const int data_len);
 
         // operation utils
-        bool create_operation(py::dict &op_info);
-        py::dict get_op_info(const std::string &op_name);
-        bool bind_inputs(const std::string &op_name, const std::vector<std::string> &input_list);
-        bool bind_outputs(const std::string &op_name, const std::vector<std::string> &output_list);
-        bool bind_input(const std::string &op_name, const std::string &input_name);
-        bool bind_output(const std::string &op_name, const std::string &output_name);
-        // bool set_rounding_policy(const std::string &op_name, const py::dict &rounding_policy);
+        bool createOperation(const json &op_info);
+        bool bindInputs(const std::string &op_name, const std::vector<std::string> &input_list);
+        bool bindOutputs(const std::string &op_name, const std::vector<std::string> &output_list);
+        bool bindInput(const std::string &op_name, const std::string &input_name);
+        bool bindOutput(const std::string &op_name, const std::string &output_name);
 
         // graph uitls
-        bool create_graph();
-        bool compile_graph();
-        bool run_graph();
-        std::string get_graph_name();
+        bool createGraph();
+        bool compileGraph();
+        bool runGraph();
+        std::string getGraphName();
+
     private:
         // util func
-        uint32_t type_get_bits(DataType type);
+        uint32_t typeGetBits(DataType type);
         // operation func
         // tensor names
         std::vector<std::string>                       m_input_tensor_names;

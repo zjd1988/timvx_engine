@@ -30,7 +30,7 @@ namespace TIMVX
         m_context.reset();
     }
 
-    uint32_t TimVXEngine::type_get_bits(DataType type)
+    uint32_t TimVXEngine::typeGetBits(DataType type)
     {   
         switch( type )
         {
@@ -51,7 +51,7 @@ namespace TIMVX
         }
     }  
 
-    size_t TimVXEngine::get_tensor_size(const std::string &tensor_name)
+    size_t TimVXEngine::getTensorSize(const std::string &tensor_name)
     {
         size_t sz;
         size_t i;
@@ -71,7 +71,7 @@ namespace TIMVX
         {
             return sz;
         }
-        bits_num = type_get_bits( type );
+        bits_num = typeGetBits( type );
         if( bits_num < BITS_PER_BYTE )
         {
             if(shape[0] % 2 == 0)
@@ -94,7 +94,7 @@ namespace TIMVX
         return sz;
     }
 
-    bool TimVXEngine::create_tensor(const std::string &tensor_name, const json &tensor_info, 
+    bool TimVXEngine::createTensor(const std::string &tensor_name, const json &tensor_info, 
         const char *weight_data, const int weight_len)
     {
         if (m_graph.get() == nullptr)
@@ -108,7 +108,7 @@ namespace TIMVX
             return false;
         }
         TensorSpec tensor_spec;
-        if (!TensorSpecConstruct::construct_tensorspec(tensor_info, tensor_name, tensor_spec))
+        if (!TensorSpecConstruct::constructTensorspec(tensor_info, tensor_name, tensor_spec))
         {
             std::cout << "construct tensor spec fail, please check again!" << std::endl;
             return false;
@@ -139,27 +139,24 @@ namespace TIMVX
         return true;
     }    
 
-    bool TimVXEngine::copy_data_from_tensor(const std::string &tensor_name, py::buffer &np_data)
+    bool TimVXEngine::copyDataFromTensor(const std::string &tensor_name, char* buffer_data, 
+        const int buffer_data_len)
     {
-        py::buffer_info buf = np_data.request();
+        if (nullptr == buffer_data)
+        {
+            std::cout << "dest buffer data ptr is nullptr, when copy from tensor "<< tensor_name << std::endl;
+        }
         if (m_tensors.find(tensor_name) == m_tensors.end())
         {
             std::cout << "tensor " << tensor_name <<" not exists!" << std::endl;
             return false;
         }
         auto tensor = m_tensors[tensor_name];
-        if (buf.ndim != tensor->GetShape().size())
+        size_t total_tensor_size = getTensorSize(tensor_name);
+        if (total_tensor_size != buffer_data_len)
         {
-            std::cout << "tensor dim:" << tensor->GetShape().size() << " not equal to numpy data dim:" << 
-                buf.ndim << std::endl;
-            return false;
-        }
-        size_t total_np_size = buf.size * buf.itemsize;
-        size_t total_tensor_size = get_tensor_size(tensor_name);
-        if (total_tensor_size != total_np_size)
-        {
-            std::cout << "tensor size:" << total_tensor_size << " not equal to numpy data size:" << 
-                total_np_size << std::endl;
+            std::cout << "tensor size:" << total_tensor_size << " not equal to buffer data size:" << 
+                buffer_data_len << std::endl;
             return false;
         }
         if (total_tensor_size <= 0)
@@ -167,30 +164,27 @@ namespace TIMVX
             std::cout << "tensor size:" << total_tensor_size << " not valid!" << std::endl;
             return false;
         }
-        return tensor->CopyDataFromTensor(buf.ptr);
+        return tensor->CopyDataFromTensor(buffer_data);
     }
 
-    bool TimVXEngine::copy_data_to_tensor(const std::string &tensor_name, py::buffer &np_data)
+    bool TimVXEngine::copyDataToTensor(const std::string &tensor_name, const char* buffer_data, 
+        const int buffer_data_len)
     {
-        py::buffer_info buf = np_data.request();
+        if (nullptr == buffer_data)
+        {
+            std::cout << "src buffer data ptr is nullptr, when copy to tensor "<< tensor_name << std::endl;
+        }
         if (m_tensors.find(tensor_name) == m_tensors.end())
         {
             std::cout << "tensor " << tensor_name <<" not exists!" << std::endl;
             return false;
         }
         auto tensor = m_tensors[tensor_name];
-        // if (buf.ndim != tensor->GetShape().size())
-        // {
-        //     std::cout << "tensor dim:" << tensor->GetShape().size() << " not equal to numpy data dim:" << 
-        //         buf.ndim << std::endl;
-        //     return false;
-        // }
-        int total_np_size = buf.size * buf.itemsize;
-        int total_tensor_size = get_tensor_size(tensor_name);
-        if (total_tensor_size != total_np_size)
+        int total_tensor_size = getTensorSize(tensor_name);
+        if (total_tensor_size != buffer_data_len)
         {
             std::cout << "tensor size:" << total_tensor_size << " not equal to numpy data size:" << 
-                total_np_size << std::endl;
+                buffer_data_len << std::endl;
             return false;
         }
         if (total_tensor_size <= 0)
@@ -198,10 +192,10 @@ namespace TIMVX
             std::cout << "tensor size:" << total_tensor_size << " not valid!" << std::endl;
             return false;
         }
-        return tensor->CopyDataToTensor(buf.ptr, total_np_size);
+        return tensor->CopyDataToTensor(buf.ptr, buffer_data_len);
     }
 
-    bool TimVXEngine::create_operation(json &op_info)
+    bool TimVXEngine::createOperation(const json &op_info)
     {
         if (m_graph.get() == nullptr)
         {
@@ -264,7 +258,7 @@ namespace TIMVX
         return false;
     }
 
-    bool TimVXEngine::bind_inputs(const std::string &op_name, const std::vector<std::string> &input_list)
+    bool TimVXEngine::bindInputs(const std::string &op_name, const std::vector<std::string> &input_list)
     {
         if (m_graph.get() == nullptr)
         {
@@ -297,7 +291,7 @@ namespace TIMVX
         return true;
     }
 
-    bool TimVXEngine::bind_outputs(const std::string &op_name, const std::vector<std::string> &output_list)
+    bool TimVXEngine::bindOutputs(const std::string &op_name, const std::vector<std::string> &output_list)
     {
         if (m_graph.get() == nullptr)
         {
@@ -330,7 +324,7 @@ namespace TIMVX
         return true;
     }
 
-    bool TimVXEngine::bind_input(const std::string &op_name, const std::string &input_name)
+    bool TimVXEngine::bindInput(const std::string &op_name, const std::string &input_name)
     {
         if (m_graph.get() == nullptr)
         {
@@ -352,7 +346,7 @@ namespace TIMVX
         op_node->BindInput(input_tensor);
         return true;
     }
-    bool TimVXEngine::bind_output(const std::string &op_name, const std::string &output_name)
+    bool TimVXEngine::bindOutput(const std::string &op_name, const std::string &output_name)
     {
         if (m_graph.get() == nullptr)
         {
@@ -375,18 +369,7 @@ namespace TIMVX
         return true;
     }
 
-    py::dict TimVXEngine::get_op_info(const std::string &op_name)
-    {
-        if (m_op_info.find(op_name) != m_op_info.end())
-        {
-            std::cout << "op " << op_name <<" not exists!" << std::endl;
-            py::dict ret;
-            return ret;
-        }
-        return m_op_info[op_name];
-    }
-
-    bool TimVXEngine::create_graph()
+    bool TimVXEngine::createGraph()
     {
         m_context = tim::vx::Context::Create();
         if (nullptr == m_context.get())
@@ -404,7 +387,7 @@ namespace TIMVX
         return true;
     }
 
-    bool TimVXEngine::compile_graph()
+    bool TimVXEngine::compileGraph()
     {
         if (m_graph.get() == nullptr)
         {
@@ -414,7 +397,7 @@ namespace TIMVX
         return m_graph->Compile();
     }
 
-    bool TimVXEngine::run_graph()
+    bool TimVXEngine::runGraph()
     {
         if (m_graph.get() == nullptr)
         {
@@ -424,8 +407,4 @@ namespace TIMVX
         return m_graph->Run();
     }
 
-    std::string TimVXEngine::get_graph_name()
-    {
-        return m_graph_name;
-    }
 } //namespace TIMVX
