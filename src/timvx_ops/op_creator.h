@@ -187,7 +187,7 @@ namespace TIMVXPY
 
 
     #define REGISTER_OP_CREATOR(name, op_type)                       \
-        void op_type##OpCreator() {                                  \
+        void register##op_type##OpCreator() {                        \
             static name _temp;                                       \
             TimVXOp::getInstance()->addCreator(#op_type, &_temp);    \
         }

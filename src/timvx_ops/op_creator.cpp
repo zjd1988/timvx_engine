@@ -3,34 +3,10 @@
 ******
 ******  Created by zhaojd on 2022/04/27.
 ***********************************/
-
 #include "op_creator.h"
 
 namespace TIMVXPY
 {
-    extern void ActivationOpCreator();
-    extern void EltwiseOpCreator();
-    extern void Conv2dOpCreator();
-    extern void FullyConnectedOpCreator();
-    extern void SoftmaxOpCreator();
-    extern void Pool2dOpCreator();
-    extern void ReshapeOpCreator();
-    extern void ResizeOpCreator();
-    extern void TransposeOpCreator();
-    extern void ConcatOpCreator();
-    void register_ops()
-    {
-        ActivationOpCreator();
-        EltwiseOpCreator();
-        Conv2dOpCreator();
-        FullyConnectedOpCreator();
-        SoftmaxOpCreator();
-        Pool2dOpCreator();
-        ReshapeOpCreator();
-        ResizeOpCreator();
-        TransposeOpCreator();
-        ConcatOpCreator();
-    }
 
     bool OpCreator::parsePoolType(const json &op_info, const std::string &op_name, 
             const std::string &attr_name, PoolType &pool_type, bool necessary)
@@ -42,7 +18,7 @@ namespace TIMVXPY
         pool_type_map["L2"]          = PoolType::L2;
         pool_type_map["AVG_ANDROID"] = PoolType::AVG_ANDROID;
         const char* attr_c_name = attr_name.c_str();
-        bool parse_result = parseValue<py::str, std::string>(op_info, op_name, attr_name, pool_type_str, necessary);
+        bool parse_result = parseValue<std::string>(op_info, op_name, attr_name, pool_type_str, necessary);
         if (parse_result && necessary)
         {
             if (pool_type_map.find(pool_type_str) != pool_type_map.end())
@@ -67,7 +43,7 @@ namespace TIMVXPY
         padding_map["VALID"] = PadType::VALID;
         padding_map["SAME"]  = PadType::SAME;
         const char* attr_c_name = attr_name.c_str();
-        bool parse_result = parseValue<py::str, std::string>(op_info, op_name, attr_name, padding_type_str, necessary);        
+        bool parse_result = parseValue<std::string>(op_info, op_name, attr_name, padding_type_str, necessary);        
         if (parse_result && necessary)
         {
             if (padding_map.find(padding_type_str) != padding_map.end())
@@ -90,7 +66,7 @@ namespace TIMVXPY
         round_type_map["CEILING"]    = RoundType::CEILING;
         round_type_map["FLOOR"]      = RoundType::FLOOR;
         const char* attr_c_name = attr_name.c_str();
-        bool parse_result = parseValue<py::str, std::string>(op_info, op_name, attr_name, round_type_str, necessary);        
+        bool parse_result = parseValue<std::string>(op_info, op_name, attr_name, round_type_str, necessary);        
         if (parse_result && necessary)
         {
             if (round_type_map.find(round_type_str) != round_type_map.end())
@@ -114,7 +90,7 @@ namespace TIMVXPY
         overflow_policy_map["WRAP"]       = OverflowPolicy::WRAP;
         overflow_policy_map["SATURATE"]   = OverflowPolicy::SATURATE;
         const char* attr_c_name = attr_name.c_str();
-        bool parse_result = parseValue<py::str, std::string>(op_info, op_name, attr_name, overflow_policy_str, necessary);        
+        bool parse_result = parseValue<std::string>(op_info, op_name, attr_name, overflow_policy_str, necessary);        
         if (parse_result && necessary)
         {
             if (overflow_policy_map.find(overflow_policy_str) != overflow_policy_map.end())
@@ -137,7 +113,7 @@ namespace TIMVXPY
         rounding_policy_map["TO_ZERO"]    = RoundingPolicy::TO_ZERO;
         rounding_policy_map["RTNE"]       = RoundingPolicy::RTNE;
         const char* attr_c_name = attr_name.c_str();
-        bool parse_result = parseValue<py::str, std::string>(op_info, op_name, attr_name, rounding_policy_str, necessary);        
+        bool parse_result = parseValue<std::string>(op_info, op_name, attr_name, rounding_policy_str, necessary);        
         if (parse_result && necessary)
         {
             if (rounding_policy_map.find(rounding_policy_str) != rounding_policy_map.end())
@@ -161,7 +137,7 @@ namespace TIMVXPY
         resize_type_map["BILINEAR"]            = ResizeType::BILINEAR;
         resize_type_map["AREA"]                = ResizeType::AREA;
         const char* attr_c_name = attr_name.c_str();
-        bool parse_result = parseValue<py::str, std::string>(op_info, op_name, attr_name, resize_type_str, necessary);        
+        bool parse_result = parseValue<std::string>(op_info, op_name, attr_name, resize_type_str, necessary);        
         if (parse_result && necessary)
         {
             if (resize_type_map.find(resize_type_str) != resize_type_map.end())
@@ -191,7 +167,7 @@ namespace TIMVXPY
         data_layout_map["WCN"]    = DataLayout::WCN;       /*for conv1d*/
         data_layout_map["WIcOc"]  = DataLayout::WIcOc;     /*for conv1d*/        
         const char* attr_c_name = attr_name.c_str();
-        bool parse_result = parseValue<py::str, std::string>(op_info, op_name, attr_name, data_layout_str, necessary);        
+        bool parse_result = parseValue<std::string>(op_info, op_name, attr_name, data_layout_str, necessary);        
         if (parse_result && necessary)
         {
             if (data_layout_map.find(data_layout_str) != data_layout_map.end())
@@ -224,6 +200,46 @@ namespace TIMVXPY
             return op_creator[op_type];
         else
             return nullptr;
+    }
+
+    static std::map<std::string, const OpCreator*>& getOpCreatorMap()
+    {
+        static std::once_flag gInitFlag;
+        static std::map<std::string, const OpCreator*>* gOpCreator;
+        std::call_once(gInitFlag,
+                    [&]() { gOpCreator = new std::map<std::string, const OpCreator*>; });
+        return *gOpCreator;
+    }
+
+    extern void registerOps();
+    const ModelCreator* getOpCreator(std::string op_type)
+    {
+        registerModel();
+        auto& gOpCreator = getOpCreatorMap();
+        auto iter           = gOpCreator.find(op_type);
+        if (iter == gOpCreator.end())
+        {
+            return nullptr;
+        }
+        if (iter->second)
+        {
+            return iter->second;
+        }
+        return nullptr;
+    }
+
+    bool insertModelCreator(ModelType model_type, const ModelCreator* creator)
+    {
+        auto& gModelCreator = getModelCreatorMap();
+        std::string model_type_str = gModelTypeStrMap[model_type];
+        if (gModelCreator.find(model_type) != gModelCreator.end())
+        {
+            CUSTOM_LOG(CUSTOM_LOG_LEVEL_ERROR, "duplicate register {} creator", model_type_str);
+            return false;
+        }
+        CUSTOM_LOG(CUSTOM_LOG_LEVEL_INFO, "insert {} creator success", model_type_str);
+        gModelCreator.insert(std::make_pair(model_type, creator));
+        return true;
     }
 
 }  //namespace TIMVXPY

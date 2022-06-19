@@ -7,7 +7,7 @@
 #include <iostream>
 #include "timvx_engine.h"
 #include "tensor_info.h"
-#include "timvx_ops/op_creator.h"
+#include "op_factory.h"
 
 namespace TIMVX
 {
@@ -235,7 +235,7 @@ namespace TIMVX
             std::cout << op_type << " op creator not find!" << std::endl;
             return false;
         }
-        auto op_node = op_creator->on_create(m_graph, py::dict(op_info["op_attr"]));
+        auto op_node = op_creator->on_create(m_graph, op_info["op_attr"]);
         if (nullptr != op_node && op_info.contains("rounding_policy"))
         {
             json rounding_policy = op_info["rounding_policy"];
@@ -252,7 +252,6 @@ namespace TIMVX
         if (nullptr != op_node)
         {
             m_operations[op_name] = op_node;
-            m_op_info[op_name] = op_info;
             return true;
         }        
         return false;

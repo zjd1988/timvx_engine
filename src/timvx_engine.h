@@ -74,7 +74,6 @@ namespace TIMVX
         std::map<std::string, std::shared_ptr<char>>   m_tensors_data;
         // operation
         std::map<std::string, Operation*>              m_operations;
-        std::map<std::string, py::dict>                m_op_info;
         // engine context/graph/name
         std::shared_ptr<Context>                       m_context;
         std::shared_ptr<Graph>                         m_graph;
