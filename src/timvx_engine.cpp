@@ -94,7 +94,8 @@ namespace TIMVX
         return sz;
     }
 
-    bool TimVXEngine::create_tensor(const std::string &tensor_name, const py::dict &tensor_info)
+    bool TimVXEngine::create_tensor(const std::string &tensor_name, const json &tensor_info, 
+        const char *weight_data, const int weight_len)
     {
         if (m_graph.get() == nullptr)
         {
@@ -113,12 +114,17 @@ namespace TIMVX
             return false;
         }
         std::shared_ptr<Tensor> tensor;
-        if (!tensor_info.contains("data"))
+        if (!tensor_info.contains("offset"))
             tensor = m_graph->CreateTensor(tensor_spec);
         else
         {
-            py::array data_array = py::cast<py::array>(tensor_info["data"]);
-            int num_bytes = data_array.nbytes();
+            if (!tensor_info["offset"].is_number_integer())
+            {
+                std::cout << "tensor %s offset item is not a valid integer type, please check again!" << std::endl;
+                return false;
+            }
+            int offset = tensor_info.at("offset");
+            int num_bytes = tensor_spec.GetByteSize();
             std::shared_ptr<char> data_array_ptr(new char[num_bytes], [](char* data_array_ptr){delete [] data_array_ptr;});
             m_tensors_data[tensor_name] = data_array_ptr;
             memcpy((void*)data_array_ptr.get(), data_array.data(), num_bytes);
@@ -195,40 +201,40 @@ namespace TIMVX
         return tensor->CopyDataToTensor(buf.ptr, total_np_size);
     }
 
-    bool TimVXEngine::create_operation(py::dict &op_info)
+    bool TimVXEngine::create_operation(json &op_info)
     {
         if (m_graph.get() == nullptr)
         {
             std::cout << "graph is invalid, please create graph first!" << std::endl;
             return false;
         }
-        if (!op_info.contains("op_type") || !py::isinstance<py::str>(op_info["op_type"]))
+        if (!op_info.contains("op_type") || !op_info["op_type"].is_string())
         {
             std::cout << "op_type item is not contained, or op_type is not string!" << std::endl;
             return false;
         }
-        if (!op_info.contains("op_name") || !py::isinstance<py::str>(op_info["op_name"]))
+        if (!op_info.contains("op_name") || !op_info["op_name"].is_string())
         {
             std::cout << "op_name item is not contained, or op_name is not string!" << std::endl;
             return false;
         }
-        if (!op_info.contains("op_attr") || !py::isinstance<py::dict>(op_info["op_attr"]))
+        if (!op_info.contains("op_attr") || !op_info["op_attr"].is_object())
         {
             std::cout << "op_attr item is not contained, or op_attr is not dict!" << std::endl;
             return false;
         }
-        if (op_info.contains("rounding_policy") && !py::isinstance<py::dict>(op_info["rounding_policy"]))
+        if (op_info.contains("rounding_policy") || !op_info["rounding_policy"].is_object())
         {
-            std::cout << "rounding_policy item is contained, but not dict!" << std::endl;
+            std::cout << "rounding_policy item is not contained, or rounding_policy is not dict!" << std::endl;
             return false;
         }
-        auto op_name = std::string(py::str(op_info["op_name"]));
+        std::string op_name = op_info.at("op_name");
         if (m_operations.find(op_name) != m_operations.end())
         {
             std::cout << op_name << " is duplicate!" << std::endl;
             return false;
         }
-        auto op_type = std::string(py::str(op_info["op_type"]));
+        std::string op_type = op_info.at("op_type");
         OpCreator* op_creator = TimVXOp::get_instance()->get_creator(op_type);
         if (nullptr == op_creator)
         {
@@ -238,7 +244,7 @@ namespace TIMVX
         auto op_node = op_creator->on_create(m_graph, py::dict(op_info["op_attr"]));
         if (nullptr != op_node && op_info.contains("rounding_policy"))
         {
-            py::dict rounding_policy = py::dict(op_info["rounding_policy"]);
+            json rounding_policy = op_info["rounding_policy"];
             OverflowPolicy overflow_policy_type = OverflowPolicy::SATURATE;
             RoundingPolicy rounding_policy_type = RoundingPolicy::RTNE;
             RoundType      round_type           = RoundType::FLOOR;
@@ -368,22 +374,6 @@ namespace TIMVX
         op_node->BindOutput(out_tensor);
         return true;
     }
-    
-    
-    // bool TimVXEngine::set_rounding_policy(const std::string &op_name, const py::dict &rounding_policy)
-    // {
-    //     if (m_graph.get() == nullptr)
-    //     {
-    //         std::cout << "graph is invalid, please create graph first!" << std::endl;
-    //         return false;
-    //     }
-    //     if (m_operations.find(op_name) == m_operations.end())
-    //     {
-    //         std::cout << "op " << op_name <<" not exists!" << std::endl;
-    //         return false;
-    //     }
-    //     return true;
-    // }
 
     py::dict TimVXEngine::get_op_info(const std::string &op_name)
     {

@@ -11,7 +11,9 @@
 #include "tim/vx/graph.h"
 #include "tim/vx/tensor.h"
 #include "tim/vx/operation.h"
+#include "nlohmann/json.hpp"
 using namespace tim::vx;
+using namespace nlohmann;
 
 namespace TIMVX
 {
@@ -41,7 +43,8 @@ namespace TIMVX
 
         // tensor utils
         size_t get_tensor_size(const std::string &tensor_name);
-        bool create_tensor(const std::string &tensor_name, const py::dict &tensor_info);
+        bool create_tensor(const std::string &tensor_name, const json &tensor_info, 
+            const char *weight_data = nullptr, const int weight_len = 0);
         bool copy_data_from_tensor(const std::string &tensor_name, py::buffer &np_data);
         bool copy_data_to_tensor(const std::string &tensor_name, py::buffer &np_data);
 

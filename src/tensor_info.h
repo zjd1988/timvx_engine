@@ -81,7 +81,7 @@ namespace TIMVX
         }
 
         template <class T, class NEW_T>
-        static bool parse_dynamic_list(const py::dict &op_info, const std::string &tensor_name, 
+        static bool parse_dynamic_list(const json &op_info, const std::string &tensor_name, 
             const std::string &attr_name, std::vector<NEW_T> &parsed_value, bool necessary = true)
         {
             parsed_value.clear();

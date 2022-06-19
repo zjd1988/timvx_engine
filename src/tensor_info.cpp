@@ -5,14 +5,17 @@
 ***********************************/
 #include "tensor_info.h"
 #include <iostream>
+#include <vector>
 #include <map>
+#include "nlohmann/json.hpp"
 using namespace tim::vx;
 using namespace std;
+using namespace nlohmann;
 
 namespace TIMVXPY
 {
 
-    bool TensorSpecConstruct::parse_tensor_data_type(const py::dict &tensor_info, const std::string &tensor_name, 
+    bool TensorSpecConstruct::parse_tensor_data_type(const json &tensor_info, const std::string &tensor_name, 
         const std::string &key_name, DataType &data_type)
     {
         std::string data_type_str;
@@ -43,7 +46,7 @@ namespace TIMVXPY
     }
 
 
-    bool TensorSpecConstruct::parse_tensor_attr(const py::dict &tensor_info, const std::string &tensor_name, 
+    bool TensorSpecConstruct::parse_tensor_attr(const json &tensor_info, const std::string &tensor_name, 
         const std::string &key_name, TensorAttribute &tensor_attr)
     {
         std::string tensor_attr_str;
@@ -93,7 +96,7 @@ namespace TIMVXPY
         return parse_result;
     }
 
-    bool TensorSpecConstruct::construct_tensorspec(const py::dict &tensor_info, 
+    bool TensorSpecConstruct::construct_tensorspec(const json &tensor_info, 
         const std::string &tensor_name, TensorSpec& tensorspec)
     {
         float scale = 1.0;
