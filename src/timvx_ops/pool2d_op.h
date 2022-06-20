@@ -40,20 +40,20 @@ namespace TIMVXPY
             Adaptive_Pool2d,
         };
 
-        virtual Operation* on_create(std::shared_ptr<Graph> &graph, const py::dict &op_info) override;
+        virtual Operation* onCreate(std::shared_ptr<Graph> &graph, const json &op_info) override;
 
     private:
-        Pool2dCfgType get_pool2d_type(const py::dict &op_info);
-        bool parse_pad(const py::dict &op_info, Pool2dOpAttr &op_attr);
-        bool parse_padding(const py::dict &op_info, Pool2dOpAttr &op_attr);
-        bool parse_type(const py::dict &op_info, Pool2dOpAttr &op_attr);
-        bool parse_ksize(const py::dict &op_info, Pool2dOpAttr &op_attr);
-        bool parse_stride(const py::dict &op_info, Pool2dOpAttr &op_attr);
-        bool parse_input_size(const py::dict &op_info, Pool2dOpAttr &op_attr);
-        bool parse_output_size(const py::dict &op_info, Pool2dOpAttr &op_attr);
-        bool parse_round_type(const py::dict &op_info, Pool2dOpAttr &op_attr);
-        bool parse_layout(const py::dict &op_info, Pool2dOpAttr &op_attr);
-        bool parse_op_attr(const py::dict &op_info, Pool2dOpAttr &op_attr, Pool2dCfgType pool_type);
+        Pool2dCfgType getPool2dType(const json &op_info);
+        bool parsePad(const json &op_info, Pool2dOpAttr &op_attr);
+        bool parsePadding(const json &op_info, Pool2dOpAttr &op_attr);
+        bool parseType(const json &op_info, Pool2dOpAttr &op_attr);
+        bool parseKsize(const json &op_info, Pool2dOpAttr &op_attr);
+        bool parseStride(const json &op_info, Pool2dOpAttr &op_attr);
+        bool parseInputSize(const json &op_info, Pool2dOpAttr &op_attr);
+        bool parseOutputSize(const json &op_info, Pool2dOpAttr &op_attr);
+        bool parseRoundType(const json &op_info, Pool2dOpAttr &op_attr);
+        bool parseLayout(const json &op_info, Pool2dOpAttr &op_attr);
+        bool parseOpAttr(const json &op_info, Pool2dOpAttr &op_attr, Pool2dCfgType pool_type);
 
     private:
         std::string m_op_name = "Pool2d";

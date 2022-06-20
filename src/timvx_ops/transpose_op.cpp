@@ -9,15 +9,15 @@
 
 namespace TIMVXPY
 {
-    bool TransposeCreator::parse_op_attr(const py::dict &op_info, TransposeOpAttr &op_attr)
+    bool TransposeCreator::parseOpAttr(const json &op_info, TransposeOpAttr &op_attr)
     {
-        return parse_dynamic_list<py::int_, uint32_t>(op_info, m_op_name, "perm", op_attr.perm);
+        return parseDynamicList<uint32_t>(op_info, m_op_name, "perm", op_attr.perm);
     }
 
-    Operation* TransposeCreator::on_create(std::shared_ptr<Graph> &graph, const py::dict &op_info)
+    Operation* TransposeCreator::onCreate(std::shared_ptr<Graph> &graph, const json &op_info)
     {
         TransposeOpAttr op_attr;
-        if (!parse_op_attr(op_info, op_attr))
+        if (!parseOpAttr(op_info, op_attr))
             return nullptr;
 
         std::vector<uint32_t> perm = op_attr.perm;

@@ -17,23 +17,6 @@ using namespace nlohmann;
 
 namespace TIMVX
 {
-    struct TimVXQuantInfo
-    {
-        TimVXQuantInfo(int32_t type, int32_t channel_dim, std::vector<float> &scales,
-               std::vector<int32_t> &zero_points)
-            : m_type(type), 
-              m_channel_dim(channel_dim), 
-              m_scales(scales), 
-              m_zero_points(zero_points) {}
-        int32_t get_type() {return m_type;}
-        int32_t get_channel_dim() {return m_channel_dim;}
-        std::vector<float> get_scales() {return m_scales;}
-        std::vector<int32_t> get_zero_points() {return m_zero_points;}
-        int32_t m_type;
-        int32_t m_channel_dim{-1};
-        std::vector<float> m_scales;
-        std::vector<int32_t> m_zero_points;
-    };
 
     class TimVXEngine 
     {

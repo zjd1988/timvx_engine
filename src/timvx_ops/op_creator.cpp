@@ -33,7 +33,7 @@ namespace TIMVXPY
         return parse_result;
     }
 
-    bool OpCreator::parse_pad_type(const json &op_info, const std::string &op_name, 
+    bool OpCreator::parsePadType(const json &op_info, const std::string &op_name, 
             const std::string &attr_name, PadType &pad_type, bool necessary)
     {
         std::string padding_type_str;

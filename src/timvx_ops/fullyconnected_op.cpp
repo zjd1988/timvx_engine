@@ -9,17 +9,17 @@
 
 namespace TIMVXPY
 {
-    bool FullyConnectedCreator::parse_op_attr(const py::dict &op_info, FullyConnectedOpAttr &op_attr)
+    bool FullyConnectedCreator::parseOpAttr(const json &op_info, FullyConnectedOpAttr &op_attr)
     {
         op_attr.weights = 0;
-        return parse_value<py::int_, uint32_t>(op_info, m_op_name, "axis", op_attr.axis) &&
-            parse_value<py::int_, uint32_t>(op_info, m_op_name, "weights", op_attr.weights, false);
+        return parseValue<uint32_t>(op_info, m_op_name, "axis", op_attr.axis) &&
+            parseValue<uint32_t>(op_info, m_op_name, "weights", op_attr.weights, false);
     }
 
-    Operation* FullyConnectedCreator::on_create(std::shared_ptr<Graph> &graph, const py::dict &op_info)
+    Operation* FullyConnectedCreator::onCreate(std::shared_ptr<Graph> &graph, const json &op_info)
     {
         FullyConnectedOpAttr op_attr;
-        if (!parse_op_attr(op_info, op_attr))
+        if (!parseOpAttr(op_info, op_attr))
             return nullptr;
 
         uint32_t axis    = op_attr.axis;

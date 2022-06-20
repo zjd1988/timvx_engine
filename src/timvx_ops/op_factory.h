@@ -7,6 +7,7 @@
 #pragma once
 #include "op_creator.h"
 #include "nlohmann/json.hpp"
+using namespace nlohmann;
 
 namespace TIMVX 
 {
@@ -17,7 +18,9 @@ namespace TIMVX
     public:
         /**
          * @brief create op with given info.
+         * @param op_type  operator type.
          * @param op_info  operator info.
+         * @param graph    timvx graph.
          * @return created op or NULL if failed.
          */
         static Operation* create(const string &op_type, const json &op_info, std::shared_ptr<Graph> &graph);

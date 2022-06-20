@@ -9,15 +9,15 @@
 
 namespace TIMVXPY
 {
-    bool ReshapeCreator::parse_op_attr(const py::dict &op_info, ReshapeOpAttr &op_attr)
+    bool ReshapeCreator::parseOpAttr(const json &op_info, ReshapeOpAttr &op_attr)
     {
-        return parse_dynamic_list<py::int_, uint32_t>(op_info, m_op_name, "size", op_attr.size);
+        return parseDynamicList<uint32_t>(op_info, m_op_name, "size", op_attr.size);
     }
 
-    Operation* ReshapeCreator::on_create(std::shared_ptr<Graph> &graph, const py::dict &op_info)
+    Operation* ReshapeCreator::onCreate(std::shared_ptr<Graph> &graph, const json &op_info)
     {
         ReshapeOpAttr op_attr;
-        if (!parse_op_attr(op_info, op_attr))
+        if (!parseOpAttr(op_info, op_attr))
             return nullptr;
 
         std::vector<uint32_t> size = op_attr.size;

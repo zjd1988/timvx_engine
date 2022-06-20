@@ -10,52 +10,52 @@
 namespace TIMVXPY
 {
 
-    bool Conv2dCreator::parse_weights(const py::dict &op_info, Conv2dOpAttr &op_attr)
+    bool Conv2dCreator::parseWeights(const json &op_info, Conv2dOpAttr &op_attr)
     {
-        return parse_value<py::int_, uint32_t>(op_info, m_op_name, "weights", op_attr.weights, false);
+        return parseValue<uint32_t>(op_info, m_op_name, "weights", op_attr.weights, false);
     }
 
-    bool Conv2dCreator::parse_padding(const py::dict &op_info, Conv2dOpAttr &op_attr)
+    bool Conv2dCreator::parsePadding(const json &op_info, Conv2dOpAttr &op_attr)
     {
-        return parse_pad_type(op_info, m_op_name, "padding", op_attr.padding, false);
+        return parsePadType(op_info, m_op_name, "padding", op_attr.padding, false);
     }
 
-    bool Conv2dCreator::parse_ksize(const py::dict &op_info, Conv2dOpAttr &op_attr)
+    bool Conv2dCreator::parseKsize(const json &op_info, Conv2dOpAttr &op_attr)
     {
-        return parse_fix_list<py::int_, uint32_t, 2>(op_info, m_op_name, "ksize", op_attr.ksize, false);
+        return parseFixList<uint32_t, 2>(op_info, m_op_name, "ksize", op_attr.ksize, false);
     }
 
-    bool Conv2dCreator::parse_stride(const py::dict &op_info, Conv2dOpAttr &op_attr)
+    bool Conv2dCreator::parse_stride(const json &op_info, Conv2dOpAttr &op_attr)
     {
-        return parse_fix_list<py::int_, uint32_t, 2>(op_info, m_op_name, "stride", op_attr.stride);
+        return parseFixList<uint32_t, 2>(op_info, m_op_name, "stride", op_attr.stride);
     }
 
-    bool Conv2dCreator::parse_dilation(const py::dict &op_info, Conv2dOpAttr &op_attr)
+    bool Conv2dCreator::parseDilation(const json &op_info, Conv2dOpAttr &op_attr)
     {
-        return parse_fix_list<py::int_, uint32_t, 2>(op_info, m_op_name, "dilation", op_attr.dilation);
+        return parseFixList<uint32_t, 2>(op_info, m_op_name, "dilation", op_attr.dilation);
     }
 
-    bool Conv2dCreator::parse_pad(const py::dict &op_info, Conv2dOpAttr &op_attr)
+    bool Conv2dCreator::parsePad(const json &op_info, Conv2dOpAttr &op_attr)
     {
-        return parse_fix_list<py::int_, uint32_t, 4>(op_info, m_op_name, "pad", op_attr.pad, false);
+        return parseFixList<uint32_t, 4>(op_info, m_op_name, "pad", op_attr.pad, false);
     }
 
-    bool Conv2dCreator::parse_multiplier(const py::dict &op_info, Conv2dOpAttr &op_attr)
+    bool Conv2dCreator::parse_multiplier(const json &op_info, Conv2dOpAttr &op_attr)
     {
-        return parse_value<py::int_, int32_t>(op_info, m_op_name, "multiplier", op_attr.multiplier, false);
+        return parseValue<int32_t>(op_info, m_op_name, "multiplier", op_attr.multiplier, false);
     }
 
-    bool Conv2dCreator::parse_input_layout(const py::dict &op_info, Conv2dOpAttr &op_attr)
+    bool Conv2dCreator::parseInputLayout(const json &op_info, Conv2dOpAttr &op_attr)
     {
-        return parse_data_layout_type(op_info, m_op_name, "input_layout", op_attr.input_layout, false);
+        return parseDataLayoutType(op_info, m_op_name, "input_layout", op_attr.input_layout, false);
     }
     
-    bool Conv2dCreator::parse_kernel_layout(const py::dict &op_info, Conv2dOpAttr &op_attr)
+    bool Conv2dCreator::parseKernelLayout(const json &op_info, Conv2dOpAttr &op_attr)
     {
-        return parse_data_layout_type(op_info, m_op_name, "kernel_layout", op_attr.input_layout, false);
+        return parseDataLayoutType(op_info, m_op_name, "kernel_layout", op_attr.input_layout, false);
     }
 
-    bool Conv2dCreator::parse_op_attr(const py::dict &op_info, Conv2dOpAttr &op_attr)
+    bool Conv2dCreator::parseOpAttr(const json &op_info, Conv2dOpAttr &op_attr)
     {
         op_attr.weights = 0;
         op_attr.padding = PadType::AUTO;
@@ -64,17 +64,17 @@ namespace TIMVXPY
         op_attr.pad = {0, 0, 0, 0};
         op_attr.input_layout = DataLayout::WHCN;
         op_attr.kernel_layout = DataLayout::WHIcOc;
-        return parse_weights(op_info, op_attr) && parse_padding(op_info, op_attr)
-            && parse_ksize(op_info, op_attr) && parse_stride(op_info, op_attr)
-            && parse_dilation(op_info, op_attr) && parse_pad(op_info, op_attr)
-            && parse_multiplier(op_info, op_attr) && parse_input_layout(op_info, op_attr)
-            && parse_kernel_layout(op_info, op_attr);
+        return parseWeights(op_info, op_attr) && parsePadding(op_info, op_attr)
+            && parseKsize(op_info, op_attr) && parseStride(op_info, op_attr)
+            && parseDilation(op_info, op_attr) && parsePad(op_info, op_attr)
+            && parseMultiplier(op_info, op_attr) && parseInputLayout(op_info, op_attr)
+            && parseKernelLayout(op_info, op_attr);
     }
 
-    Operation* Conv2dCreator::on_create(std::shared_ptr<Graph> &graph, const py::dict &op_info)
+    Operation* Conv2dCreator::onCreate(std::shared_ptr<Graph> &graph, const json &op_info)
     {
         Conv2dOpAttr op_attr;
-        if (!parse_op_attr(op_info, op_attr))
+        if (!parseOpAttr(op_info, op_attr))
             return nullptr;
 
         uint32_t                weights        = op_attr.weights;

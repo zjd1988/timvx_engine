@@ -9,63 +9,63 @@
 namespace TIMVXPY
 {
 
-    bool ActivationCreator::parse_prelu_attr(const py::dict &op_info, ActivationOpAttr &op_attr)
+    bool ActivationCreator::parsePreluAttr(const json &op_info, ActivationOpAttr &op_attr)
     {
         std::string full_op_name = m_op_name + "_prelu";
-        return parse_value<py::int_, int>(op_info, full_op_name, "axis", op_attr.prelu.axis);
+        return parseValue<int>(op_info, full_op_name, "axis", op_attr.prelu.axis);
     }
 
-    bool ActivationCreator::parse_leakyrelu_attr(const py::dict &op_info, ActivationOpAttr &op_attr)
+    bool ActivationCreator::parseLeakyreluAttr(const json &op_info, ActivationOpAttr &op_attr)
     {
         std::string full_op_name = m_op_name + "_leakyrelu";
-        return parse_value<py::float_, float>(op_info, full_op_name, "ratio", op_attr.leakyrelu.ratio);
+        return parseValue<float>(op_info, full_op_name, "ratio", op_attr.leakyrelu.ratio);
     }
 
-    bool ActivationCreator::parse_linear_attr(const py::dict &op_info, ActivationOpAttr &op_attr)
+    bool ActivationCreator::parseLinearAttr(const json &op_info, ActivationOpAttr &op_attr)
     {
         std::string full_op_name = m_op_name + "_linear";
-        return parse_value<py::float_, float>(op_info, full_op_name, "a", op_attr.linear.a)
-            && parse_value<py::float_, float>(op_info, full_op_name, "b", op_attr.linear.b, false);
+        return parseValue<float>(op_info, full_op_name, "a", op_attr.linear.a)
+            && parseValue<float>(op_info, full_op_name, "b", op_attr.linear.b, false);
     }
 
-    bool ActivationCreator::parse_gelu_attr(const py::dict &op_info, ActivationOpAttr &op_attr)
+    bool ActivationCreator::parseGeluAttr(const json &op_info, ActivationOpAttr &op_attr)
     {
         std::string full_op_name = m_op_name + "_gelu";
-        return parse_value<py::bool_, bool>(op_info, full_op_name, "approximate", op_attr.gelu.approximate, false);
+        return parseValue<bool>(op_info, full_op_name, "approximate", op_attr.gelu.approximate, false);
     }
 
-    bool ActivationCreator::parse_hardsigmoid_attr(const py::dict &op_info, ActivationOpAttr &op_attr)
+    bool ActivationCreator::parseHardsigmoidAttr(const json &op_info, ActivationOpAttr &op_attr)
     {
         std::string full_op_name = m_op_name + "_hardsigmoid";
-        return parse_value<py::float_, float>(op_info, full_op_name, "alpha", op_attr.hardsigmoid.alpha) &&
-            parse_value<py::float_, float>(op_info, full_op_name, "beta", op_attr.hardsigmoid.beta);
+        return parseValue<float>(op_info, full_op_name, "alpha", op_attr.hardsigmoid.alpha) &&
+            parseValue<float>(op_info, full_op_name, "beta", op_attr.hardsigmoid.beta);
     }
 
-    bool ActivationCreator::parse_op_attr(std::string op_type, const py::dict &op_info, ActivationOpAttr &op_attr)
+    bool ActivationCreator::parseOpAttr(std::string op_type, const json &op_info, ActivationOpAttr &op_attr)
     {
         op_attr.gelu.approximate = true;
         op_attr.linear.b = 0.0f;
         if ("prelu" == op_type)
-            return parse_prelu_attr(op_info, op_attr);
+            return parse_preluAttr(op_info, op_attr);
         else if ("leakyrelu" == op_type)
-            return parse_leakyrelu_attr(op_info, op_attr);
+            return parseLeakyreluAttr(op_info, op_attr);
         else if ("linear" == op_type)
-            return parse_linear_attr(op_info, op_attr);
+            return parseLinearAttr(op_info, op_attr);
         else if ("gelu" == op_type)
-            return parse_gelu_attr(op_info, op_attr);
+            return parseGeluAttr(op_info, op_attr);
         else if ("hardsigmoid" == op_type)
-            return parse_hardsigmoid_attr(op_info, op_attr);
+            return parseHardsigmoidAttr(op_info, op_attr);
         else
             return true;
     }
 
-    Operation* ActivationCreator::on_create(std::shared_ptr<Graph> &graph, const py::dict &op_info)
+    Operation* ActivationCreator::onCreate(std::shared_ptr<Graph> &graph, const json &op_info)
     {
         ActivationOpAttr op_attr;
         std::string activation_type;
-        if (!parse_value<py::str, std::string>(op_info, m_op_name, "activation_type", activation_type))
+        if (!parseValue<std::string>(op_info, m_op_name, "activation_type", activation_type))
             return nullptr;
-        if (!parse_op_attr(activation_type, op_info, op_attr))
+        if (!parseOpAttr(activation_type, op_info, op_attr))
             return nullptr;
         if ("Relu" == activation_type)
         {

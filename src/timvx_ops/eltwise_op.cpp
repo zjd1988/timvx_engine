@@ -9,10 +9,10 @@
 
 namespace TIMVXPY
 {
-    Operation* EltwiseCreator::on_create(std::shared_ptr<Graph> &graph, const py::dict &op_info)
+    Operation* EltwiseCreator::onCreate(std::shared_ptr<Graph> &graph, const json &op_info)
     {
         std::string eltwise_type;
-        if (!parse_value<py::str, std::string>(op_info, m_op_name, "eltwise_type", eltwise_type))
+        if (!parseValue<std::string>(op_info, m_op_name, "eltwise_type", eltwise_type))
             return nullptr;
         std::string eltwise_op_name = m_op_name + "_" + eltwise_type;
         if ("Minimum" == eltwise_type)
@@ -42,7 +42,7 @@ namespace TIMVXPY
         else if ("Multiply" == eltwise_type || "Div" == eltwise_type)
         {
             float scale = 1.0f;
-            if (!parse_value<py::float_, float>(op_info, eltwise_op_name, "scale", scale, false))
+            if (!parseValue<float>(op_info, eltwise_op_name, "scale", scale, false))
                 return nullptr;
             if ("Multiply" == eltwise_type)
                 return graph->CreateOperation<ops::Multiply>(scale).get();

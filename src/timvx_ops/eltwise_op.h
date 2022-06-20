@@ -13,7 +13,7 @@ namespace TIMVXPY
     class EltwiseCreator : public OpCreator
     {
     public:
-        virtual Operation* on_create(std::shared_ptr<Graph> &graph, const py::dict &op_info) override;
+        virtual Operation* onCreate(std::shared_ptr<Graph> &graph, const json &op_info) override;
 
     private:
         std::string m_op_name = "Eltwise";

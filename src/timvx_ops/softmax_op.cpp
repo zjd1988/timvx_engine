@@ -8,16 +8,16 @@
 
 namespace TIMVXPY
 {
-    bool SoftmaxCreator::parse_op_attr(const py::dict &op_info, SoftmaxOpAttr &op_attr)
+    bool SoftmaxCreator::parse_op_attr(const json &op_info, SoftmaxOpAttr &op_attr)
     {
-        return parse_value<py::float_, float>(op_info, m_op_name, "beta", op_attr.beta) &&
-            parse_value<py::int_, int32_t>(op_info, m_op_name, "axis", op_attr.axis);
+        return parseValue<float>(op_info, m_op_name, "beta", op_attr.beta) &&
+            parseValue<int32_t>(op_info, m_op_name, "axis", op_attr.axis);
     }
 
-    Operation* SoftmaxCreator::on_create(std::shared_ptr<Graph> &graph, const py::dict &op_info)
+    Operation* SoftmaxCreator::onCreate(std::shared_ptr<Graph> &graph, const json &op_info)
     {
         SoftmaxOpAttr op_attr;
-        if (!parse_op_attr(op_info, op_attr))
+        if (!parseOpAttr(op_info, op_attr))
             return nullptr;
 
         float beta   = op_attr.beta;

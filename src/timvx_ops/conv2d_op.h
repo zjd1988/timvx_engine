@@ -26,20 +26,20 @@ namespace TIMVXPY
             DataLayout              kernel_layout;
         };
 
-        virtual Operation* on_create(std::shared_ptr<Graph> &graph, const py::dict &op_info) override;
+        virtual Operation* onCreate(std::shared_ptr<Graph> &graph, const json &op_info) override;
 
     private:
-        bool get_conv2d_type();
-        bool parse_weights(const py::dict &op_info, Conv2dOpAttr &op_attr);
-        bool parse_padding(const py::dict &op_info, Conv2dOpAttr &op_attr);
-        bool parse_ksize(const py::dict &op_info, Conv2dOpAttr &op_attr);
-        bool parse_stride(const py::dict &op_info, Conv2dOpAttr &op_attr);
-        bool parse_dilation(const py::dict &op_info, Conv2dOpAttr &op_attr);
-        bool parse_pad(const py::dict &op_info, Conv2dOpAttr &op_attr);
-        bool parse_multiplier(const py::dict &op_info, Conv2dOpAttr &op_attr);
-        bool parse_input_layout(const py::dict &op_info, Conv2dOpAttr &op_attr);
-        bool parse_kernel_layout(const py::dict &op_info, Conv2dOpAttr &op_attr);
-        bool parse_op_attr(const py::dict &op_info, Conv2dOpAttr &op_attr);
+        bool getConv2dType();
+        bool parseWeights(const json &op_info, Conv2dOpAttr &op_attr);
+        bool parsePadding(const json &op_info, Conv2dOpAttr &op_attr);
+        bool parseKsize(const json &op_info, Conv2dOpAttr &op_attr);
+        bool parseStride(const json &op_info, Conv2dOpAttr &op_attr);
+        bool parseDilation(const json &op_info, Conv2dOpAttr &op_attr);
+        bool parsePad(const json &op_info, Conv2dOpAttr &op_attr);
+        bool parseMultiplier(const json &op_info, Conv2dOpAttr &op_attr);
+        bool parseInputLayout(const json &op_info, Conv2dOpAttr &op_attr);
+        bool parseKernelLayout(const json &op_info, Conv2dOpAttr &op_attr);
+        bool parseOpAttr(const json &op_info, Conv2dOpAttr &op_attr);
 
     private:
         std::string m_op_name = "Conv2d";

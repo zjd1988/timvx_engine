@@ -19,10 +19,10 @@ namespace TIMVXPY
             int input_cnt;
         };
     
-        virtual Operation* on_create(std::shared_ptr<Graph> &graph, const py::dict &op_info) override;
+        virtual Operation* onCreate(std::shared_ptr<Graph> &graph, const json &op_info) override;
 
     private:
-        bool parse_op_attr(const py::dict &op_info, ConcatOpAttr &op_attr);
+        bool parseOpAttr(const json &op_info, ConcatOpAttr &op_attr);
 
     private:
         std::string m_op_name = "Concat";

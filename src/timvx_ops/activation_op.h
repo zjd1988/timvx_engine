@@ -44,15 +44,15 @@ namespace TIMVXPY
             }hardsigmoid;
         };
 
-        virtual Operation* on_create(std::shared_ptr<Graph> &graph, const py::dict &op_info) override;
+        virtual Operation* onCreate(std::shared_ptr<Graph> &graph, const json &op_info) override;
 
     private:
-        bool parse_prelu_attr(const py::dict &op_info, ActivationOpAttr &op_attr);
-        bool parse_leakyrelu_attr(const py::dict &op_info, ActivationOpAttr &op_attr);
-        bool parse_linear_attr(const py::dict &op_info, ActivationOpAttr &op_attr);
-        bool parse_gelu_attr(const py::dict &op_info, ActivationOpAttr &op_attr);
-        bool parse_hardsigmoid_attr(const py::dict &op_info, ActivationOpAttr &op_attr);
-        bool parse_op_attr(std::string op_type, const py::dict &op_info, ActivationOpAttr &op_attr);
+        bool parsePreluAttr(const json &op_info, ActivationOpAttr &op_attr);
+        bool parseLeakyreluAttr(const json &op_info, ActivationOpAttr &op_attr);
+        bool parseLinearAttr(const json &op_info, ActivationOpAttr &op_attr);
+        bool parseGeluAttr(const json &op_info, ActivationOpAttr &op_attr);
+        bool parseHardsigmoidAttr(const json &op_info, ActivationOpAttr &op_attr);
+        bool parseOpAttr(std::string op_type, const json &op_info, ActivationOpAttr &op_attr);
     
     private:
         std::string m_op_name = "Activation";

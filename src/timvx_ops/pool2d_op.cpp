@@ -9,7 +9,7 @@
 
 namespace TIMVXPY
 {
-    Pool2dCreator::Pool2dCfgType Pool2dCreator::get_pool2d_type(const py::dict &op_info)
+    Pool2dCreator::Pool2dCfgType Pool2dCreator::getPool2dType(const json &op_info)
     {
         if (op_info.contains("padding") && op_info.contains("pad"))
         {
@@ -41,76 +41,76 @@ namespace TIMVXPY
         }
     }
 
-    bool Pool2dCreator::parse_type(const py::dict &op_info, Pool2dOpAttr &op_attr)
+    bool Pool2dCreator::parseType(const json &op_info, Pool2dOpAttr &op_attr)
     {
-        return parse_pool_type(op_info, m_op_name, "type", op_attr.type);
+        return parsePoolType(op_info, m_op_name, "type", op_attr.type);
     }
 
-    bool Pool2dCreator::parse_padding(const py::dict &op_info, Pool2dOpAttr &op_attr)
+    bool Pool2dCreator::parsePadding(const json &op_info, Pool2dOpAttr &op_attr)
     {
-        return parse_pad_type(op_info, m_op_name, "padding", op_attr.padding);
+        return parsePadType(op_info, m_op_name, "padding", op_attr.padding);
     }
 
-    bool Pool2dCreator::parse_pad(const py::dict &op_info, Pool2dOpAttr &op_attr)
+    bool Pool2dCreator::parsePad(const json &op_info, Pool2dOpAttr &op_attr)
     {
-        return parse_fix_list<py::int_, uint32_t, 4>(op_info, m_op_name, "pad", op_attr.pad);
+        return parseFixList<uint32_t, 4>(op_info, m_op_name, "pad", op_attr.pad);
     }
 
-    bool Pool2dCreator::parse_ksize(const py::dict &op_info, Pool2dOpAttr &op_attr)
+    bool Pool2dCreator::parse_ksize(const json &op_info, Pool2dOpAttr &op_attr)
     {
-        return parse_fix_list<py::int_, uint32_t, 2>(op_info, m_op_name, "ksize", op_attr.ksize);
+        return parseFixList<uint32_t, 2>(op_info, m_op_name, "ksize", op_attr.ksize);
     }
 
-    bool Pool2dCreator::parse_stride(const py::dict &op_info, Pool2dOpAttr &op_attr)
+    bool Pool2dCreator::parseStride(const json &op_info, Pool2dOpAttr &op_attr)
     {
-        return parse_fix_list<py::int_, uint32_t, 2>(op_info, m_op_name, "stride", op_attr.stride);
+        return parseFixList<uint32_t, 2>(op_info, m_op_name, "stride", op_attr.stride);
     }
 
-    bool Pool2dCreator::parse_input_size(const py::dict &op_info, Pool2dOpAttr &op_attr)
+    bool Pool2dCreator::parseInputSize(const json &op_info, Pool2dOpAttr &op_attr)
     {
-        return parse_fix_list<py::int_, uint32_t, 2>(op_info, m_op_name, "input_size", op_attr.input_size);
+        return parseFixList<uint32_t, 2>(op_info, m_op_name, "input_size", op_attr.input_size);
     }
 
-    bool Pool2dCreator::parse_output_size(const py::dict &op_info, Pool2dOpAttr &op_attr)
+    bool Pool2dCreator::parseOutputSize(const json &op_info, Pool2dOpAttr &op_attr)
     {
-        return parse_fix_list<py::int_, uint32_t, 2>(op_info, m_op_name, "output_size", op_attr.output_size);
+        return parseFixList<uint32_t, 2>(op_info, m_op_name, "output_size", op_attr.output_size);
     }
 
-    bool Pool2dCreator::parse_round_type(const py::dict &op_info, Pool2dOpAttr &op_attr)
+    bool Pool2dCreator::parseRoundType(const json &op_info, Pool2dOpAttr &op_attr)
     {
-        return OpCreator::parse_round_type(op_info, m_op_name, "round_type", op_attr.round_type, false);
+        return OpCreator::parseRoundType(op_info, m_op_name, "round_type", op_attr.round_type, false);
     }
 
-    bool Pool2dCreator::parse_layout(const py::dict &op_info, Pool2dOpAttr &op_attr)
+    bool Pool2dCreator::parseLayout(const json &op_info, Pool2dOpAttr &op_attr)
     {
-        return parse_data_layout_type(op_info, m_op_name, "layout", op_attr.layout, false);
+        return parseDataLayoutType(op_info, m_op_name, "layout", op_attr.layout, false);
     }
 
-    bool Pool2dCreator::parse_op_attr(const py::dict &op_info, Pool2dOpAttr &op_attr, Pool2dCfgType cfg_type)
+    bool Pool2dCreator::parseOpAttr(const json &op_info, Pool2dOpAttr &op_attr, Pool2dCfgType cfg_type)
     {
         op_attr.round_type = RoundType::FLOOR;
         op_attr.layout = DataLayout::WHCN;
         if (Classic_Pool2d_1 == cfg_type)
-            return parse_type(op_info, op_attr) && parse_padding(op_info, op_attr)
-                && parse_ksize(op_info, op_attr) && parse_stride(op_info, op_attr)
-                && parse_round_type(op_info, op_attr) && parse_layout(op_info, op_attr);
+            return parseType(op_info, op_attr) && parsePadding(op_info, op_attr)
+                && parseKsize(op_info, op_attr) && parseStride(op_info, op_attr)
+                && parseRoundType(op_info, op_attr) && parseLayout(op_info, op_attr);
 
         if (Classic_Pool2d_2 == cfg_type)
-            return parse_type(op_info, op_attr) && parse_pad(op_info, op_attr)
-                && parse_ksize(op_info, op_attr) && parse_stride(op_info, op_attr)
-                && parse_round_type(op_info, op_attr) && parse_layout(op_info, op_attr);
+            return parseType(op_info, op_attr) && parsePad(op_info, op_attr)
+                && parseKsize(op_info, op_attr) && parseStride(op_info, op_attr)
+                && parseRoundType(op_info, op_attr) && parseLayout(op_info, op_attr);
 
         if (Global_Pool2d == cfg_type)
-            return parse_type(op_info, op_attr) && parse_input_size(op_info, op_attr)
-                && parse_round_type(op_info, op_attr) && parse_layout(op_info, op_attr);
+            return parseType(op_info, op_attr) && parseInputSize(op_info, op_attr)
+                && parseRoundType(op_info, op_attr) && parseLayout(op_info, op_attr);
 
         if (Adaptive_Pool2d == cfg_type)
-            return parse_type(op_info, op_attr) && parse_input_size(op_info, op_attr)
-                && parse_output_size(op_info, op_attr) && parse_round_type(op_info, op_attr) 
-                && parse_layout(op_info, op_attr);
+            return parseType(op_info, op_attr) && parseInputSize(op_info, op_attr)
+                && parseOutputSize(op_info, op_attr) && parseRoundType(op_info, op_attr) 
+                && parseLayout(op_info, op_attr);
     }
 
-    Operation* Pool2dCreator::on_create(std::shared_ptr<Graph> &graph, const py::dict &op_info)
+    Operation* Pool2dCreator::onCreate(std::shared_ptr<Graph> &graph, const json &op_info)
     {
         std::map<Pool2dCfgType, std::string> pool_cfg_type_map;
         pool_cfg_type_map[Classic_Pool2d_1] = "Classic_Pool2d_1";
@@ -119,7 +119,7 @@ namespace TIMVXPY
         pool_cfg_type_map[Adaptive_Pool2d] = "Adaptive_Pool2d";
         Pool2dCfgType cfg_type;
         Pool2dOpAttr op_attr;
-        cfg_type = get_pool2d_type(op_info);
+        cfg_type = getPool2dType(op_info);
         if (pool_cfg_type_map.find(cfg_type) == pool_cfg_type_map.end())
         {
             std::cout << "unsupported pool cfg, please check!" << std::endl;
