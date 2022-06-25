@@ -14,13 +14,13 @@ namespace TIMVXPY
     {
         if (op_info.contains("padding") && op_info.contains("pad"))
         {
-            std::cout << "cannot contain padding and pad same time!" << std::endl;
+            TIMVX_ERROR("%s op cannot contain padding and pad same time\n", m_op_name.c_str());
             return Pool2dCfgType::None;
         }
         if ((op_info.contains("padding") || op_info.contains("pad"))
             && op_info.contains("input_size"))
         {
-            std::cout << "cannot contain padding(pad) and input_size same time!" << std::endl;
+            TIMVX_ERROR("%s op cannot contain padding(pad) and input_size same time\n", m_op_name.c_str());
             return Pool2dCfgType::None;
         }
         if (op_info.contains("type") && op_info.contains("padding") &&
@@ -37,7 +37,7 @@ namespace TIMVXPY
             return Pool2dCfgType::Adaptive_Pool2d;
         else
         {
-            std::cout << "invalid pool2d op attr!" << std::endl;
+            TIMVX_ERROR("invalid pool2d op attr\n");
             return Pool2dCfgType::None;
         }
     }
@@ -123,7 +123,7 @@ namespace TIMVXPY
         cfg_type = getPool2dType(op_info);
         if (pool_cfg_type_map.find(cfg_type) == pool_cfg_type_map.end())
         {
-            std::cout << "unsupported pool cfg, please check!" << std::endl;
+            TIMVX_ERROR("%s op contain unsupported pool cfg, please check\n", m_op_name.c_str());
             return nullptr;
         }
         if (!parse_op_attr(op_info, op_attr, cfg_type))
@@ -153,7 +153,7 @@ namespace TIMVXPY
                 return graph->CreateOperation<ops::Pool2d>(type, input_size,
                     output_size, round_type, layout).get();
             default:
-                std::cout << "get invalid pool2d type!" << std::endl;
+                TIMVX_ERROR("%s op contain hvae invalid pool2d type\n", m_op_name.c_str());
                 return nullptr;
         }
     }

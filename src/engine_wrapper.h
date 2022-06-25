@@ -35,12 +35,14 @@ namespace TIMVX
 
         // infer engine
         bool run_engine();
+
     private:
         bool getFileData(std::string file_name, std::shared_ptr<char> &file_data, int &file_len);
         bool parseModelTensors(json &para_json, const char *weight_data, const int weight_len);
         bool parseModelInputs(json &para_json);
         bool parseModelOutputs(json &para_json);
         bool parseModelNodes(json &para_json);
+        bool parseModelNormInfo(json &para_json);
 
     private:
         // tensor names
@@ -49,6 +51,10 @@ namespace TIMVX
         // tensor attr
         std::map<std::string, TimvxTensorAttr>         m_input_tensor_attrs;
         std::map<std::string, TimvxTensorAttr>         m_output_tensor_attrs;
+        //input tensor norm info
+        std::map<std::string, std::vector<float>>      m_tensor_means;
+        std::map<std::string, std::vector<float>>      m_tensor_stds;
+        std::map<std::string, std::vector<int>>        m_tensor_reorders;
 
         // timvx engine
         std::shared_ptr<TimVXEngine>                   m_engine;

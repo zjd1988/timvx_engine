@@ -42,15 +42,17 @@ namespace TIMVXPY
         template <class T>
         bool checkObjType(const json &item)
         {
+            bool ret = true;
             try
             {
                 T temp = item.get<T>();
-                return true;
             }
-            catch(nlohmann::type_error)
+            catch(const std::exception& e)
             {
-                return false;
+                TIMVX_ERROR("exception occur: %s\n", e.what());
+                ret = false;
             }
+            return ret;
         }
 
         template <class T>
@@ -91,7 +93,7 @@ namespace TIMVXPY
             }
             catch(const std::exception& e)
             {
-                std::cout << e.what() << std::endl;
+                TIMVX_ERROR("exception occur: %s\n", e.what());
                 ret = false;
             }
             return ret;
@@ -190,7 +192,6 @@ namespace TIMVXPY
     #define REGISTER_OP_CREATOR(name, op_type)                       \
         void register##op_type##OpCreator() {                        \
             static name _temp;                                       \
-            TIMVX_INFO("register %s op ....", #op_type);             \
             TimVXOp::getInstance()->addCreator(#op_type, &_temp);    \
         }
 

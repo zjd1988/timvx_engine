@@ -64,7 +64,8 @@ namespace TIMVX
         }
         json para_json = json::parse(para_data, para_data + para_len);
         if (!parseModelInputs(para_json) || !parseModelOutputs(para_json) || 
-            !parseModelTensors(para_json, weight_data, weight_len) || !parseModelNodes(para_json))
+            !parseModelTensors(para_json, weight_data, weight_len) || 
+            !parseModelNodes(para_json) || !parseModelNormInfo(para_json))
             return false;
         if (!m_engine->compile_graph())
         {
@@ -202,6 +203,56 @@ namespace TIMVX
         return true;
     }
 
+    bool EngineWrapper::parseModelNormInfo(json &para_json)
+    {
+        if (!para_json.contains("norm"))
+        {
+            TIMVX_PRINT("para file not contain norm info\n");
+            return false;
+        }
+        json norm_json = para_json["norm"];
+        try 
+        {
+            for (int i = 0; i < m_input_tensor_names.size(); i++)
+            {
+                std::string tensor_name = m_input_tensor_names[i];
+                if (!norm_json.contains(tensor_name.c_str()))
+                    continue;
+                json tensor_norm = norm_json[tensor_name.c_str()];
+                std::vector<float> mean_val;
+                std::vector<float> std_val;
+                std::vector<int> reorder_val;
+                if (tensor_norm.contains("mean") && !tensor_norm["mean"].is_array())
+                {
+                    TIMVX_ERROR("para file's nodes should be array type\n");
+                    return false;
+                }
+                mean_val = tensor_norm["mean"].get<std::vector<float>>();
+                if (tensor_norm.contains("std") && !tensor_norm["std"].is_array())
+                {
+                    TIMVX_ERROR("para file's nodes should be array type\n");
+                    return false;
+                }
+                std_val = tensor_norm["std"].get<std::vector<float>>();
+                if (tensor_norm.contains("reorder") && !tensor_norm["reorder"].is_array())
+                {
+                    TIMVX_ERROR("para file's nodes should be array type\n");
+                    return false;
+                }
+                reorder_val = tensor_norm["reorder"].get<std::vector<float>>();
+                m_tensor_means[tensor_name] = mean_val;
+                m_tensor_stds[tensor_name] = std_val;
+                m_tensor_reorders[tensor_name] = reorder_val;
+            }
+        }
+        catch(const std::exception& e)
+        {
+            TIMVX_ERROR("exception occur: %s\n", e.what());
+            return false;
+        }
+        return true;
+    }
+
     timvx_input_output_num EngineWrapper::getInputOutputNum()
     {
         TimvxInputOutputNum io_num;
@@ -231,14 +282,32 @@ namespace TIMVX
         for (int i = 0; i < input_data.size(); i++)
         {
             TimvxInput input = input_data[i];
-            
+            std::string tensor_name = m_input_tensor_names[i];
+            if (input.pass_through)
+            {
+                if (!m_engine->copyDataToTensor(tensor_name, input.buf, input.size))
+                    return false;
+            }
+            // else
+            // {
+            //     if ()
+            // }
         }
+        return true;
     }
 
     bool EngineWrapper::getOutputs(std::vector<TimvxOutput> &output_data)
     {
-
+        return true;
     }
 
+    bool EngineWrapper::run_engine()
+    {
+        if (nullptr == m_engine.get())
+        {
+            TIMVX_ERROR("timvx infer engine is null, please init first\n");
+        }
+        return m_engine->runGraph();
+    }
 
 } // TIMVX

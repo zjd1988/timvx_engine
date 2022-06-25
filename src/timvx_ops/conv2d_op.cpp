@@ -85,15 +85,15 @@ namespace TIMVXPY
         int32_t                 multiplier     = op_attr.multiplier;
         DataLayout              input_layout   = op_attr.input_layout;
         DataLayout              kernel_layout  = op_attr.kernel_layout;
-        TIMVX_INFO("conv2d op weights: %d\n", weights);
-        TIMVX_INFO("conv2d op padding: %d\n", (int)padding);
-        TIMVX_INFO("conv2d op ksize: [%d, %d]\n", ksize[0], ksize[1]);
-        TIMVX_INFO("conv2d op stride: [%d, %d]\n", stride[0], stride[1]);
-        TIMVX_INFO("conv2d op dilation: [%d, %d]\n", dilation[0], dilation[1]);
-        TIMVX_INFO("conv2d op pad: [%d, %d, %d, %d]\n", pad[0], pad[1], pad[2], pad[3]);
-        TIMVX_INFO("conv2d op multiplier: %d\n", multiplier);
-        TIMVX_INFO("conv2d op input_layout: %d\n", (int)input_layout);
-        TIMVX_INFO("conv2d op kernel_layout: %d\n", (int)kernel_layout);
+        TIMVX_PRINT("conv2d op weights: %d\n", weights);
+        TIMVX_PRINT("conv2d op padding: %d\n", (int)padding);
+        TIMVX_PRINT("conv2d op ksize: [%d, %d]\n", ksize[0], ksize[1]);
+        TIMVX_PRINT("conv2d op stride: [%d, %d]\n", stride[0], stride[1]);
+        TIMVX_PRINT("conv2d op dilation: [%d, %d]\n", dilation[0], dilation[1]);
+        TIMVX_PRINT("conv2d op pad: [%d, %d, %d, %d]\n", pad[0], pad[1], pad[2], pad[3]);
+        TIMVX_PRINT("conv2d op multiplier: %d\n", multiplier);
+        TIMVX_PRINT("conv2d op input_layout: %d\n", (int)input_layout);
+        TIMVX_PRINT("conv2d op kernel_layout: %d\n", (int)kernel_layout);
         return graph->CreateOperation<ops::Conv2d>(weights, padding, ksize, stride, 
             dilation, pad, multiplier, input_layout, kernel_layout).get();
     }
