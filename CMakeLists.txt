@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.10.1)
 project(timvx)
 
-set(TIM_VX_INCLUDE_PATH "xxxxxxxxx")
-set(PYBIND11_INCLUDE_PATH "xxxxxxxxx")
+set(TIM_VX_INCLUDE_PATH ${PROJECT_SOURCE_DIR}/src/3rd_party/timvx/include)
+set(JSON_INCLUDE_PATH ${PROJECT_SOURCE_DIR}/src/3rd_party/nlohmann-json/include)
 option(BUILD_SHARED_LIBS "build shared or static lib" ON)
 file(GLOB_RECURSE SRC  ${CMAKE_CURRENT_LIST_DIR}/src/*.cpp)
 

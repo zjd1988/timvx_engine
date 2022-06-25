@@ -11,20 +11,19 @@
 
 namespace TIMVX
 {
-    extern void register_ops();
+
     #define BITS_PER_BYTE 8
     TimVXEngine::TimVXEngine(const std::string &graph_name)
     {
         m_context.reset();
         m_graph.reset();
         m_graph_name = graph_name;
-        static std::once_flag flag;
-        std::call_once(flag, &register_ops);
     }
 
     TimVXEngine::~TimVXEngine()
     {
         m_tensors_data.clear();
+        m_tensors_spec.clear();
         m_tensors.clear();
         m_graph.reset();
         m_context.reset();
@@ -92,6 +91,52 @@ namespace TIMVX
             sz *= shape[i];
         }
         return sz;
+    }
+
+    bool TimVXEngine::getTensorInfo(const std::string &tensor_name, TimvxTensorAttr& tensor_info)
+    {
+        memset(&tensor_info, 0, sizeof(TimvxTensorAttr));
+        if (m_tensors.find(tensor_name) == m_tensors.end())
+        {
+            std::cout << "graph is invalid, please create graph first!" << std::endl;
+            return false;
+        }
+        // set shape
+        std::vector<uint32_t> tensor_shape = m_tensors[tensor_name]->getShape();
+        tensor_info.n_dims = tensor_shape.size();
+        for (int i = 0; i < tensor_shape.size(); i++)
+        {
+            tensor_info.dims[i] = tensor_shape[i];
+        }
+        // set tensor fmt default is NHWC
+        tensor_info.fmt = TIMVX_TENSOR_NHWC;
+
+        // set tensor type
+        DataType data_type = m_tensors[tensor_name]->GetDataType();
+        if (false == convertDataType(data_type, ))
+        {
+            
+            return false;
+        }
+        tensor_info.type = m_tensors[tensor_name]->GetDataType();
+
+        // set element number / size /
+        TensorSpec tensor_spec = m_tensors[tensor_name]->GetSpec();
+        tensor_info.n_elems = tensor_spec.GetElementNum();
+        tensor_info.size = tensor_spec.GetByteSize();
+
+        // set quant info
+        Quantization tensor_quant = m_tensors[tensor_name]->GetQuantization();
+        const std::vector<float> scales = tensor_quant.Scales();
+        const std::vector<float> zp = tensor_quant.ZeroPoints();
+        tensor_info.scale = sclaes[0];
+        tensor_info.zp = zp[0];
+        tensor_info.qnt_type = timvx_tensor_qnt_type(tensor_quant.Type());
+
+        // set 
+        
+
+
     }
 
     bool TimVXEngine::createTensor(const std::string &tensor_name, const json &tensor_info, 

@@ -66,10 +66,34 @@ namespace TIMVX
         if (!parseModelInputs(para_json) || !parseModelOutputs(para_json) || 
             !parseModelTensors(para_json, weight_data, weight_len) || !parseModelNodes(para_json))
             return false;
-        if (!m_engine.compile_graph())
+        if (!m_engine->compile_graph())
         {
             TIMVX_PRINT("compile timvx graph fail\n");
             return false;
+        }
+        for (int i = 0; i < m_input_tensor_names.size(); i++)
+        {
+            TimvxTensorAttr tensor_info;
+            std::string tensor_name = m_input_tensor_names[i];
+            if (m_engine->getTensorInfo(tensor_name, tensor_spec))
+            {
+                TIMVX_PRINT("get input tesnor %s spec fail\n", tensor_name.c_str());
+                return false;
+            }
+            tensor_info.index = i;
+            m_input_tensor_attr[tensor_name] = tensor_info;
+        }
+        for (int i = 0; i < m_output_tensor_names.size(); i++)
+        {
+            TimvxTensorAttr tensor_info;
+            std::string tensor_name = m_output_tensor_names[i];
+            if (m_engine->getTensorInfo(tensor_name, tensor_info))
+            {
+                TIMVX_PRINT("get output tesnor %s attr fail\n", tensor_name.c_str());
+                return false;
+            }
+            tensor_info.index = i;
+            m_output_tensor_attr[tensor_name] = tensor_info;
         }
         return true;
     }
@@ -97,6 +121,7 @@ namespace TIMVX
             std::string tensor_name = tensor_json.at("name");
             if (!m_engine->create_tensor(tensor_name, tensor_json))
                 return false;
+            m_input_tensor_names.push_back(tensor_name);
         }
         return true;
     }
@@ -124,6 +149,7 @@ namespace TIMVX
             std::string tensor_name = tensor_json.at("name");
             if (!m_engine->create_tensor(tensor_name, tensor_json))
                 return false;
+            m_output_tensor_names.push_back(tensor_name);
         }
         return true;
     }
@@ -175,5 +201,44 @@ namespace TIMVX
         }
         return true;
     }
+
+    timvx_input_output_num EngineWrapper::getInputOutputNum()
+    {
+        TimvxInputOutputNum io_num;
+        io_num.n_input = m_input_tensor_names.size();
+        io_num.n_output = m_output_tensor_names.size();
+        return io_num;
+    }
+
+    bool EngineWrapper::getInputTensorAttr(int input_index, TimvxTensorAttr &tensor_attr)
+    {
+        if (input_index < 0 || input_index >= m_input_tensor_names.size())
+            return false;
+        std::string tensor_name = m_input_tensor_names[input_index];
+        return m_input_tensor_attrs[tensor_name];
+    }
+
+    bool EngineWrapper::getOutputTensorAttr(int output_index, TimvxTensorAttr &tensor_attr)
+    {
+        if (output_index < 0 || output_index >= m_output_tensor_names.size())
+            return false;
+        std::string tensor_name = m_output_tensor_names[output_index];
+        return m_output_tensor_attrs[tensor_name];
+    }
+
+    bool EngineWrapper::setInputs(std::vector<TimvxInput> &input_data)
+    {
+        for (int i = 0; i < input_data.size(); i++)
+        {
+            TimvxInput input = input_data[i];
+            
+        }
+    }
+
+    bool EngineWrapper::getOutputs(std::vector<TimvxOutput> &output_data)
+    {
+
+    }
+
 
 } // TIMVX

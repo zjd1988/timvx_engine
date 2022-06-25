@@ -6,12 +6,13 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <map>
+#include "engine_common.h"
 #include "nlohmann/json.hpp"
 using namespace nlohmann;
 
 namespace TIMVX
 {
-
     class TimVXEngine;
 
     class EngineWrapper
@@ -26,8 +27,11 @@ namespace TIMVX
             const char *weight_data, const int weight_len);
 
         // tensor utils
-        bool copy_data_from_tensor(const std::string &tensor_name, py::buffer &np_data);
-        bool copy_data_to_tensor(const std::string &tensor_name, py::buffer &np_data);
+        timvx_input_output_num getInputOutputNum();
+        bool setInputs(std::vector<TimvxInput> &input_data);
+        bool getOutputs(std::vector<TimvxOutput> &output_data);
+        bool getInputTensorAttr(int input_index, TimvxTensorAttr &tensor_attr);
+        bool getOutputTensorAttr(int output_index, TimvxTensorAttr &tensor_attr);
 
         // infer engine
         bool run_engine();
@@ -42,9 +46,12 @@ namespace TIMVX
         // tensor names
         std::vector<std::string>                       m_input_tensor_names;
         std::vector<std::string>                       m_output_tensor_names;
+        // tensor attr
+        std::map<std::string, TimvxTensorAttr>         m_input_tensor_attrs;
+        std::map<std::string, TimvxTensorAttr>         m_output_tensor_attrs;
 
         // timvx engine
         std::shared_ptr<TimVXEngine>                   m_engine;
     };
 
-}
+}// namespace TIMVX

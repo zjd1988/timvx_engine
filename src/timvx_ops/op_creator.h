@@ -17,7 +17,7 @@ using namespace nlohmann;
 
 namespace TIMVXPY
 {
-    void register_ops();
+
     class OpCreator 
     {
     public:

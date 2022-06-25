@@ -3,6 +3,7 @@
 ******
 ******  Created by zhaojd on 2022/04/27.
 ***********************************/
+#include "timvx_define.h"
 #include "op_creator.h"
 
 namespace TIMVXPY
@@ -214,8 +215,8 @@ namespace TIMVXPY
     extern void registerOps();
     const ModelCreator* getOpCreator(std::string op_type)
     {
-        registerModel();
-        auto& gOpCreator = getOpCreatorMap();
+        registerOps();
+        auto& gOpCreator    = getOpCreatorMap();
         auto iter           = gOpCreator.find(op_type);
         if (iter == gOpCreator.end())
         {
