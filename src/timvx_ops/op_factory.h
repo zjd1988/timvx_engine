@@ -6,6 +6,7 @@
  ********************************************/
 #pragma once
 #include "op_creator.h"
+#include "timvx_define.h"
 #include "nlohmann/json.hpp"
 using namespace nlohmann;
 

@@ -7,12 +7,13 @@
 #include <map>
 #include <vector>
 #include <string>
-#include "engine_common.h"
 #include "tim/vx/context.h"
 #include "tim/vx/graph.h"
 #include "tim/vx/tensor.h"
 #include "tim/vx/operation.h"
 #include "nlohmann/json.hpp"
+#include "engine_common.h"
+#include "timvx_define.h"
 using namespace tim::vx;
 using namespace nlohmann;
 
@@ -49,7 +50,7 @@ namespace TIMVX
     private:
         // util func
         uint32_t typeGetBits(DataType type);
-        convertDataType(DataType type)
+        bool convertDataType(DataType type, TimvxTensorType& tensor_type);
 
     private:
         // tensor names

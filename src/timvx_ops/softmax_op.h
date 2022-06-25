@@ -7,6 +7,7 @@
 #include "op_creator.h"
 using namespace tim::vx;
 using namespace std;
+
 namespace TIMVXPY
 {
 

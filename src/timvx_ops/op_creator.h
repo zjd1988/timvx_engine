@@ -12,6 +12,7 @@
 #include "tim/vx/operation.h"
 #include "tim/vx/types.h"
 #include "nlohmann/json.hpp"
+#include "timvx_define.h"
 using namespace tim::vx;
 using namespace nlohmann;
 
@@ -59,7 +60,7 @@ namespace TIMVXPY
             const char* attr_c_name = attr_name.c_str();
             if (necessary && !op_info.contains(attr_c_name))
             {
-                std::cout << op_name << " op should contain " << attr_name << " attr, please check!" << std::endl;
+                TIMVX_ERROR("op %s should contain %s attr, please check", op_name.c_str(), attr_c_name);
                 return false;
             }
             if (op_info.contains(attr_c_name))
@@ -70,7 +71,7 @@ namespace TIMVXPY
                 }
                 else
                 {
-                    std::cout << op_name << " op parse " << attr_name << " attr fail, please check!" << std::endl;
+                    TIMVX_ERROR("op %s parse %s attr fail, please check", op_name.c_str(), attr_c_name);
                     return false;
                 }
             }
@@ -103,25 +104,25 @@ namespace TIMVXPY
             const char* attr_c_name = attr_name.c_str();
             if (necessary && !op_info.contains(attr_c_name))
             {
-                std::cout << op_name << " op should contain " << attr_name << " attr, please check!" << std::endl;
+                TIMVX_ERROR("op %s should contain %s attr, please check", op_name.c_str(), attr_c_name);
                 return false;
             }
             if (op_info.contains(attr_c_name))
             {
                 if (!op_info[attr_c_name].is_array())
                 {
-                    std::cout << op_name << " op's attr " << attr_name << " is not list!" << std::endl;
+                    TIMVX_ERROR("op %s's attr %s is not list", op_name.c_str(), attr_c_name);
                     return false;
                 }
                 json list_value = op_info[attr_c_name];
                 if (list_value.size() != list_num)
                 {
-                    std::cout << op_name << " op's attr " << attr_name << " len should be " << list_num << std::endl;
+                    TIMVX_ERROR("op %s's attr %s len should be %d", op_name.c_str(), attr_c_name, list_num);
                     return false;
                 }
                 if (!checkListItemType<T>(list_value))
                 {
-                    std::cout << op_name << " op's attr " << attr_name << " item type wrong!" << std::endl;
+                    TIMVX_ERROR("op %s's attr %s item type wrong", op_name.c_str(), attr_c_name);
                     return false;
                 }
                 for (int i = 0; i < list_value.size(); i++)
@@ -141,20 +142,20 @@ namespace TIMVXPY
             const char* attr_c_name = attr_name.c_str();
             if (necessary && !op_info.contains(attr_c_name))
             {
-                std::cout << op_name << " op should contain " << attr_name << " attr, please check!" << std::endl;
+                TIMVX_ERROR("op %s should contain %s attr, please check", op_name.c_str(), attr_c_name);
                 return false;
             }
             if (op_info.contains(attr_c_name))
             {
                 if (!op_info[attr_c_name].is_array())
                 {
-                    std::cout << op_name << " op's attr " << attr_name << " is not list!" << std::endl;
+                    TIMVX_ERROR("op %s's attr %s is not list", op_name.c_str(), attr_c_name);
                     return false;
                 }
                 json list_value = op_info[attr_c_name];
                 if (!checkListItemType<T>(list_value))
                 {
-                    std::cout << op_name << " op's attr " << attr_name << " item type wrong!" << std::endl;
+                    TIMVX_ERROR("op %s's attr %s item type wrong", op_name.c_str(), attr_c_name);
                     return false;
                 }
                 for (int i = 0; i < list_value.size(); i++)
@@ -189,6 +190,7 @@ namespace TIMVXPY
     #define REGISTER_OP_CREATOR(name, op_type)                       \
         void register##op_type##OpCreator() {                        \
             static name _temp;                                       \
+            TIMVX_INFO("register %s op ....", #op_type);             \
             TimVXOp::getInstance()->addCreator(#op_type, &_temp);    \
         }
 

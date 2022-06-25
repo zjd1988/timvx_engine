@@ -15,6 +15,7 @@ namespace TIMVX
         if (nullptr == creator)
         {
             std::cout << "currently not support " << op_type <<" creator" << std::endl;
+            TIMVX_ERROR();
             return nullptr;
         }
         Operation* op = creator->onCreate(graph, op_info);

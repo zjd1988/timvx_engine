@@ -67,12 +67,11 @@ namespace TIMVX
     */
     typedef struct TimvxTensorAttr
     {
-        uint32_t index;                                     /* input parameter, the index of input/output tensor,
-                                                            need set before call rknn_query. */
+        uint32_t index;                                     /* input parameter, the index of input/output tensor */
 
         uint32_t n_dims;                                    /* the number of dimensions. */
-        uint32_t dims[TIMVX_MAX_DIMS];                       /* the dimensions array. */
-        char name[TIMVX_MAX_NAME_LEN];                       /* the name of tensor. */
+        uint32_t dims[TIMVX_MAX_DIMS];                      /* the dimensions array. */
+        char name[TIMVX_MAX_NAME_LEN];                      /* the name of tensor. */
 
         uint32_t n_elems;                                   /* the number of elements. */
         uint32_t size;                                      /* the bytes size of tensor. */
@@ -80,9 +79,8 @@ namespace TIMVX
         TimvxTensorFormat fmt;                              /* the data format of tensor. */
         TimvxTensorType type;                               /* the data type of tensor. */
         TimvxTensorQntType qnt_type;                        /* the quantitative type of tensor. */
-        int8_t fl;                                          /* fractional length for RKNN_TENSOR_QNT_DFP. */
-        uint32_t zp;                                        /* zero point for RKNN_TENSOR_QNT_AFFINE_ASYMMETRIC. */
-        float scale;                                        /* scale for RKNN_TENSOR_QNT_AFFINE_ASYMMETRIC. */
+        uint32_t zp;                                        /* zero point for TIMVX_TENSOR_QNT_AFFINE_ASYMMETRIC. */
+        float scale;                                        /* scale for TIMVX_TENSOR_QNT_AFFINE_ASYMMETRIC. */
     } TimvxTensorAttr;
 
     /*

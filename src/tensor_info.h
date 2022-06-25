@@ -6,8 +6,13 @@
 #pragma once
 #include "tim/vx/tensor.h"
 #include "tim/vx/types.h"
+#include "nlohmann/json.hpp"
+#include "engine_common.h"
+#include "timvx_define.h"
 using namespace tim::vx;
 using namespace std;
+using namespace nlohmann;
+
 namespace TIMVX
 {
 
@@ -35,7 +40,7 @@ namespace TIMVX
             }
             catch(const std::exception& e)
             {
-                std::cout << e.what() << std::endl;
+                TIMVX_ERROR("exception occur: %s\n", e.what());
                 ret = false;
             }
             return ret;
@@ -54,7 +59,7 @@ namespace TIMVX
             }
             catch(const std::exception& e)
             {
-                std::cout << e.what() << std::endl;
+                TIMVX_ERROR("exception occur: %s\n", e.what());
                 ret = false;
             }
             return ret;
@@ -67,25 +72,25 @@ namespace TIMVX
             const char* attr_c_name = attr_name.c_str();
             if (necessary && !tensor_info.contains(attr_c_name))
             {
-                std::cout << tensor_name << " tensor should contain " << attr_name << " attr, please check!" << std::endl;
+                TIMVX_ERROR("tensor %s should contain %s attr, please check\n", tensor_name.c_str(), attr_name.c_str());
                 return false;
             }
             if (tensor_info.contains(attr_c_name))
             {
                 if (!tensor_info[attr_c_name].is_array())
                 {
-                    std::cout << tensor_name << " tensor's attr " << attr_name << " is not list!" << std::endl;
+                    TIMVX_ERROR("tensor %s's attr %s is not list\n", tensor_name.c_str(), attr_name.c_str());
                     return false;
                 }
                 json list_value = tensor_info[attr_c_name];
                 if (list_value.size() != list_num)
                 {
-                    std::cout << tensor_name << " tensor's attr " << attr_name << " len should be " << list_num << std::endl;
+                    TIMVX_ERROR("tensor %s's attr %s len should be %d\n", tensor_name.c_str(), attr_name.c_str(), list_num);
                     return false;
                 }
                 if (!checkListItemType<T>(list_value))
                 {
-                    std::cout << tensor_name << " tensor's attr " << attr_name << " item type wrong!" << std::endl;
+                    TIMVX_ERROR("tensor %s's attr %s item type wrong\n", tensor_name.c_str(), attr_name.c_str());
                     return false;
                 }
                 for (int i = 0; i < list_value.size(); i++)
@@ -105,20 +110,20 @@ namespace TIMVX
             const char* attr_c_name = attr_name.c_str();
             if (necessary && !tensor_info.contains(attr_c_name))
             {
-                std::cout << tensor_name << " tensor should contain " << attr_name << " attr, please check!" << std::endl;
+                TIMVX_ERROR("tensor %s should contain %s attr, please check\n", tensor_name.c_str(), attr_name.c_str());
                 return false;
             }
             if (tensor_info.contains(attr_c_name))
             {
                 if (!tensor_info[attr_c_name].is_array())
                 {
-                    std::cout << tensor_name << " tensor's attr " << attr_name << " is not list!" << std::endl;
+                    TIMVX_ERROR("tensor %s's attr %s is not list\n", tensor_name.c_str(), attr_name.c_str());
                     return false;
                 }
                 json list_value = tensor_info[attr_c_name];
                 if (!checkListItemType<T>(list_value))
                 {
-                    std::cout << tensor_name << " tensor's attr " << attr_name << " item type wrong!" << std::endl;
+                    TIMVX_ERROR("tensor %s's attr %s item type wrong\n", tensor_name.c_str(), attr_name.c_str());
                     return false;
                 }
                 for (int i = 0; i < list_value.size(); i++)
@@ -137,7 +142,7 @@ namespace TIMVX
             const char* attr_c_name = attr_name.c_str();
             if (necessary && !tensor_info.contains(attr_c_name))
             {
-                std::cout << tensor_name << " tensor should contain " << attr_name << " attr, please check!" << std::endl;
+                TIMVX_ERROR("tensor %s should contain %s attr, please check\n", tensor_name.c_str(), attr_name.c_str());
                 return false;
             }
             if (tensor_info.contains(attr_c_name))
@@ -148,7 +153,7 @@ namespace TIMVX
                 }
                 else
                 {
-                    std::cout << tensor_name << " tensor parse " << attr_name << " attr fail, please check!" << std::endl;
+                    TIMVX_ERROR("tensor %s parse %s attr fail, please check\n", tensor_name.c_str(), attr_name.c_str());
                     return false;
                 }
             }

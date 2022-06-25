@@ -3,14 +3,10 @@
 ******
 ******  Created by zhaojd on 2022/05/04.
 ***********************************/
-#include "tensor_info.h"
 #include <iostream>
 #include <vector>
 #include <map>
-#include "nlohmann/json.hpp"
-using namespace tim::vx;
-using namespace std;
-using namespace nlohmann;
+#include "tensor_info.h"
 
 namespace TIMVXPY
 {
@@ -36,8 +32,8 @@ namespace TIMVXPY
                 data_type = data_type_map[data_type_str];
             else
             {
-                std::cout << "tensor " << tensor_name << " attr " << key_name 
-                    << " contains invalid data type " << data_type_str << "!" << std::endl;
+                TIMVX_ERROR("tensor %s's attr %s contains invalid datatype %s\n", tensor_name.c_str(),
+                    key_name.c_str(), data_type_str.c_str());
                 parse_result = false;
             }
         }
@@ -62,8 +58,8 @@ namespace TIMVXPY
                 tensor_attr = tensor_attr_map[tensor_attr_str];
             else
             {
-                std::cout << "tensor " << tensor_name << " attr " << key_name 
-                    << " contains invalid attribute type " << tensor_attr_str << "!" << std::endl;
+                TIMVX_ERROR("tensor %s's attr %s contains attribute type %s\n", tensor_name.c_str(),
+                    key_name.c_str(), tensor_attr_str.c_str());
                 parse_result = false;
             }
         }
@@ -86,8 +82,8 @@ namespace TIMVXPY
                 quant_type = quant_type_map[quant_type_str];
             else
             {
-                std::cout << "tensor " << tensor_name << " attr " << key_name 
-                    << " contains invalid quant type " << quant_type_str << "!" << std::endl;
+                TIMVX_ERROR("tensor %s's attr %s contains quant type %s\n", tensor_name.c_str(),
+                    key_name.c_str(), quant_type_str.c_str());
                 parse_result = false;
             }
         }
@@ -114,7 +110,7 @@ namespace TIMVXPY
         {
             if (!tensor_info["quant_info"].is_object())
             {
-                std::cout << tensor_name << "'s quant_info should be a dict item!" << std::endl;
+                TIMVX_ERROR("tensor %s's quant_info should be a dict item\n", tensor_name.c_str());
                 return false;
             }
             json quant_info = tensor_info["quant_info"];
@@ -126,7 +122,7 @@ namespace TIMVXPY
                     return false;
                 if (channel_dim < 0)
                 {
-                    std::cout << tensor_name << "'s channel dim should greater than 0!" << std::endl;
+                    TIMVX_ERROR("tensor %s's channel dim should greater than 0\n", tensor_name.c_str());
                     return false;
                 }
                 if (!parseDynamicList<int32_t>(quant_info, tensor_name, "zero_points", zero_points)
@@ -134,7 +130,7 @@ namespace TIMVXPY
                     return false;
                 if (zero_points.size() != channel_dim || scales.size() != channel_dim)
                 {
-                    std::cout << tensor_name << "'s zero_points/scales len is not equal to channel dim!" << std::endl;
+                    TIMVX_ERROR("tensor %s's zero_points/scales len is not equal to channel dim\n", tensor_name.c_str());
                     return false;
                 }
             }

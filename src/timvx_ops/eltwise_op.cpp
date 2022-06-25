@@ -4,8 +4,7 @@
 ******  Created by zhaojd on 2022/04/27.
 ***********************************/
 #include "tim/vx/ops/elementwise.h"
-#include "eltwise_op.h"
-
+#include "timvx_ops/eltwise_op.h"
 
 namespace TIMVXPY
 {
@@ -50,7 +49,7 @@ namespace TIMVXPY
                 return graph->CreateOperation<ops::Div>(scale).get();
         }
         else
-            std::cout << "unsupported elewise op type: " << eltwise_type << std::endl;
+            TIMVX_INFO("unsupported elewise op type:%d, when create %s op\n", eltwise_type.c_str(), m_op_name.c_str());
         return nullptr;
     }
 

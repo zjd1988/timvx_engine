@@ -4,9 +4,10 @@
 ******  Created by zhaojd on 2022/05/11.
 ***********************************/
 #pragma once
-#include "op_creator.h"
+#include "timvx_ops/op_creator.h"
 using namespace tim::vx;
 using namespace std;
+
 namespace TIMVXPY
 {
 

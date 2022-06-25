@@ -4,7 +4,8 @@
 ******  Created by zhaojd on 2022/05/02.
 ***********************************/
 #include "tim/vx/ops/pool2d.h"
-#include "pool2d_op.h"
+#include "timvx_define.h"
+#include "timvx_ops/pool2d_op.h"
 
 
 namespace TIMVXPY

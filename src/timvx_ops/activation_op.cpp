@@ -4,7 +4,7 @@
 ******  Created by zhaojd on 2022/04/29.
 ***********************************/
 #include "tim/vx/ops/activations.h"
-#include "activation_op.h"
+#include "timvx_ops/activation_op.h"
 
 namespace TIMVXPY
 {
@@ -135,7 +135,7 @@ namespace TIMVXPY
             return graph->CreateOperation<ops::Gelu>(approximate).get();
         }
         else
-            std::cout << "unsupported activation op type: " << activation_type << std::endl; 
+            TIMVX_ERROR("unsupported activation type: %s, when create %s op\n", activation_type.c_str(), m_op_name.c_str());
         return nullptr;
     }
 

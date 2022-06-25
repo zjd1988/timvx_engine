@@ -3,8 +3,7 @@
 ******
 ******  Created by zhaojd on 2022/04/27.
 ***********************************/
-#include "timvx_define.h"
-#include "op_creator.h"
+#include "timvx_ops/op_creator.h"
 
 namespace TIMVXPY
 {

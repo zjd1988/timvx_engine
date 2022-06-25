@@ -4,7 +4,7 @@
 ******  Created by zhaojd on 2022/05/11.
 ***********************************/
 #include "tim/vx/ops/concat.h"
-#include "concat_op.h"
+#include "timvx_ops/concat_op.h"
 
 namespace TIMVXPY
 {
