@@ -3,6 +3,7 @@
 ******
 ******  Created by zhaojd on 2022/06/12.
 ***********************************/
+#pragma once
 #include <iostream>
 #include <string>
 #include <vector>

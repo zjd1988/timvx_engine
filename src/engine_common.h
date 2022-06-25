@@ -3,10 +3,8 @@
 ******
 ******  Created by zhaojd on 2022/06/12.
 ***********************************/
-#include <iostream>
-#include <string>
-#include <vector>
-
+#pragma once
+#include <stdint.h>
 
 namespace TIMVX
 {
@@ -55,11 +53,11 @@ namespace TIMVX
     */
     typedef enum TimvxTensorQntType
     {
-        RKNN_TENSOR_QNT_NONE = 0,                           /* none. */
-        RKNN_TENSOR_QNT_DFP,                                /* dynamic fixed point. */
-        RKNN_TENSOR_QNT_AFFINE_ASYMMETRIC,                  /* asymmetric affine. */
+        TIMVX_TENSOR_QNT_NONE = 0,                           /* none. */
+        TIMVX_TENSOR_QNT_DFP,                                /* dynamic fixed point. */
+        TIMVX_TENSOR_QNT_AFFINE_ASYMMETRIC,                  /* asymmetric affine. */
 
-        RKNN_TENSOR_QNT_MAX
+        TIMVX_TENSOR_QNT_MAX
     } TimvxTensorQntType;
 
     /*
