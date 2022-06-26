@@ -313,7 +313,12 @@ namespace TIMVX
             std::shared_ptr<char> convert_data;
             const char* buffer_data = (const char*)input.buf;
             int buffer_len = input.size;
-            if (!inputDataNorm(input, convert_data, convert_len))
+            if (buffer_len % m_tensor_means[tensor_name].size())
+            {
+                TIMVX_ERROR("invalid input data size %d\n", buffer_len);
+                return false;
+            }
+            if (!inputDataNorm(input, tensor_name, convert_data, convert_len))
             {
                 TIMVX_ERROR("input data normalization fail\n");
                 return false;
@@ -351,7 +356,7 @@ namespace TIMVX
             std::string tensor_name = m_output_tensor_names[i];
             int convert_len = 0;
             std::shared_ptr<char> convert_data;
-            if (!outputDataConvert(output, convert_data, convert_len))
+            if (!outputDataConvert(output, tensor_name, convert_data, convert_len))
             {
                 TIMVX_ERROR("output data convert fail\n");
                 return false;
@@ -396,19 +401,42 @@ namespace TIMVX
         return m_engine->runGraph();
     }
 
-    void EngineWrapper::inputDataReorder(char *input_data, const int input_len, char* reorder_data)
+    void EngineWrapper::inputDataReorder(char *input_data, const int input_len, 
+        char* process_data, std::vector<int> order)
     {
-
+        int item_num = input_len / order.size();
+        for (int i = 0; i < item_num; i++)
+        {
+            int index = i * order.size();
+            for (int j = 0; j < order.size(); j++)
+            {
+                int src_index = index + order[j];
+                int dst_index = index + j;
+                process_data[dst_index] = input_data[src_index];
+            }
+        }
         return;
     }
 
-    void EngineWrapper::inputDataMeanStd(char *input_data, const int input_len, char* reorder_data)
+    void EngineWrapper::inputDataMeanStd(char *input_data, const int input_len, 
+        float* process_data, std::vector<float> mean, std::vector<float> std)
     {
-
+        int item_num = input_len / mean.size();
+        for (int i = 0; i < item_num; i++)
+        {
+            int index = i * mean.size();
+            for (int j = 0; j < mean.size(); j++)
+            {
+                int src_index = index + j;
+                int dst_index = src_index;
+                process_data[dst_index] = (input_data[src_index] - mean[j]) / std[j];
+            }
+        }
         return;
     }
 
-    bool EngineWrapper::inputDataNorm(TimvxInput input_data, std::shared_ptr<char>& convert_data, int &convert_len)
+    bool EngineWrapper::inputDataNorm(TimvxInput input_data, std::string input_name, 
+        std::shared_ptr<char>& convert_data, int &convert_len)
     {
         if (input_data.pass_through)
             return true;
@@ -417,7 +445,8 @@ namespace TIMVX
     }
 
 
-    bool EngineWrapper::outputDataConvert(TimvxOutput output_data, std::shared_ptr<char>& convert_data, int &convert_len)
+    bool EngineWrapper::outputDataConvert(TimvxOutput output_data, std::string input_name, 
+        std::shared_ptr<char>& convert_data, int &convert_len)
     {
         if (!output_data.is_prealloc)
         {

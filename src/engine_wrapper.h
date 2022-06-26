@@ -47,10 +47,49 @@ namespace TIMVX
     
     private:
         // norm funcs
-        void inputDataReorder(char *input_data, const int input_len, char* reorder_data);
-        void inputDataMeanStd(char *input_data, const int input_len, char* reorder_data);
-        bool inputDataNorm(TimvxInput input_data, std::shared_ptr<char>& convert_data, int &convert_len);
-        bool outputDataConvert(TimvxOutput output_data, std::shared_ptr<char>& convert_data, int &convert_len);
+        // channel rgb2bgr or bgr2rgb
+        void inputDataReorder(char *input_data, const int input_len, 
+            char* process_data, std::vector<int> order);
+        // (data - mean) / std
+        void inputDataMeanStd(char *input_data, const int input_len, 
+            float* process_data, std::vector<float> mean, std::vector<float> std);
+        // nhwc to nchw
+        template <class T>
+        void inputDataTranspose(T *input_data, const int input_len, int channel_num, T* process_data)
+        {
+            if (1 == channel_num)
+            {
+                if (input_data != process_data)
+                    memcpy(process_data, input_data, input_len);
+                return;
+            }
+            std::shared_ptr<char> temp_data;
+            T* dst_data = process_data;
+            T* src_data = input_data;
+            if (input_data == process_data)
+            {
+                std::shared_ptr<char> temp_data = std::shared_ptr<char>(new char[input_len], std::default_delete<char []>());
+                dst_data = temp_data.get();
+            }
+            int row = input_len / channel_num;
+            int col = channel_num;
+            for (int i = 0; i < row; i++)
+            {
+                for (int j = 0; j < col; j++)
+                {
+                    int src_index = i * col + j;
+                    int dst_index = j * row + i;
+                    dst_data[dst_index] = src_data[src_index];
+                }
+            }
+            if (temp_data.get())
+                memcpy(process_data, temp_data.get(), input_len);
+            return;
+        }
+        bool inputDataNorm(TimvxInput input_data, std::string input_name, 
+            std::shared_ptr<char>& convert_data, int &convert_len);
+        bool outputDataConvert(TimvxOutput output_data, std::string input_name, 
+            std::shared_ptr<char>& convert_data, int &convert_len);
 
     private:
         // tensor names
