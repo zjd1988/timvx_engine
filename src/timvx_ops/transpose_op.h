@@ -8,7 +8,7 @@
 using namespace tim::vx;
 using namespace std;
 
-namespace TIMVXPY
+namespace TIMVX
 {
 
     class TransposeCreator : public OpCreator
@@ -28,4 +28,4 @@ namespace TIMVXPY
         std::string m_op_name = "Transpose";
     };
 
-} // namespace TIMVXPY
+} // namespace TIMVX

@@ -16,7 +16,7 @@
 using namespace tim::vx;
 using namespace nlohmann;
 
-namespace TIMVXPY
+namespace TIMVX
 {
 
     class OpCreator 
@@ -177,7 +177,7 @@ namespace TIMVXPY
         TimVXOp() = default;
     public:
         bool addCreator(std::string op_type, OpCreator* creator);
-        OpCreator* getCreator(std::string op_type);
+        OpCreator* getOpCreator(std::string op_type);
         static TimVXOp* getInstance()
         {
             static TimVXOp instance;
@@ -185,7 +185,7 @@ namespace TIMVXPY
         }
 
     private:
-        std::map<std::string, OpCreator*> op_creator;
+        std::map<std::string, OpCreator*> m_op_creator_map;
     };
 
 
@@ -195,4 +195,4 @@ namespace TIMVXPY
             TimVXOp::getInstance()->addCreator(#op_type, &_temp);    \
         }
 
-}  //namespace TIMVXPY
+}  //namespace TIMVX

@@ -8,7 +8,7 @@
 using namespace tim::vx;
 using namespace std;
 
-namespace TIMVXPY
+namespace TIMVX
 {
 
     class SoftmaxCreator : public OpCreator
@@ -28,4 +28,4 @@ namespace TIMVXPY
     private:
         std::string m_op_name = "Softmax";
     };
-} // namespace TIMVXPY
+} // namespace TIMVX

@@ -28,7 +28,7 @@ namespace TIMVX
             const char *weight_data, const int weight_len);
 
         // tensor utils
-        timvx_input_output_num getInputOutputNum();
+        TimvxInputOutputNum getInputOutputNum();
         bool setInputs(std::vector<TimvxInput> &input_data);
         bool getOutputs(std::vector<TimvxOutput> &output_data);
         bool getInputTensorAttr(int input_index, TimvxTensorAttr &tensor_attr);

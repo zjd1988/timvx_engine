@@ -8,7 +8,7 @@
 using namespace tim::vx;
 using namespace std;
 
-namespace TIMVXPY
+namespace TIMVX
 {
     class Pool2dCreator : public OpCreator
     {
@@ -60,4 +60,4 @@ namespace TIMVXPY
         std::string m_op_name = "Pool2d";
     };
 
-} // namespace TIMVXPY
+} // namespace TIMVX

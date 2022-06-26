@@ -6,7 +6,7 @@
 #include "tim/vx/ops/concat.h"
 #include "timvx_ops/concat_op.h"
 
-namespace TIMVXPY
+namespace TIMVX
 {
     bool ConcatCreator::parseOpAttr(const json &op_info, ConcatOpAttr &op_attr)
     {
@@ -14,7 +14,7 @@ namespace TIMVXPY
             parseValue<int>(op_info, m_op_name, "input_cnt", op_attr.input_cnt);
     }
 
-    Operation* ConcatCreator::on_create(std::shared_ptr<Graph> &graph, const json &op_info)
+    Operation* ConcatCreator::onCreate(std::shared_ptr<Graph> &graph, const json &op_info)
     {
         ConcatOpAttr op_attr;
         if (!parseOpAttr(op_info, op_attr))
@@ -26,4 +26,4 @@ namespace TIMVXPY
     }
 
     REGISTER_OP_CREATOR(ConcatCreator, Concat);
-} // namespace TIMVXPY
+} // namespace TIMVX

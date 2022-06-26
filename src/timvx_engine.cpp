@@ -7,7 +7,7 @@
 #include <iostream>
 #include "timvx_engine.h"
 #include "tensor_info.h"
-#include "op_factory.h"
+#include "timvx_ops/op_creator.h"
 
 namespace TIMVX
 {
@@ -126,7 +126,7 @@ namespace TIMVX
         memcpy(tensor_info.name, tensor_name.c_str(), name_len);
 
         // set tensor shape
-        std::vector<uint32_t> tensor_shape = m_tensors[tensor_name]->getShape();
+        std::vector<uint32_t> tensor_shape = m_tensors[tensor_name]->GetShape();
         tensor_info.n_dims = tensor_shape.size();
         for (int i = 0; i < tensor_shape.size(); i++)
         {
@@ -152,12 +152,12 @@ namespace TIMVX
         // set quant info
         Quantization tensor_quant = m_tensors[tensor_name]->GetQuantization();
         const std::vector<float> scales = tensor_quant.Scales();
-        const std::vector<float> zp = tensor_quant.ZeroPoints();
+        const std::vector<int> zp = tensor_quant.ZeroPoints();
         if (scales.size() > 0)
-            tensor_info.scale = sclaes[0];
+            tensor_info.scale = scales[0];
         if (zp.size() > 0)
             tensor_info.zp = zp[0];
-        tensor_info.qnt_type = timvx_tensor_qnt_type(tensor_quant.Type());
+        tensor_info.qnt_type = TimvxTensorQntType(tensor_quant.Type());
 
         return true;
     }
@@ -195,7 +195,7 @@ namespace TIMVX
             int num_bytes = tensor_spec.GetByteSize();
             std::shared_ptr<char> data_array_ptr(new char[num_bytes], [](char* data_array_ptr){delete [] data_array_ptr;});
             m_tensors_data[tensor_name] = data_array_ptr;
-            memcpy((void*)data_array_ptr.get(), data_array.data(), num_bytes);
+            memcpy((void*)data_array_ptr.get(), weight_data + offset, num_bytes);
             tensor = m_graph->CreateTensor(tensor_spec, (void*)data_array_ptr.get());
         }
         if (nullptr == tensor.get())
@@ -224,12 +224,12 @@ namespace TIMVX
         if (total_tensor_size != buffer_data_len)
         {
             TIMVX_ERROR("tensor %s size:%d not equal to buffer data size:%d\n", tensor_name.c_str(),
-                total_tensor_size, buffer_data_len);
+                (int)total_tensor_size, buffer_data_len);
             return false;
         }
         if (total_tensor_size <= 0)
         {
-            TIMVX_ERROR("tensor %s size:%d not valid\n", tensor_name.c_str(), total_tensor_size);
+            TIMVX_ERROR("tensor %s size:%d not valid\n", tensor_name.c_str(), (int)total_tensor_size);
             return false;
         }
         return tensor->CopyDataFromTensor(buffer_data);
@@ -261,7 +261,7 @@ namespace TIMVX
             TIMVX_ERROR("tensor %s size:%d not valid\n", tensor_name.c_str(), total_tensor_size);
             return false;
         }
-        return tensor->CopyDataToTensor(buf.ptr, buffer_data_len);
+        return tensor->CopyDataToTensor(buffer_data, buffer_data_len);
     }
 
     bool TimVXEngine::createOperation(const json &op_info)
@@ -299,7 +299,7 @@ namespace TIMVX
         }
 
         std::string op_type = op_info.at("op_type");
-        OpCreator* op_creator = TimVXOp::getInstance()->getCreator(op_type);
+        OpCreator* op_creator = TimVXOp::getInstance()->getOpCreator(op_type);
         if (nullptr == op_creator)
         {
             TIMVX_ERROR("op %s's creator not find, when create %s\n", op_type.c_str(), op_name.c_str());
@@ -315,8 +315,8 @@ namespace TIMVX
             uint32_t       accumulator_bits     = 0;
             op_creator->parseOverflowPolicyType(rounding_policy, op_name, "overflow_policy", overflow_policy_type, false);
             op_creator->parseRoundingPolicyType(rounding_policy, op_name, "rounding_policy", rounding_policy_type, false);
-            op_creator->parseRound_type(rounding_policy, op_name, "down_scale_size_rounding", round_type, false);
-            op_creator->parse_value<py::int_, uint>(rounding_policy, op_name, "accumulator_bits", accumulator_bits, false);
+            op_creator->parseRoundType(rounding_policy, op_name, "down_scale_size_rounding", round_type, false);
+            op_creator->parseValue<uint32_t>(rounding_policy, op_name, "accumulator_bits", accumulator_bits, false);
             op_node->SetRoundingPolicy(overflow_policy_type, rounding_policy_type, round_type, accumulator_bits);
         }
         if (nullptr != op_node)
@@ -408,7 +408,7 @@ namespace TIMVX
         }
         if (m_tensors.find(input_name) == m_tensors.end())
         {
-            TIMVX_ERROR("op %s's input tensor %s not exists\n", op_name.c_str(), tensor_name.c_str());
+            TIMVX_ERROR("op %s's input tensor %s not exists\n", op_name.c_str(), input_name.c_str());
             return false;
         }
         std::shared_ptr<Tensor> input_tensor = m_tensors[input_name];
@@ -431,7 +431,7 @@ namespace TIMVX
         }
         if (m_tensors.find(output_name) == m_tensors.end())
         {
-            TIMVX_ERROR("op %s's output tensor %s not exists\n", op_name.c_str(), tensor_name.c_str());
+            TIMVX_ERROR("op %s's output tensor %s not exists\n", op_name.c_str(), output_name.c_str());
             return false;
         }
         std::shared_ptr<Tensor> out_tensor = m_tensors[output_name];

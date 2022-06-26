@@ -7,7 +7,7 @@
 #include "resize_op.h"
 
 
-namespace TIMVXPY
+namespace TIMVX
 {
     bool ResizeCreator::parseOpAttr(const json &op_info, ResizeOpAttr &op_attr)
     {
@@ -39,4 +39,4 @@ namespace TIMVXPY
     }
 
     REGISTER_OP_CREATOR(ResizeCreator, Resize);
-} // namespace TIMVXPY
+} // namespace TIMVX

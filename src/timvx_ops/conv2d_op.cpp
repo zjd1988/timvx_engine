@@ -6,7 +6,7 @@
 #include "tim/vx/ops/conv2d.h"
 #include "timvx_ops/conv2d_op.h"
 
-namespace TIMVXPY
+namespace TIMVX
 {
 
     bool Conv2dCreator::parseWeights(const json &op_info, Conv2dOpAttr &op_attr)
@@ -24,7 +24,7 @@ namespace TIMVXPY
         return parseFixList<uint32_t, 2>(op_info, m_op_name, "ksize", op_attr.ksize, false);
     }
 
-    bool Conv2dCreator::parse_stride(const json &op_info, Conv2dOpAttr &op_attr)
+    bool Conv2dCreator::parseStride(const json &op_info, Conv2dOpAttr &op_attr)
     {
         return parseFixList<uint32_t, 2>(op_info, m_op_name, "stride", op_attr.stride);
     }
@@ -39,7 +39,7 @@ namespace TIMVXPY
         return parseFixList<uint32_t, 4>(op_info, m_op_name, "pad", op_attr.pad, false);
     }
 
-    bool Conv2dCreator::parse_multiplier(const json &op_info, Conv2dOpAttr &op_attr)
+    bool Conv2dCreator::parseMultiplier(const json &op_info, Conv2dOpAttr &op_attr)
     {
         return parseValue<int32_t>(op_info, m_op_name, "multiplier", op_attr.multiplier, false);
     }
@@ -99,4 +99,4 @@ namespace TIMVXPY
     }
 
     REGISTER_OP_CREATOR(Conv2dCreator, Conv2d);
-} // namespace TIMVXPY
+} // namespace TIMVX

@@ -6,7 +6,7 @@
 #include "tim/vx/ops/activations.h"
 #include "timvx_ops/activation_op.h"
 
-namespace TIMVXPY
+namespace TIMVX
 {
 
     bool ActivationCreator::parsePreluAttr(const json &op_info, ActivationOpAttr &op_attr)
@@ -46,7 +46,7 @@ namespace TIMVXPY
         op_attr.gelu.approximate = true;
         op_attr.linear.b = 0.0f;
         if ("prelu" == op_type)
-            return parse_preluAttr(op_info, op_attr);
+            return parsePreluAttr(op_info, op_attr);
         else if ("leakyrelu" == op_type)
             return parseLeakyreluAttr(op_info, op_attr);
         else if ("linear" == op_type)
@@ -140,4 +140,4 @@ namespace TIMVXPY
     }
 
     REGISTER_OP_CREATOR(ActivationCreator, Activation);
-} // namespace TIMVXPY
+} // namespace TIMVX

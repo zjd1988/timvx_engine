@@ -8,7 +8,7 @@
 #include "timvx_ops/pool2d_op.h"
 
 
-namespace TIMVXPY
+namespace TIMVX
 {
     Pool2dCreator::Pool2dCfgType Pool2dCreator::getPool2dType(const json &op_info)
     {
@@ -57,7 +57,7 @@ namespace TIMVXPY
         return parseFixList<uint32_t, 4>(op_info, m_op_name, "pad", op_attr.pad);
     }
 
-    bool Pool2dCreator::parse_ksize(const json &op_info, Pool2dOpAttr &op_attr)
+    bool Pool2dCreator::parseKsize(const json &op_info, Pool2dOpAttr &op_attr)
     {
         return parseFixList<uint32_t, 2>(op_info, m_op_name, "ksize", op_attr.ksize);
     }
@@ -126,7 +126,7 @@ namespace TIMVXPY
             TIMVX_ERROR("%s op contain unsupported pool cfg, please check\n", m_op_name.c_str());
             return nullptr;
         }
-        if (!parse_op_attr(op_info, op_attr, cfg_type))
+        if (!parseOpAttr(op_info, op_attr, cfg_type))
             return nullptr;
 
         PoolType type                       = op_attr.type;
@@ -159,4 +159,4 @@ namespace TIMVXPY
     }
 
     REGISTER_OP_CREATOR(Pool2dCreator, Pool2d);
-} // namespace TIMVXPY
+} // namespace TIMVX

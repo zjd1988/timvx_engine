@@ -7,7 +7,7 @@
 #include "reshape_op.h"
 
 
-namespace TIMVXPY
+namespace TIMVX
 {
     bool ReshapeCreator::parseOpAttr(const json &op_info, ReshapeOpAttr &op_attr)
     {
@@ -25,4 +25,4 @@ namespace TIMVXPY
     }
 
     REGISTER_OP_CREATOR(ReshapeCreator, Reshape);
-} // namespace TIMVXPY
+} // namespace TIMVX

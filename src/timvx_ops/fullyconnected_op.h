@@ -8,7 +8,7 @@
 using namespace tim::vx;
 using namespace std;
 
-namespace TIMVXPY
+namespace TIMVX
 {
 
     class FullyConnectedCreator : public OpCreator
@@ -29,4 +29,4 @@ namespace TIMVXPY
         std::string m_op_name = "FullyConnected";
     };
 
-} // namespace TIMVXPY
+} // namespace TIMVX

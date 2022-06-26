@@ -6,9 +6,9 @@
 #include "tim/vx/ops/softmax.h"
 #include "softmax_op.h"
 
-namespace TIMVXPY
+namespace TIMVX
 {
-    bool SoftmaxCreator::parse_op_attr(const json &op_info, SoftmaxOpAttr &op_attr)
+    bool SoftmaxCreator::parseOpAttr(const json &op_info, SoftmaxOpAttr &op_attr)
     {
         return parseValue<float>(op_info, m_op_name, "beta", op_attr.beta) &&
             parseValue<int32_t>(op_info, m_op_name, "axis", op_attr.axis);
@@ -26,4 +26,4 @@ namespace TIMVXPY
     }
 
     REGISTER_OP_CREATOR(SoftmaxCreator, Softmax);
-} // namespace TIMVXPY
+} // namespace TIMVX

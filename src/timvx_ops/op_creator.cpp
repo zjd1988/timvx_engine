@@ -5,7 +5,7 @@
 ***********************************/
 #include "timvx_ops/op_creator.h"
 
-namespace TIMVXPY
+namespace TIMVX
 {
 
     bool OpCreator::parsePoolType(const json &op_info, const std::string &op_name, 
@@ -184,62 +184,24 @@ namespace TIMVXPY
 
     bool TimVXOp::addCreator(std::string op_type, OpCreator* creator)
     {
-        if (op_creator.find(op_type) != op_creator.end())
+        if (m_op_creator_map.find(op_type) != m_op_creator_map.end())
         {
             TIMVX_ERROR("%s op_creator has already added to map\n", op_type.c_str());
             return false;
         }
         TIMVX_PRINT("add %s op_creator to map\n", op_type.c_str());
-        op_creator.insert(std::make_pair(op_type, creator));
+        m_op_creator_map.insert(std::make_pair(op_type, creator));
         return true;
     }
 
-    OpCreator* TimVXOp::getCreator(std::string op_type)
+    extern void registerOps();
+    OpCreator* TimVXOp::getOpCreator(std::string op_type)
     {
-        if (op_creator.find(op_type) != op_creator.end())
-            return op_creator[op_type];
+        registerOps();
+        if (m_op_creator_map.find(op_type) != m_op_creator_map.end())
+            return m_op_creator_map[op_type];
         else
             return nullptr;
     }
 
-    static std::map<std::string, const OpCreator*>& getOpCreatorMap()
-    {
-        static std::once_flag gInitFlag;
-        static std::map<std::string, const OpCreator*>* gOpCreator;
-        std::call_once(gInitFlag,
-                    [&]() { gOpCreator = new std::map<std::string, const OpCreator*>; });
-        return *gOpCreator;
-    }
-
-    extern void registerOps();
-    const ModelCreator* getOpCreator(std::string op_type)
-    {
-        registerOps();
-        auto& gOpCreator    = getOpCreatorMap();
-        auto iter           = gOpCreator.find(op_type);
-        if (iter == gOpCreator.end())
-        {
-            return nullptr;
-        }
-        if (iter->second)
-        {
-            return iter->second;
-        }
-        return nullptr;
-    }
-
-    bool insertModelCreator(ModelType model_type, const ModelCreator* creator)
-    {
-        auto& gModelCreator = getModelCreatorMap();
-        std::string model_type_str = gModelTypeStrMap[model_type];
-        if (gModelCreator.find(model_type) != gModelCreator.end())
-        {
-            CUSTOM_LOG(CUSTOM_LOG_LEVEL_ERROR, "duplicate register {} creator", model_type_str);
-            return false;
-        }
-        CUSTOM_LOG(CUSTOM_LOG_LEVEL_INFO, "insert {} creator success", model_type_str);
-        gModelCreator.insert(std::make_pair(model_type, creator));
-        return true;
-    }
-
-}  //namespace TIMVXPY
+}  //namespace TIMVX

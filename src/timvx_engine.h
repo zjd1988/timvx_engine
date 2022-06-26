@@ -68,4 +68,4 @@ namespace TIMVX
         std::shared_ptr<Graph>                             m_graph;
         std::string                                        m_graph_name;
     };
-} //namespace TIMVXPY
+} //namespace TIMVX

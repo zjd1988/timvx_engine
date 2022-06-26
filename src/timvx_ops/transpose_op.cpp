@@ -7,7 +7,7 @@
 #include "transpose_op.h"
 
 
-namespace TIMVXPY
+namespace TIMVX
 {
     bool TransposeCreator::parseOpAttr(const json &op_info, TransposeOpAttr &op_attr)
     {
@@ -25,4 +25,4 @@ namespace TIMVXPY
     }
 
     REGISTER_OP_CREATOR(TransposeCreator, Transpose);
-} // namespace TIMVXPY
+} // namespace TIMVX

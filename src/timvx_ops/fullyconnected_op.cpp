@@ -6,7 +6,7 @@
 #include "tim/vx/ops/fullyconnected.h"
 #include "timvx_ops/fullyconnected_op.h"
 
-namespace TIMVXPY
+namespace TIMVX
 {
     bool FullyConnectedCreator::parseOpAttr(const json &op_info, FullyConnectedOpAttr &op_attr)
     {
@@ -27,4 +27,4 @@ namespace TIMVXPY
     }
 
     REGISTER_OP_CREATOR(FullyConnectedCreator, FullyConnected);
-} // namespace TIMVXPY
+} // namespace TIMVX

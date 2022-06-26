@@ -21,7 +21,7 @@ namespace TIMVX
             return false;
         }
         file_stream.seekg(0,std::ios::end);
-        int file_len = file_stream.tellg();
+        file_len = file_stream.tellg();
         file_stream.seekg(0,std::ios::beg);
         file_data.reset(new char[file_len], std::default_delete<char []>());
         int read_len = 0;
@@ -57,7 +57,7 @@ namespace TIMVX
         const char *weight_data, const int weight_len)
     {
         m_engine.reset(new TimVXEngine("timvx_graph"));
-        if (nullptr == m_engine.get() || !m_engine->create_graph())
+        if (nullptr == m_engine.get() || !m_engine->createGraph())
         {
             TIMVX_PRINT("create timvx graph fail\n");
             return false;
@@ -67,7 +67,7 @@ namespace TIMVX
             !parseModelTensors(para_json, weight_data, weight_len) || 
             !parseModelNodes(para_json) || !parseModelNormInfo(para_json))
             return false;
-        if (!m_engine->compile_graph())
+        if (!m_engine->compileGraph())
         {
             TIMVX_PRINT("compile timvx graph fail\n");
             return false;
@@ -76,13 +76,13 @@ namespace TIMVX
         {
             TimvxTensorAttr tensor_info;
             std::string tensor_name = m_input_tensor_names[i];
-            if (m_engine->getTensorInfo(tensor_name, tensor_spec))
+            if (m_engine->getTensorInfo(tensor_name, tensor_info))
             {
                 TIMVX_PRINT("get input tesnor %s spec fail\n", tensor_name.c_str());
                 return false;
             }
             tensor_info.index = i;
-            m_input_tensor_attr[tensor_name] = tensor_info;
+            m_input_tensor_attrs[tensor_name] = tensor_info;
         }
         for (int i = 0; i < m_output_tensor_names.size(); i++)
         {
@@ -94,7 +94,7 @@ namespace TIMVX
                 return false;
             }
             tensor_info.index = i;
-            m_output_tensor_attr[tensor_name] = tensor_info;
+            m_output_tensor_attrs[tensor_name] = tensor_info;
         }
         return true;
     }
@@ -120,7 +120,7 @@ namespace TIMVX
                 return false;
             }
             std::string tensor_name = tensor_json.at("name");
-            if (!m_engine->create_tensor(tensor_name, tensor_json))
+            if (!m_engine->createTensor(tensor_name, tensor_json))
                 return false;
             m_input_tensor_names.push_back(tensor_name);
         }
@@ -148,7 +148,7 @@ namespace TIMVX
                 return false;
             }
             std::string tensor_name = tensor_json.at("name");
-            if (!m_engine->create_tensor(tensor_name, tensor_json))
+            if (!m_engine->createTensor(tensor_name, tensor_json))
                 return false;
             m_output_tensor_names.push_back(tensor_name);
         }
@@ -176,7 +176,7 @@ namespace TIMVX
                 return false;
             }
             std::string tensor_name = tensor_json.at("name");
-            if (!m_engine->create_tensor(tensor_name, tensor_json))
+            if (!m_engine->createTensor(tensor_name, tensor_json))
                 return false;
         }
         return true;
@@ -197,7 +197,7 @@ namespace TIMVX
         for (int i = 0; i < para_json["nodes"].size(); i++)
         {
             json node_json = para_json["nodes"][i];
-            if (!m_engine->create_operation(node_json))
+            if (!m_engine->createOperation(node_json))
                 return false;
         }
         return true;
@@ -239,7 +239,7 @@ namespace TIMVX
                     TIMVX_ERROR("para file's nodes should be array type\n");
                     return false;
                 }
-                reorder_val = tensor_norm["reorder"].get<std::vector<float>>();
+                reorder_val = tensor_norm["reorder"].get<std::vector<int>>();
                 m_tensor_means[tensor_name] = mean_val;
                 m_tensor_stds[tensor_name] = std_val;
                 m_tensor_reorders[tensor_name] = reorder_val;
@@ -253,7 +253,7 @@ namespace TIMVX
         return true;
     }
 
-    timvx_input_output_num EngineWrapper::getInputOutputNum()
+    TimvxInputOutputNum EngineWrapper::getInputOutputNum()
     {
         TimvxInputOutputNum io_num;
         io_num.n_input = m_input_tensor_names.size();
@@ -266,7 +266,8 @@ namespace TIMVX
         if (input_index < 0 || input_index >= m_input_tensor_names.size())
             return false;
         std::string tensor_name = m_input_tensor_names[input_index];
-        return m_input_tensor_attrs[tensor_name];
+        tensor_attr = m_input_tensor_attrs[tensor_name];
+        return true;
     }
 
     bool EngineWrapper::getOutputTensorAttr(int output_index, TimvxTensorAttr &tensor_attr)
@@ -274,7 +275,8 @@ namespace TIMVX
         if (output_index < 0 || output_index >= m_output_tensor_names.size())
             return false;
         std::string tensor_name = m_output_tensor_names[output_index];
-        return m_output_tensor_attrs[tensor_name];
+        tensor_attr = m_output_tensor_attrs[tensor_name];
+        return true;
     }
 
     bool EngineWrapper::setInputs(std::vector<TimvxInput> &input_data)
@@ -285,7 +287,7 @@ namespace TIMVX
             std::string tensor_name = m_input_tensor_names[i];
             if (input.pass_through)
             {
-                if (!m_engine->copyDataToTensor(tensor_name, input.buf, input.size))
+                if (!m_engine->copyDataToTensor(tensor_name, (const char*)input.buf, input.size))
                     return false;
             }
             // else

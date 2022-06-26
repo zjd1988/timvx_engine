@@ -8,7 +8,7 @@
 #include <map>
 #include "tensor_info.h"
 
-namespace TIMVXPY
+namespace TIMVX
 {
 
     bool TensorSpecConstruct::parseTensorDataType(const json &tensor_info, const std::string &tensor_name, 
@@ -67,7 +67,7 @@ namespace TIMVXPY
     }
 
 
-    bool TensorSpecConstruct::parseTensorQuantType(const py::dict &tensor_info, const std::string &tensor_name, 
+    bool TensorSpecConstruct::parseTensorQuantType(const json &tensor_info, const std::string &tensor_name, 
         const std::string &key_name, QuantType &quant_type)
     {
         std::string quant_type_str;
@@ -102,7 +102,7 @@ namespace TIMVXPY
         QuantType quant_type;
         TensorAttribute tensor_attr;
         DataType data_type;
-        if (!parseDynamicList<py::int_, uint32_t>(tensor_info, tensor_name, "shape", shape)
+        if (!parseDynamicList<uint32_t>(tensor_info, tensor_name, "shape", shape)
             || !parseTensorAttr(tensor_info, tensor_name, "attribute", tensor_attr)
             || !parseTensorDataType(tensor_info, tensor_name, "data_type", data_type))
             return false;
