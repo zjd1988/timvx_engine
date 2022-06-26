@@ -59,6 +59,7 @@ namespace TIMVX
         m_engine.reset(new TimVXEngine("timvx_graph"));
         if (nullptr == m_engine.get() || !m_engine->createGraph())
         {
+            m_engine.reset();
             TIMVX_PRINT("create timvx graph fail\n");
             return false;
         }
@@ -240,6 +241,18 @@ namespace TIMVX
                     return false;
                 }
                 reorder_val = tensor_norm["reorder"].get<std::vector<int>>();
+            
+                if (reorder_val.size() != 3)
+                {
+                    TIMVX_ERROR("norm info reorder's size should be 3\n");
+                    return false;
+                }
+                if ((reorder_val[0] != 2 || reorder_val[1] != 1 || reorder_val[2] != 0) ||
+                    (reorder_val[0] != 0 || reorder_val[1] != 1 || reorder_val[2] != 2))
+                {
+                    TIMVX_ERROR("norm info reorder only support [0, 1, 2] or [2, 1, 0]\n");
+                    return false;
+                }
                 m_tensor_means[tensor_name] = mean_val;
                 m_tensor_stds[tensor_name] = std_val;
                 m_tensor_reorders[tensor_name] = reorder_val;
@@ -281,25 +294,95 @@ namespace TIMVX
 
     bool EngineWrapper::setInputs(std::vector<TimvxInput> &input_data)
     {
+        if (nullptr == m_engine.get())
+        {
+            TIMVX_ERROR("timvx infer engine is null, please init first\n");
+            return false;
+        }
+        if (input_data.size() != m_input_tensor_names.size())
+        {
+            TIMVX_PRINT("input data size %d not equalt to engine's input size %d\n",
+                input_data.size(), m_input_tensor_names.size());
+            return false;
+        }
         for (int i = 0; i < input_data.size(); i++)
         {
             TimvxInput input = input_data[i];
             std::string tensor_name = m_input_tensor_names[i];
-            if (input.pass_through)
+            int convert_len = 0;
+            std::shared_ptr<char> convert_data;
+            const char* buffer_data = (const char*)input.buf;
+            int buffer_len = input.size;
+            if (!inputDataNorm(input, convert_data, convert_len))
             {
-                if (!m_engine->copyDataToTensor(tensor_name, (const char*)input.buf, input.size))
-                    return false;
+                TIMVX_ERROR("input data normalization fail\n");
+                return false;
             }
-            // else
-            // {
-            //     if ()
-            // }
+            if (convert_data.get())
+            {
+                buffer_data = (const char*)convert_data.get();
+                buffer_len = convert_len;
+            }
+            if (!m_engine->copyDataToTensor(tensor_name, buffer_data, buffer_len))
+            {
+                TIMVX_ERROR("copy data to tensor %s fail\n", tensor_name.c_str());
+                return false;
+            }
         }
         return true;
     }
 
     bool EngineWrapper::getOutputs(std::vector<TimvxOutput> &output_data)
     {
+        if (nullptr == m_engine.get())
+        {
+            TIMVX_ERROR("timvx infer engine is null, please init first\n");
+            return false;
+        }
+        if (output_data.size() <= m_output_tensor_names.size())
+        {
+            TIMVX_PRINT("output data size %d not equalt to engine's output size %d\n",
+                output_data.size(), m_output_tensor_names.size());
+            return false;
+        }
+        for (int i = 0; i < output_data.size(); i++)
+        {
+            TimvxOutput output = output_data[i];
+            std::string tensor_name = m_output_tensor_names[i];
+            int convert_len = 0;
+            std::shared_ptr<char> convert_data;
+            if (!outputDataConvert(output, convert_data, convert_len))
+            {
+                TIMVX_ERROR("output data convert fail\n");
+                return false;
+            }
+            if (convert_data.get())
+            {
+                output.buf = convert_data.get();
+                output.index = i;
+                output.size = convert_len;
+            }
+            else if (output.want_float)
+            {
+                char* buffer_data = (char*)output.buf;
+                int buffer_len = output.size;
+                if (!m_engine->copyDataFromTensor(tensor_name, buffer_data, buffer_len))
+                {
+                    TIMVX_ERROR("copy data from tensor %s fail\n", tensor_name.c_str());
+                    return false;
+                }
+            }
+            else
+            {
+                char* buffer_data = (char*)output.buf;
+                int buffer_len = output.size;
+                if (!m_engine->copyDataFromTensor(tensor_name, buffer_data, buffer_len))
+                {
+                    TIMVX_ERROR("copy data from tensor %s fail\n", tensor_name.c_str());
+                    return false;
+                }
+            }
+        }
         return true;
     }
 
@@ -308,8 +391,40 @@ namespace TIMVX
         if (nullptr == m_engine.get())
         {
             TIMVX_ERROR("timvx infer engine is null, please init first\n");
+            return false;
         }
         return m_engine->runGraph();
     }
+
+    void EngineWrapper::inputDataReorder(char *input_data, const int input_len, char* reorder_data)
+    {
+
+        return;
+    }
+
+    void EngineWrapper::inputDataMeanStd(char *input_data, const int input_len, char* reorder_data)
+    {
+
+        return;
+    }
+
+    bool EngineWrapper::inputDataNorm(TimvxInput input_data, std::shared_ptr<char>& convert_data, int &convert_len)
+    {
+        if (input_data.pass_through)
+            return true;
+        
+        return true;
+    }
+
+
+    bool EngineWrapper::outputDataConvert(TimvxOutput output_data, std::shared_ptr<char>& convert_data, int &convert_len)
+    {
+        if (!output_data.is_prealloc)
+        {
+
+        }
+        return true;
+    }
+
 
 } // TIMVX

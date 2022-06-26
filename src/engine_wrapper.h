@@ -44,11 +44,22 @@ namespace TIMVX
         bool parseModelOutputs(json &para_json);
         bool parseModelNodes(json &para_json);
         bool parseModelNormInfo(json &para_json);
+    
+    private:
+        // norm funcs
+        void inputDataReorder(char *input_data, const int input_len, char* reorder_data);
+        void inputDataMeanStd(char *input_data, const int input_len, char* reorder_data);
+        bool inputDataNorm(TimvxInput input_data, std::shared_ptr<char>& convert_data, int &convert_len);
+        bool outputDataConvert(TimvxOutput output_data, std::shared_ptr<char>& convert_data, int &convert_len);
 
     private:
         // tensor names
         std::vector<std::string>                       m_input_tensor_names;
         std::vector<std::string>                       m_output_tensor_names;
+
+        // output tensor data
+        std::map<std::string, std::shared_ptr<char>>   m_output_tensor_datas;
+
         // tensor attr
         std::map<std::string, TimvxTensorAttr>         m_input_tensor_attrs;
         std::map<std::string, TimvxTensorAttr>         m_output_tensor_attrs;
