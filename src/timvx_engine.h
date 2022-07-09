@@ -27,7 +27,6 @@ namespace TIMVX
         ~TimVXEngine();
 
         // tensor utils
-        size_t getTensorSize(const std::string &tensor_name);
         int createTensor(const std::string &tensor_name, const json &tensor_info, 
             const char *weight_data = nullptr, const int weight_len = 0);
         int getTensorInfo(const std::string &tensor_name, TimvxTensorAttr& tensor_spec);
@@ -63,6 +62,8 @@ namespace TIMVX
         uint32_t typeGetBits(DataType type);
         int convertToTimVxDataType(DataType type, TimvxTensorType& tensor_type);
         int convertToDataType(TimvxTensorType tensor_type, DataType &type);
+        size_t getTensorByteSize(const std::string &tensor_name);
+        size_t getTensorElemSize(const std::string &tensor_name);
 
     private:
 
@@ -104,9 +105,11 @@ namespace TIMVX
                 memcpy(process_data, temp_data.get(), input_len);
             return 0;
         }
-        // norm process (contain reorder/norm/transpose/quant)
+        // norm process (contain reorder/norm/transpose)
         int inputDataNorm(TimvxInput input_data, std::string input_name, std::shared_ptr<char>& norm_data, int &norm_len);
-        int outputDataConvert(TimvxOutput output_data, std::string input_name, std::shared_ptr<char>& convert_data, int &convert_len);
+        int quantTensorData(std::string tensor_name, float* src_data, int src_len, uint8_t* quant_data);
+        int dequantTensorData(std::string tensor_name, uint8_t* src_data, int src_len, float* dequant_data);
+        int outputDataConvert(TimvxOutput output_data, std::string output_name, std::shared_ptr<char>& convert_data, int &convert_len);
 
     private:
         // tensor names
@@ -129,5 +132,8 @@ namespace TIMVX
         std::map<std::string, std::vector<float>>          m_tensor_means;
         std::map<std::string, std::vector<float>>          m_tensor_stds;
         std::map<std::string, std::vector<int>>            m_tensor_reorders;
+
+        // output tensor data
+        std::map<std::string, std::shared_ptr<char>>       m_output_tensor_datas;
     };
 } //namespace TIMVX
