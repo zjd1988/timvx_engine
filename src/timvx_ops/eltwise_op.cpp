@@ -50,7 +50,7 @@ namespace TIMVX
                 return graph->CreateOperation<ops::Div>(scale).get();
         }
         else
-            TIMVX_ERROR("unsupported elewise op type:%d, when create %s op\n", eltwise_type.c_str(), m_op_name.c_str());
+            TIMVX_ERROR("unsupported elewise op type:%s, when create %s op\n", eltwise_type.c_str(), m_op_name.c_str());
         return nullptr;
     }
 

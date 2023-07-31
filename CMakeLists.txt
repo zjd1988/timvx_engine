@@ -3,15 +3,13 @@ project(timvx_engine)
 include(ExternalProject)
 
 set(TIM_VX_SOURCE_DIR ${CMAKE_SOURCE_DIR}/3rd_party/TIM_VX)
-set(TIM_VX_BUILD_DIR ${TIM_VX_SOURCE_DIR}/host_build)
-set(TIM_VX_INSTALL_DIR ${TIM_VX_BUILD_DIR}/install)
+set(TIM_VX_INSTALL_DIR ${TIM_VX_SOURCE_DIR}/install)
 ExternalProject_Add(TIM_VX
     PREFIX ${TIM_VX_SOURCE_DIR}
     GIT_REPOSITORY https://github.com/zjd1988/TIM-VX-python.git
     GIT_TAG "main"
-    SOURCE_DIR ${TIM_VX_SOURCE_DIR}
-    BINARY_DIR ${TIM_VX_BUILD_DIR}
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${TIM_VX_INSTALL_DIR}
+    # CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${TIM_VX_INSTALL_DIR} -DTIM_VX_ENABLE_VIPLITE=ON
 )
 
 # include(FetchContent)
@@ -29,8 +27,8 @@ ExternalProject_Add(TIM_VX
 # FetchContent_MakeAvailable(TIM_VX)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 ")
-set(TIM_VX_INCLUDE_PATH ${TIM_VX_INSTALL_PATH}/include)
-set(TIM_VX_LIB_PATH ${TIM_VX_INSTALL_PATH}/lib)
+set(TIM_VX_INCLUDE_PATH ${TIM_VX_INSTALL_DIR}/include)
+set(TIM_VX_LIB_PATH ${TIM_VX_INSTALL_DIR}/lib)
 set(JSON_INCLUDE_PATH ${PROJECT_SOURCE_DIR}/3rd_party/nlohmann-json/include)
 
 link_directories(${TIM_VX_LIB_PATH})

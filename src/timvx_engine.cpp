@@ -588,7 +588,7 @@ namespace TIMVX
         if (input_data.size() != m_input_tensor_names.size())
         {
             TIMVX_PRINT("input data size %d not equalt to engine's input size %d\n",
-                input_data.size(), m_input_tensor_names.size());
+                int(input_data.size()), int(m_input_tensor_names.size()));
             return -1;
         }
         for (int i = 0; i < input_data.size(); i++)
@@ -679,7 +679,8 @@ namespace TIMVX
     {
         if (input_index < 0 || input_index >= m_input_tensor_names.size())
         {
-            TIMVX_ERROR("input:%d is invalid, only have %d input\n", input_index, m_input_tensor_names.size());
+            TIMVX_ERROR("want to get %d-th input tensor, only have %d input\n", 
+                input_index, int(m_input_tensor_names.size()));
             return -1;
         }
         std::string tensor_name = m_input_tensor_names[input_index];
@@ -696,7 +697,8 @@ namespace TIMVX
     {
         if (output_index < 0 || output_index >= m_output_tensor_names.size())
         {
-            TIMVX_ERROR("output:%d is invalid, only have %d output\n", output_index, m_output_tensor_names.size());
+            TIMVX_ERROR("output:%d is invalid, only have %d output\n", output_index, 
+                int(m_output_tensor_names.size()));
             return -1;
         }
         std::string tensor_name = m_output_tensor_names[output_index];

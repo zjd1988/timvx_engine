@@ -149,7 +149,7 @@ namespace TIMVX
             {
                 if (checkObjType<T>(tensor_info[attr_c_name]))
                 {
-                    parsed_value = tensor_info[attr_c_name].get_to();
+                    parsed_value = tensor_info[attr_c_name].get<T>();
                 }
                 else
                 {

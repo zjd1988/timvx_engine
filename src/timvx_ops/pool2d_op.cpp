@@ -96,19 +96,24 @@ namespace TIMVX
                 && parseKsize(op_info, op_attr) && parseStride(op_info, op_attr)
                 && parseRoundType(op_info, op_attr) && parseLayout(op_info, op_attr);
 
-        if (Classic_Pool2d_2 == cfg_type)
+        else if (Classic_Pool2d_2 == cfg_type)
             return parseType(op_info, op_attr) && parsePad(op_info, op_attr)
                 && parseKsize(op_info, op_attr) && parseStride(op_info, op_attr)
                 && parseRoundType(op_info, op_attr) && parseLayout(op_info, op_attr);
 
-        if (Global_Pool2d == cfg_type)
+        else if (Global_Pool2d == cfg_type)
             return parseType(op_info, op_attr) && parseInputSize(op_info, op_attr)
                 && parseRoundType(op_info, op_attr) && parseLayout(op_info, op_attr);
 
-        if (Adaptive_Pool2d == cfg_type)
+        else if (Adaptive_Pool2d == cfg_type)
             return parseType(op_info, op_attr) && parseInputSize(op_info, op_attr)
                 && parseOutputSize(op_info, op_attr) && parseRoundType(op_info, op_attr) 
                 && parseLayout(op_info, op_attr);
+        else
+        {
+            TIMVX_ERROR("get invalid pool2d config type %d\n", cfg_type);
+            return false;
+        }
     }
 
     Operation* Pool2dCreator::onCreate(std::shared_ptr<Graph> &graph, const json &op_info)

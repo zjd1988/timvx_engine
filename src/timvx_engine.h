@@ -88,7 +88,7 @@ namespace TIMVX
             if (input_data == process_data)
             {
                 std::shared_ptr<char> temp_data = std::shared_ptr<char>(new char[input_len], std::default_delete<char []>());
-                dst_data = temp_data.get();
+                dst_data = (T*)temp_data.get();
             }
             int row = input_len / channel_num;
             int col = channel_num;
