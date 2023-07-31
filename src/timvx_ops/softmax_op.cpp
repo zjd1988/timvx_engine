@@ -4,10 +4,11 @@
 ******  Created by zhaojd on 2022/05/02.
 ***********************************/
 #include "tim/vx/ops/softmax.h"
-#include "softmax_op.h"
+#include "timvx_ops/softmax_op.h"
 
 namespace TIMVX
 {
+
     bool SoftmaxCreator::parseOpAttr(const json &op_info, SoftmaxOpAttr &op_attr)
     {
         return parseValue<float>(op_info, m_op_name, "beta", op_attr.beta) &&
@@ -26,4 +27,5 @@ namespace TIMVX
     }
 
     REGISTER_OP_CREATOR(SoftmaxCreator, Softmax);
+
 } // namespace TIMVX

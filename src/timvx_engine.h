@@ -136,4 +136,5 @@ namespace TIMVX
         // output tensor data
         std::map<std::string, std::shared_ptr<char>>       m_output_tensor_datas;
     };
+
 } //namespace TIMVX

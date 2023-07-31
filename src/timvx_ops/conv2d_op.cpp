@@ -99,4 +99,5 @@ namespace TIMVX
     }
 
     REGISTER_OP_CREATOR(Conv2dCreator, Conv2d);
+
 } // namespace TIMVX

@@ -170,7 +170,6 @@ namespace TIMVX
         }
     };
 
-
     class TimVXOp
     {
     private:

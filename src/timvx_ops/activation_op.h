@@ -20,29 +20,29 @@ namespace TIMVX
             struct
             {
                 int axis;
-            }prelu;
+            } prelu;
             // leakyrelu parameter
             struct
             {
                 float ratio = 1.0f;
-            }leakyrelu;        
+            } leakyrelu;        
             // linear parameter
             struct
             {
                 float a = 1.0f;
                 float b = 0.0f;
-            }linear;
+            } linear;
             // gelu parameter
             struct
             {
                 bool approximate = true;
-            }gelu;
+            } gelu;
             // hard sigmoid parameter
             struct
             {
                 float alpha;
                 float beta;
-            }hardsigmoid;
+            } hardsigmoid;
         };
 
         virtual Operation* onCreate(std::shared_ptr<Graph> &graph, const json &op_info) override;

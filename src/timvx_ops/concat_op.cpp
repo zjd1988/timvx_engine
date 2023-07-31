@@ -8,6 +8,7 @@
 
 namespace TIMVX
 {
+
     bool ConcatCreator::parseOpAttr(const json &op_info, ConcatOpAttr &op_attr)
     {
         return parseValue<uint32_t>(op_info, m_op_name, "axis", op_attr.axis) &&
@@ -26,4 +27,5 @@ namespace TIMVX
     }
 
     REGISTER_OP_CREATOR(ConcatCreator, Concat);
+
 } // namespace TIMVX

@@ -8,6 +8,7 @@
 
 namespace TIMVX
 {
+
     bool FullyConnectedCreator::parseOpAttr(const json &op_info, FullyConnectedOpAttr &op_attr)
     {
         op_attr.weights = 0;
@@ -27,4 +28,5 @@ namespace TIMVX
     }
 
     REGISTER_OP_CREATOR(FullyConnectedCreator, FullyConnected);
+
 } // namespace TIMVX

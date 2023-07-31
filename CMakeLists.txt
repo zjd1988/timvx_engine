@@ -9,7 +9,6 @@ ExternalProject_Add(TIM_VX
     PREFIX ${TIM_VX_SOURCE_DIR}
     GIT_REPOSITORY https://github.com/zjd1988/TIM-VX-python.git
     GIT_TAG "main"
-    GIT_PROCESS ON
     SOURCE_DIR ${TIM_VX_SOURCE_DIR}
     BINARY_DIR ${TIM_VX_BUILD_DIR}
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${TIM_VX_INSTALL_DIR}
@@ -19,7 +18,6 @@ ExternalProject_Add(TIM_VX
 # FetchContent_Declare(
 #     TIM_VX
 #     GIT_REPOSITORY https://github.com/zjd1988/TIM-VX-python.git
-#     GIT_PROCESS ON
 #     GIT_TAG "main"
 #     GIT_SHALLOW ON
 # )
@@ -45,7 +43,7 @@ if (BUILD_SHARED_LIBS)
 else()
     add_library(timvx_engine STATIC ${SRC})
 endif()
-# add_dependencies(timvx_engine TIM_VX)
+add_dependencies(timvx_engine TIM_VX)
 
 target_include_directories(timvx_engine PUBLIC 
     ${TIM_VX_INCLUDE_PATH}

@@ -4,11 +4,11 @@
 ******  Created by zhaojd on 2022/05/02.
 ***********************************/
 #include "tim/vx/ops/transpose.h"
-#include "transpose_op.h"
-
+#include "timvx_ops/transpose_op.h"
 
 namespace TIMVX
 {
+
     bool TransposeCreator::parseOpAttr(const json &op_info, TransposeOpAttr &op_attr)
     {
         return parseDynamicList<uint32_t>(op_info, m_op_name, "perm", op_attr.perm);
@@ -25,4 +25,5 @@ namespace TIMVX
     }
 
     REGISTER_OP_CREATOR(TransposeCreator, Transpose);
+
 } // namespace TIMVX

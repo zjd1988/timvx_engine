@@ -28,4 +28,5 @@ namespace TIMVX
     private:
         std::string m_op_name = "Concat";
     };
+
 } // namespace TIMVX

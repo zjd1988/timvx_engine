@@ -81,7 +81,6 @@ namespace TIMVX
         return parse_result;
     }
 
-
     bool OpCreator::parseOverflowPolicyType(const json &op_info, const std::string &op_name, 
             const std::string &attr_name, OverflowPolicy &overflow_policy_type, bool necessary)
     {

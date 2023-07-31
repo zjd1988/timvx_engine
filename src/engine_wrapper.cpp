@@ -250,4 +250,4 @@ namespace TIMVX
         return m_engine->runGraph();
     }
 
-} // TIMVX
+} // namespace TIMVX

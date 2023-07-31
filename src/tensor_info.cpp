@@ -40,7 +40,6 @@ namespace TIMVX
         return parse_result;
     }
 
-
     bool TensorSpecConstruct::parseTensorAttr(const json &tensor_info, const std::string &tensor_name, 
         const std::string &key_name, TensorAttribute &tensor_attr)
     {
@@ -65,7 +64,6 @@ namespace TIMVX
         }
         return parse_result;
     }
-
 
     bool TensorSpecConstruct::parseTensorQuantType(const json &tensor_info, const std::string &tensor_name, 
         const std::string &key_name, QuantType &quant_type)
@@ -159,4 +157,5 @@ namespace TIMVX
         }
         return true;
     }
-}
+
+} //namespace TIMVX

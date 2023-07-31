@@ -8,6 +8,7 @@
 
 namespace TIMVX
 {
+
     Operation* EltwiseCreator::onCreate(std::shared_ptr<Graph> &graph, const json &op_info)
     {
         std::string eltwise_type;
@@ -54,4 +55,5 @@ namespace TIMVX
     }
 
     REGISTER_OP_CREATOR(EltwiseCreator, Eltwise);
+
 } // namespace TIMVX

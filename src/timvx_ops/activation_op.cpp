@@ -140,4 +140,5 @@ namespace TIMVX
     }
 
     REGISTER_OP_CREATOR(ActivationCreator, Activation);
+
 } // namespace TIMVX

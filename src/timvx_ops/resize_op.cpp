@@ -4,11 +4,11 @@
 ******  Created by zhaojd on 2022/05/02.
 ***********************************/
 #include "tim/vx/ops/resize.h"
-#include "resize_op.h"
-
+#include "timvx_ops/resize_op.h"
 
 namespace TIMVX
 {
+
     bool ResizeCreator::parseOpAttr(const json &op_info, ResizeOpAttr &op_attr)
     {
         op_attr.layout = DataLayout::WHCN;

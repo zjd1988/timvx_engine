@@ -4,11 +4,11 @@
 ******  Created by zhaojd on 2022/05/02.
 ***********************************/
 #include "tim/vx/ops/reshape.h"
-#include "reshape_op.h"
-
+#include "timvx_ops/reshape_op.h"
 
 namespace TIMVX
 {
+
     bool ReshapeCreator::parseOpAttr(const json &op_info, ReshapeOpAttr &op_attr)
     {
         return parseDynamicList<uint32_t>(op_info, m_op_name, "size", op_attr.size);

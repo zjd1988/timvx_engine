@@ -7,9 +7,9 @@
 #include "timvx_define.h"
 #include "timvx_ops/pool2d_op.h"
 
-
 namespace TIMVX
 {
+
     Pool2dCreator::Pool2dCfgType Pool2dCreator::getPool2dType(const json &op_info)
     {
         if (op_info.contains("padding") && op_info.contains("pad"))
@@ -159,4 +159,5 @@ namespace TIMVX
     }
 
     REGISTER_OP_CREATOR(Pool2dCreator, Pool2d);
+
 } // namespace TIMVX

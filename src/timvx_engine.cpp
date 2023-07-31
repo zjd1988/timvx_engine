@@ -741,7 +741,6 @@ namespace TIMVX
         return 0;
     }
 
-
     int TimVXEngine::quantTensorData(std::string tensor_name, float* src_data, int src_len, uint8_t* quant_data)
     {
         Quantization quant_info = m_tensors[tensor_name]->GetQuantization();

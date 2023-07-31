@@ -8,6 +8,7 @@
 
 namespace TIMVX
 {
+
     /*
         Definition for tensor
     */

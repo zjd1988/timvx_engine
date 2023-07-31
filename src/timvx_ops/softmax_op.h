@@ -4,7 +4,7 @@
 ******  Created by zhaojd on 2022/05/02.
 ***********************************/
 #pragma once
-#include "op_creator.h"
+#include "timvx_ops/op_creator.h"
 using namespace tim::vx;
 using namespace std;
 
@@ -28,4 +28,5 @@ namespace TIMVX
     private:
         std::string m_op_name = "Softmax";
     };
+
 } // namespace TIMVX
