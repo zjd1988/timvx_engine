@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 project(timvx_engine)
 include(ExternalProject)
 
-set(TIM_VX_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/TIM_VX)
+set(TIM_VX_SOURCE_DIR ${CMAKE_SOURCE_DIR}/3rd_party/TIM_VX)
 set(TIM_VX_BUILD_DIR ${TIM_VX_SOURCE_DIR}/host_build)
 set(TIM_VX_INSTALL_DIR ${TIM_VX_BUILD_DIR}/install)
 ExternalProject_Add(TIM_VX
@@ -45,7 +45,7 @@ if (BUILD_SHARED_LIBS)
 else()
     add_library(timvx_engine STATIC ${SRC})
 endif()
-add_dependencies(timvx_engine TIM_VX)
+# add_dependencies(timvx_engine TIM_VX)
 
 target_include_directories(timvx_engine PUBLIC 
     ${TIM_VX_INCLUDE_PATH}
