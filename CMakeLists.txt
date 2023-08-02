@@ -12,20 +12,6 @@ ExternalProject_Add(TIM_VX
     # CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${TIM_VX_INSTALL_DIR} -DTIM_VX_ENABLE_VIPLITE=ON
 )
 
-# include(FetchContent)
-# FetchContent_Declare(
-#     TIM_VX
-#     GIT_REPOSITORY https://github.com/zjd1988/TIM-VX-python.git
-#     GIT_TAG "main"
-#     GIT_SHALLOW ON
-# )
-# FetchContent_GetProperties(TIM_VX)
-# if(NOT TIM_VX_POPULATED)
-#     FetchContent_Populate(TIM_VX)
-#     add_subdirectory(${TIM_VX_SOURCE_DIR} ${TIM_VX_BINARY_DIR})
-# endif()
-# FetchContent_MakeAvailable(TIM_VX)
-
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 ")
 set(TIM_VX_INCLUDE_PATH ${TIM_VX_INSTALL_DIR}/include)
 set(TIM_VX_LIB_PATH ${TIM_VX_INSTALL_DIR}/lib)
@@ -34,12 +20,12 @@ set(JSON_INCLUDE_PATH ${PROJECT_SOURCE_DIR}/3rd_party/nlohmann-json/include)
 link_directories(${TIM_VX_LIB_PATH})
 
 option(BUILD_SHARED_LIBS "build shared or static lib" ON)
-file(GLOB_RECURSE SRC  ${CMAKE_CURRENT_LIST_DIR}/src/*.cpp)
+file(GLOB_RECURSE TIMVX_ENGINE_SRC  ${CMAKE_CURRENT_LIST_DIR}/src/*.cpp)
 
 if (BUILD_SHARED_LIBS)
-    add_library(timvx_engine SHARED ${SRC})
+    add_library(timvx_engine SHARED ${TIMVX_ENGINE_SRC})
 else()
-    add_library(timvx_engine STATIC ${SRC})
+    add_library(timvx_engine STATIC ${TIMVX_ENGINE_SRC})
 endif()
 add_dependencies(timvx_engine TIM_VX)
 
