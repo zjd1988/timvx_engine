@@ -18,11 +18,12 @@ if [[ ! -d "${BUILD_DIR}" ]]; then
   mkdir -p ${BUILD_DIR}
 fi
 
-TIMVX_INSTALL_DIR=$1
+TIM_VX_VERSION=$1
 
 cd ${BUILD_DIR}
 cmake .. -DCMAKE_C_COMPILER=${GCC_COMPILER} \
-         -DCMAKE_CXX_COMPILER=${GPP_COMPILER} ${@:2}
+         -DCMAKE_CXX_COMPILER=${GPP_COMPILER} \
+         -DTIM_VX_VERSION=${TIM_VX_VERSION} ${@:2}
 
 make -j`nproc/2` 
 cd -

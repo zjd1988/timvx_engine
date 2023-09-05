@@ -35,14 +35,9 @@ if [[ ! -d "${BUILD_DIR}" ]]; then
   mkdir -p ${BUILD_DIR}
 fi
 
-TIMVX_INSTALL_DIR=$2
-EXTERNAL_VIV_SDK=$3
-
 cd ${BUILD_DIR}
 cmake .. -DCMAKE_C_COMPILER=${GCC_COMPILER} \
          -DCMAKE_CXX_COMPILER=${GPP_COMPILER} \
-         -DTIMVX_INSTALL_DIR=${TIMVX_INSTALL_DIR} \
-         -DEXTERNAL_VIV_SDK=${EXTERNAL_VIV_SDK} \
          -DBUILD_PYTHON_LIB=OFF ${@:2}
 
 make -j`nproc/2` 
