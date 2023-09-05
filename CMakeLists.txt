@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.4.1)
+include(ExternalProject)
 project(pytimvx)
 
 option(ENABLE_DEBUG_LOG "enable print debug log" ON)
@@ -8,19 +9,32 @@ if(ENABLE_DEBUG_LOG)
     add_definitions(-DSPDLOG_ACTIVE_LEVEL=1)
 endif()
 
-if(TIMVX_INSTALL_DIR)
-    set(TIM_VX_INCLUDE_PATH ${TIMVX_INSTALL_DIR}/include)
-    set(TIM_VX_LIB_PATH ${TIMVX_INSTALL_DIR}/lib)
+set(TIM_VX_SOURCE_DIR ${CMAKE_SOURCE_DIR}/3rd_party/TIM_VX)
+set(TIM_VX_INSTALL_DIR ${TIM_VX_SOURCE_DIR}/install)
+if(EXTERNAL_VIV_SDK)
+    ExternalProject_Add(TIM_VX
+        PREFIX ${TIM_VX_SOURCE_DIR}
+        GIT_REPOSITORY https://github.com/VeriSilicon/TIM-VX.git
+        GIT_TAG "v1.1.32"
+        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${TIM_VX_INSTALL_DIR} -DEXTERNAL_VIV_SDK=${EXTERNAL_VIV_SDK}
+    )
 else()
-    set(TIM_VX_INCLUDE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../host_build/install/include)
-    set(TIM_VX_LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../host_build/install/lib)
+    ExternalProject_Add(TIM_VX
+        PREFIX ${TIM_VX_SOURCE_DIR}
+	GIT_REPOSITORY https://github.com/VeriSilicon/TIM-VX.git
+	GIT_TAG "v1.1.32"
+        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${TIM_VX_INSTALL_DIR}
+    )
 endif()
+
+set(TIM_VX_INCLUDE_PATH ${TIM_VX_INSTALL_DIR}/include)
+set(TIM_VX_LIB_PATH ${TIM_VX_INSTALL_DIR}/lib)
 
 if(EXTERNAL_VIV_SDK)
     set(EXTERNAL_VIV_SDK_LIB_PATH ${EXTERNAL_VIV_SDK}/drivers)
     set(EXTERNAL_VIV_SDK_LIBS CLC GAL OpenVX OpenVXU VSC ArchModelSw NNArchPerf)
 else()
-    set(EXTERNAL_VIV_SDK_LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../prebuilt-sdk/X86_64_linux/lib)
+    set(EXTERNAL_VIV_SDK_LIB_PATH ${TIM_VX_SOURCE_DIR}/src/TIM_VX/prebuilt-sdk/x86_64_linux/lib)
     set(EXTERNAL_VIV_SDK_LIBS CLC GAL OpenVX OpenVXU VSC ArchModelSw NNArchPerf Emulator)
 endif()
 
@@ -57,6 +71,7 @@ if(BUILD_PYTHON_LIB)
     message("use system python libs: ${CYTHON_LIBS}")
 
     add_library(pytimvx SHARED ${PYTIMVX_SRC})
+    add_dependencies(pytimvx TIM_VX)
 
     target_include_directories(pytimvx PRIVATE 
         ${PROJECT_INCLUDE_PATH}
@@ -71,6 +86,7 @@ endif()
 
 list(REMOVE_ITEM PYTIMVX_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/pytimvx.cpp)
 add_library(timvx_engine SHARED ${PYTIMVX_SRC})
+add_dependencies(timvx_engine TIM_VX)
 target_include_directories(timvx_engine PRIVATE 
     ${PROJECT_INCLUDE_PATH}
     ${CMAKE_CURRENT_SOURCE_DIR}/src)
