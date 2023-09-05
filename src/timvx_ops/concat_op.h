@@ -8,25 +8,29 @@
 using namespace tim::vx;
 using namespace std;
 
-namespace TIMVX
+namespace TimVX
 {
 
-    class ConcatCreator : public OpCreator
+    class ConcatOpCreator : public OpCreator
     {
     public:
         struct ConcatOpAttr
         {
             uint32_t axis;
-            int input_cnt;
+            int32_t  input_cnt;
         };
-    
-        virtual Operation* onCreate(std::shared_ptr<Graph> &graph, const json &op_info) override;
+
+        ConcatOpCreator(std::string op_name) : OpCreator(op_name)
+        {
+        }
+
+        virtual Operation* onCreate(std::shared_ptr<Graph>& graph, const json& op_info) override;
 
     private:
-        bool parseOpAttr(const json &op_info, ConcatOpAttr &op_attr);
+        bool parseAxisAttr(const json& op_info, ConcatOpAttr& op_attr);
+        bool parseInputCntAttr(const json& op_info, ConcatOpAttr& op_attr);
+        bool parseOpAttr(const json& op_info, ConcatOpAttr& op_attr);
 
-    private:
-        std::string m_op_name = "Concat";
     };
 
-} // namespace TIMVX
+} // namespace TimVX

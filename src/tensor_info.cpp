@@ -3,12 +3,12 @@
 ******
 ******  Created by zhaojd on 2022/05/04.
 ***********************************/
-#include <iostream>
-#include <vector>
-#include <map>
 #include "tensor_info.h"
+#include <iostream>
+#include <map>
+using namespace std;
 
-namespace TIMVX
+namespace TimVX
 {
 
     bool TensorSpecConstruct::parseTensorDataType(const json &tensor_info, const std::string &tensor_name, 
@@ -32,7 +32,7 @@ namespace TIMVX
                 data_type = data_type_map[data_type_str];
             else
             {
-                TIMVX_ERROR("tensor %s's attr %s contains invalid datatype %s\n", tensor_name.c_str(),
+                TIMVX_LOG(TIMVX_LEVEL_ERROR, "tensor {}'s attr {} contains invalid datatype {}", tensor_name.c_str(),
                     key_name.c_str(), data_type_str.c_str());
                 parse_result = false;
             }
@@ -57,7 +57,7 @@ namespace TIMVX
                 tensor_attr = tensor_attr_map[tensor_attr_str];
             else
             {
-                TIMVX_ERROR("tensor %s's attr %s contains attribute type %s\n", tensor_name.c_str(),
+                TIMVX_LOG(TIMVX_LEVEL_ERROR, "tensor {}'s attr {} contains attribute type {}", tensor_name.c_str(),
                     key_name.c_str(), tensor_attr_str.c_str());
                 parse_result = false;
             }
@@ -80,7 +80,7 @@ namespace TIMVX
                 quant_type = quant_type_map[quant_type_str];
             else
             {
-                TIMVX_ERROR("tensor %s's attr %s contains quant type %s\n", tensor_name.c_str(),
+                TIMVX_LOG(TIMVX_LEVEL_ERROR, "tensor {}'s attr {} contains quant type {}", tensor_name.c_str(),
                     key_name.c_str(), quant_type_str.c_str());
                 parse_result = false;
             }
@@ -104,11 +104,11 @@ namespace TIMVX
             || !parseTensorAttr(tensor_info, tensor_name, "attribute", tensor_attr)
             || !parseTensorDataType(tensor_info, tensor_name, "data_type", data_type))
             return false;
-        if (tensor_info.contains("quant_info"))
+        if (tensor_info.contains("quant_info") && tensor_info["quant_info"].size())
         {
             if (!tensor_info["quant_info"].is_object())
             {
-                TIMVX_ERROR("tensor %s's quant_info should be a dict item\n", tensor_name.c_str());
+                TIMVX_LOG(TIMVX_LEVEL_ERROR, "tensor {}'s quant_info should be a dict item", tensor_name.c_str());
                 return false;
             }
             json quant_info = tensor_info["quant_info"];
@@ -120,17 +120,18 @@ namespace TIMVX
                     return false;
                 if (channel_dim < 0)
                 {
-                    TIMVX_ERROR("tensor %s's channel dim should greater than 0\n", tensor_name.c_str());
+                    TIMVX_LOG(TIMVX_LEVEL_ERROR, "tensor {}'s channel_dim should be >= 0, but get {}!", 
+                        tensor_name.c_str(), channel_dim);
                     return false;
                 }
                 if (!parseDynamicList<int32_t>(quant_info, tensor_name, "zero_points", zero_points)
                     || !parseDynamicList<float>(quant_info, tensor_name, "scales", scales))
                     return false;
-                if (zero_points.size() != channel_dim || scales.size() != channel_dim)
-                {
-                    TIMVX_ERROR("tensor %s's zero_points/scales len is not equal to channel dim\n", tensor_name.c_str());
-                    return false;
-                }
+                // if (zero_points.size() != shape[channel_dim] || scales.size() != shape[channel_dim])
+                // {
+                //     TIMVX_LOG(TIMVX_LEVEL_ERROR, "tensor {}'s zero_points/scales len is not equal to channel dim", tensor_name.c_str());
+                //     return false;
+                // }
             }
             else
             {
@@ -158,4 +159,4 @@ namespace TIMVX
         return true;
     }
 
-} //namespace TIMVX
+} // namespace TimVX

@@ -1,0 +1,429 @@
+{
+    "norm": {
+        "mean": {},
+        "std": {},
+        "reorder": {}
+    },
+    "inputs": [
+        {
+            "name": "input",
+            "data_type": "UINT8",
+            "attribute": "INPUT",
+            "shape": [
+                28,
+                28,
+                1,
+                1
+            ],
+            "quant_info": {
+                "scale": 0.00390625,
+                "zero_point": 0,
+                "quant_type": "ASYMMETRIC"
+            }
+        }
+    ],
+    "outputs": [
+        {
+            "name": "output",
+            "data_type": "FLOAT32",
+            "attribute": "OUTPUT",
+            "shape": [
+                10,
+                1
+            ],
+            "quant_info": {}
+        }
+    ],
+    "tensors": [
+        {
+            "name": "conv1_weight",
+            "data_type": "UINT8",
+            "attribute": "CONSTANT",
+            "shape": [
+                5,
+                5,
+                1,
+                20
+            ],
+            "quant_info": {
+                "scale": 0.00336234,
+                "zero_point": 119,
+                "quant_type": "ASYMMETRIC"
+            },
+            "length": 500,
+            "offset": 0
+        },
+        {
+            "name": "conv1_bias",
+            "data_type": "INT32",
+            "attribute": "CONSTANT",
+            "shape": [
+                20
+            ],
+            "quant_info": {
+                "scale": 1.313e-05,
+                "zero_point": 0,
+                "quant_type": "ASYMMETRIC"
+            },
+            "length": 80,
+            "offset": 500
+        },
+        {
+            "name": "conv1_output",
+            "data_type": "UINT8",
+            "attribute": "TRANSIENT",
+            "shape": [],
+            "quant_info": {
+                "scale": 0.01928069,
+                "zero_point": 140,
+                "quant_type": "ASYMMETRIC"
+            }
+        },
+        {
+            "name": "pool1_output",
+            "data_type": "UINT8",
+            "attribute": "TRANSIENT",
+            "shape": [],
+            "quant_info": {
+                "scale": 0.01928069,
+                "zero_point": 140,
+                "quant_type": "ASYMMETRIC"
+            }
+        },
+        {
+            "name": "conv2_weight",
+            "data_type": "UINT8",
+            "attribute": "CONSTANT",
+            "shape": [
+                5,
+                5,
+                20,
+                50
+            ],
+            "quant_info": {
+                "scale": 0.0011482,
+                "zero_point": 128,
+                "quant_type": "ASYMMETRIC"
+            },
+            "length": 25000,
+            "offset": 580
+        },
+        {
+            "name": "conv2_bias",
+            "data_type": "INT32",
+            "attribute": "CONSTANT",
+            "shape": [
+                50
+            ],
+            "quant_info": {
+                "scale": 2.214e-05,
+                "zero_point": 0,
+                "quant_type": "ASYMMETRIC"
+            },
+            "length": 200,
+            "offset": 25580
+        },
+        {
+            "name": "conv2_output",
+            "data_type": "UINT8",
+            "attribute": "TRANSIENT",
+            "shape": [],
+            "quant_info": {
+                "scale": 0.04075872,
+                "zero_point": 141,
+                "quant_type": "ASYMMETRIC"
+            }
+        },
+        {
+            "name": "pool2_output",
+            "data_type": "UINT8",
+            "attribute": "TRANSIENT",
+            "shape": [],
+            "quant_info": {
+                "scale": 0.04075872,
+                "zero_point": 141,
+                "quant_type": "ASYMMETRIC"
+            }
+        },
+        {
+            "name": "fc3_weight",
+            "data_type": "UINT8",
+            "attribute": "CONSTANT",
+            "shape": [
+                800,
+                500
+            ],
+            "quant_info": {
+                "scale": 0.00073548,
+                "zero_point": 130,
+                "quant_type": "ASYMMETRIC"
+            },
+            "length": 400000,
+            "offset": 25780
+        },
+        {
+            "name": "fc3_bias",
+            "data_type": "INT32",
+            "attribute": "CONSTANT",
+            "shape": [
+                500
+            ],
+            "quant_info": {
+                "scale": 2.998e-05,
+                "zero_point": 0,
+                "quant_type": "ASYMMETRIC"
+            },
+            "length": 2000,
+            "offset": 425780
+        },
+        {
+            "name": "fc3_output",
+            "data_type": "UINT8",
+            "attribute": "TRANSIENT",
+            "shape": [],
+            "quant_info": {
+                "scale": 0.01992089,
+                "zero_point": 0,
+                "quant_type": "ASYMMETRIC"
+            }
+        },
+        {
+            "name": "relu_output",
+            "data_type": "UINT8",
+            "attribute": "TRANSIENT",
+            "shape": [],
+            "quant_info": {
+                "scale": 0.01992089,
+                "zero_point": 0,
+                "quant_type": "ASYMMETRIC"
+            }
+        },
+        {
+            "name": "fc4_weight",
+            "data_type": "UINT8",
+            "attribute": "CONSTANT",
+            "shape": [
+                500,
+                10
+            ],
+            "quant_info": {
+                "scale": 0.00158043,
+                "zero_point": 135,
+                "quant_type": "ASYMMETRIC"
+            },
+            "length": 5000,
+            "offset": 427780
+        },
+        {
+            "name": "fc4_bias",
+            "data_type": "INT32",
+            "attribute": "CONSTANT",
+            "shape": [
+                10
+            ],
+            "quant_info": {
+                "scale": 3.148e-05,
+                "zero_point": 0,
+                "quant_type": "ASYMMETRIC"
+            },
+            "length": 40,
+            "offset": 432780
+        },
+        {
+            "name": "fc4_output",
+            "data_type": "UINT8",
+            "attribute": "TRANSIENT",
+            "shape": [],
+            "quant_info": {
+                "scale": 0.06251489,
+                "zero_point": 80,
+                "quant_type": "ASYMMETRIC"
+            }
+        }
+    ],
+    "nodes": [
+        {
+            "op_name": "conv1",
+            "op_type": "Conv2d",
+            "op_attr": {
+                "ksize": [
+                    5,
+                    5
+                ],
+                "stride": [
+                    1,
+                    1
+                ],
+                "dilation": [
+                    1,
+                    1
+                ],
+                "padding": "VALID",
+                "pad": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "weights": 20,
+                "multiplier": 0,
+                "input_layout": "WHCN",
+                "kernel_layout": "WHIcOc"
+            },
+            "op_inputs": [
+                "input",
+                "conv1_weight",
+                "conv1_bias"
+            ],
+            "op_outputs": [
+                "conv1_output"
+            ]
+        },
+        {
+            "op_name": "pool1",
+            "op_type": "Pool2d",
+            "op_attr": {
+                "type": "MAX",
+                "padding": "NONE",
+                "ksize": [
+                    2,
+                    2
+                ],
+                "stride": [
+                    2,
+                    2
+                ],
+                "round_type": "FLOOR",
+                "layout": "WHCN"
+            },
+            "op_inputs": [
+                "conv1_output"
+            ],
+            "op_outputs": [
+                "pool1_output"
+            ]
+        },
+        {
+            "op_name": "conv2",
+            "op_type": "Conv2d",
+            "op_attr": {
+                "ksize": [
+                    5,
+                    5
+                ],
+                "stride": [
+                    1,
+                    1
+                ],
+                "dilation": [
+                    1,
+                    1
+                ],
+                "padding": "VALID",
+                "pad": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "weights": 50,
+                "multiplier": 0,
+                "input_layout": "WHCN",
+                "kernel_layout": "WHIcOc"
+            },
+            "op_inputs": [
+                "pool1_output",
+                "conv2_weight",
+                "conv2_bias"
+            ],
+            "op_outputs": [
+                "conv2_output"
+            ]
+        },
+        {
+            "op_name": "pool2",
+            "op_type": "Pool2d",
+            "op_attr": {
+                "type": "MAX",
+                "padding": "NONE",
+                "ksize": [
+                    2,
+                    2
+                ],
+                "stride": [
+                    2,
+                    2
+                ],
+                "round_type": "FLOOR",
+                "layout": "WHCN"
+            },
+            "op_inputs": [
+                "conv2_output"
+            ],
+            "op_outputs": [
+                "pool2_output"
+            ]
+        },
+        {
+            "op_name": "fc3",
+            "op_type": "FullyConnected",
+            "op_attr": {
+                "axis": 2,
+                "weights": 500
+            },
+            "op_inputs": [
+                "pool2_output",
+                "fc3_weight",
+                "fc3_bias"
+            ],
+            "op_outputs": [
+                "fc3_output"
+            ]
+        },
+        {
+            "op_name": "relu",
+            "op_type": "Activation",
+            "op_attr": {
+                "activation_type": "Relu"
+            },
+            "op_inputs": [
+                "fc3_output"
+            ],
+            "op_outputs": [
+                "relu_output"
+            ]
+        },
+        {
+            "op_name": "fc4",
+            "op_type": "FullyConnected",
+            "op_attr": {
+                "axis": 0,
+                "weights": 10
+            },
+            "op_inputs": [
+                "relu_output",
+                "fc4_weight",
+                "fc4_bias"
+            ],
+            "op_outputs": [
+                "fc4_output"
+            ]
+        },
+        {
+            "op_name": "softmax",
+            "op_type": "Softmax",
+            "op_attr": {
+                "beta": 1.0,
+                "axis": 0
+            },
+            "op_inputs": [
+                "fc4_output"
+            ],
+            "op_outputs": [
+                "output"
+            ]
+        }
+    ],
+    "inputs_alias": {},
+    "outputs_alias": {}
+}

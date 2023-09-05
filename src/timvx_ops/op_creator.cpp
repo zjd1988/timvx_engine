@@ -5,27 +5,110 @@
 ***********************************/
 #include "timvx_ops/op_creator.h"
 
-namespace TIMVX
+namespace TimVX
 {
 
-    bool OpCreator::parsePoolType(const json &op_info, const std::string &op_name, 
-            const std::string &attr_name, PoolType &pool_type, bool necessary)
+    std::map<std::string, PoolType> gStrToPoolTypeMap = {
+        {"MAX",                          PoolType::MAX},
+        {"AVG",                          PoolType::AVG},
+        {"L2",                           PoolType::L2},
+        {"AVG_ANDROID",                  PoolType::AVG_ANDROID},
+    };
+
+    std::map<PoolType, std::string> gPoolTypeToStrMap = {
+        {PoolType::MAX,                  "MAX"},
+        {PoolType::AVG,                  "AVG"},
+        {PoolType::L2,                   "L2"},
+        {PoolType::AVG_ANDROID,          "AVG_ANDROID"},
+    };
+
+    std::map<std::string, PadType> gStrToPadTypeMap = {
+        {"NONE",                         PadType::NONE},
+        {"AUTO",                         PadType::AUTO},
+        {"VALID",                        PadType::VALID},
+        {"SAME",                         PadType::SAME},
+    };
+
+    std::map<PadType, std::string> gPadTypeToStrMap = {
+        {PadType::NONE,                  "NONE"},
+        {PadType::AUTO,                  "AUTO"},
+        {PadType::VALID,                 "VALID"},
+        {PadType::SAME,                  "SAME"},
+    };
+
+    std::map<std::string, RoundType> gStrToRoundTypeMap = {
+        {"CEILING",                      RoundType::CEILING},
+        {"FLOOR",                        RoundType::FLOOR},
+    };
+
+    std::map<RoundType, std::string> gRoundTypeToStrMap = {
+        {RoundType::CEILING,             "CEILING"},
+        {RoundType::FLOOR,               "FLOOR"},
+    };
+
+    std::map<std::string, OverflowPolicy> gStrToOverflowPolicyMap = {
+        {"WRAP",                         OverflowPolicy::WRAP},
+        {"SATURATE",                     OverflowPolicy::SATURATE},
+    };
+
+    std::map<OverflowPolicy, std::string> gOverflowPolicyToStrMap = {
+        {OverflowPolicy::WRAP,           "WRAP"},
+        {OverflowPolicy::SATURATE,       "SATURATE"},
+    };
+
+    std::map<std::string, RoundingPolicy> gStrToRoundingPolicyMap = {
+        {"TO_ZERO",                      RoundingPolicy::TO_ZERO},
+        {"RTNE",                         RoundingPolicy::RTNE},
+    };
+
+    std::map<RoundingPolicy, std::string> gRoundingPolicyToStrMap = {
+        {RoundingPolicy::TO_ZERO,        "TO_ZERO"},
+        {RoundingPolicy::RTNE,           "RTNE"},
+    };
+
+    std::map<std::string, ResizeType> gStrToResizeTypeMap = {
+        {"NEAREST_NEIGHBOR",             ResizeType::NEAREST_NEIGHBOR},
+        {"BILINEAR",                     ResizeType::BILINEAR},
+        {"AREA",                         ResizeType::AREA},
+    };
+
+    std::map<ResizeType, std::string> gResizeTypeToStrMap = {
+        {ResizeType::NEAREST_NEIGHBOR,   "NEAREST_NEIGHBOR"},
+        {ResizeType::BILINEAR,           "BILINEAR"},
+        {ResizeType::AREA,               "AREA"},
+    };
+
+    std::map<std::string, DataLayout> gStrToDataLayoutMap = {
+        {"ANY",                          DataLayout::ANY},
+        {"WHCN",                         DataLayout::WHCN},
+        {"CWHN",                         DataLayout::CWHN},
+        {"IcWHOc",                       DataLayout::IcWHOc}, /*TF*/
+        {"OcIcWH",                       DataLayout::OcIcWH}, /*TVM for classic conv2d in tflite model*/
+        {"WHIcOc",                       DataLayout::WHIcOc}, /*TIM-VX default*/
+    };
+
+    std::map<DataLayout, std::string> gDataLayoutToStrMap = {
+        {DataLayout::ANY,                "ANY"},
+        {DataLayout::WHCN,               "WHCN"},
+        {DataLayout::CWHN,               "CWHN"},
+        {DataLayout::IcWHOc,             "IcWHOc"}, /*TF*/
+        {DataLayout::OcIcWH,             "OcIcWH"}, /*TVM for classic conv2d in tflite model*/
+        {DataLayout::WHIcOc,             "WHIcOc"}, /*TIM-VX default*/
+    };
+
+    bool OpCreator::parsePoolType(const json& op_info, const std::string& op_name, 
+        const std::string& attr_name, PoolType& pool_type, bool necessary)
     {
         std::string pool_type_str;
-        std::map<std::string, PoolType>   pool_type_map;
-        pool_type_map["MAX"]         = PoolType::MAX;
-        pool_type_map["AVG"]         = PoolType::AVG;
-        pool_type_map["L2"]          = PoolType::L2;
-        pool_type_map["AVG_ANDROID"] = PoolType::AVG_ANDROID;
         const char* attr_c_name = attr_name.c_str();
         bool parse_result = parseValue<std::string>(op_info, op_name, attr_name, pool_type_str, necessary);
-        if (parse_result && necessary)
+        if (parse_result)
         {
-            if (pool_type_map.find(pool_type_str) != pool_type_map.end())
-                pool_type = pool_type_map[pool_type_str];
+            if (gStrToPoolTypeMap.find(pool_type_str) != gStrToPoolTypeMap.end())
+                pool_type = gStrToPoolTypeMap[pool_type_str];
             else
             {
-                TIMVX_ERROR("op %s's attr %s not support %s pool type\n", op_name.c_str(),
+                TIMVX_LOG(TIMVX_LEVEL_ERROR, "op {}'s attr {} not support {} pool type", op_name.c_str(),
                     attr_name.c_str(), pool_type_str.c_str());
                 parse_result = false;
             }
@@ -33,24 +116,19 @@ namespace TIMVX
         return parse_result;
     }
 
-    bool OpCreator::parsePadType(const json &op_info, const std::string &op_name, 
-            const std::string &attr_name, PadType &pad_type, bool necessary)
+    bool OpCreator::parsePadType(const json& op_info, const std::string& op_name, 
+            const std::string& attr_name, PadType& pad_type, bool necessary)
     {
         std::string padding_type_str;
-        std::map<std::string, PadType>   padding_map;
-        padding_map["NONE"]  = PadType::NONE;
-        padding_map["AUTO"]  = PadType::AUTO;
-        padding_map["VALID"] = PadType::VALID;
-        padding_map["SAME"]  = PadType::SAME;
         const char* attr_c_name = attr_name.c_str();
         bool parse_result = parseValue<std::string>(op_info, op_name, attr_name, padding_type_str, necessary);        
-        if (parse_result && necessary)
+        if (parse_result)
         {
-            if (padding_map.find(padding_type_str) != padding_map.end())
-                pad_type = padding_map[padding_type_str];
+            if (gStrToPadTypeMap.find(padding_type_str) != gStrToPadTypeMap.end())
+                pad_type = gStrToPadTypeMap[padding_type_str];
             else
             {
-                TIMVX_ERROR("op %s's attr %s not support %s padding type\n", op_name.c_str(),
+                TIMVX_LOG(TIMVX_LEVEL_ERROR, "op {}'s attr {} not support {} padding type", op_name.c_str(),
                     attr_name.c_str(), padding_type_str.c_str());
                 parse_result = false;
             }
@@ -58,22 +136,19 @@ namespace TIMVX
         return parse_result;
     }
     
-    bool OpCreator::parseRoundType(const json &op_info, const std::string &op_name, 
-            const std::string &attr_name, RoundType &round_type, bool necessary)
+    bool OpCreator::parseRoundType(const json& op_info, const std::string& op_name, 
+            const std::string& attr_name, RoundType& round_type, bool necessary)
     {
         std::string round_type_str;
-        std::map<std::string, RoundType>   round_type_map;
-        round_type_map["CEILING"]    = RoundType::CEILING;
-        round_type_map["FLOOR"]      = RoundType::FLOOR;
         const char* attr_c_name = attr_name.c_str();
         bool parse_result = parseValue<std::string>(op_info, op_name, attr_name, round_type_str, necessary);        
-        if (parse_result && necessary)
+        if (parse_result)
         {
-            if (round_type_map.find(round_type_str) != round_type_map.end())
-                round_type = round_type_map[round_type_str];
+            if (gStrToRoundTypeMap.find(round_type_str) != gStrToRoundTypeMap.end())
+                round_type = gStrToRoundTypeMap[round_type_str];
             else
             {
-                TIMVX_ERROR("op %s's attr %s not support %s round type\n", op_name.c_str(),
+                TIMVX_LOG(TIMVX_LEVEL_ERROR, "op {}'s attr {} not support {} round type", op_name.c_str(),
                     attr_name.c_str(), round_type_str.c_str());
                 parse_result = false;
             }
@@ -81,22 +156,19 @@ namespace TIMVX
         return parse_result;
     }
 
-    bool OpCreator::parseOverflowPolicyType(const json &op_info, const std::string &op_name, 
-            const std::string &attr_name, OverflowPolicy &overflow_policy_type, bool necessary)
+    bool OpCreator::parseOverflowPolicyType(const json& op_info, const std::string& op_name, 
+            const std::string& attr_name, OverflowPolicy& overflow_policy_type, bool necessary)
     {
         std::string overflow_policy_str;
-        std::map<std::string, OverflowPolicy>   overflow_policy_map;
-        overflow_policy_map["WRAP"]       = OverflowPolicy::WRAP;
-        overflow_policy_map["SATURATE"]   = OverflowPolicy::SATURATE;
         const char* attr_c_name = attr_name.c_str();
         bool parse_result = parseValue<std::string>(op_info, op_name, attr_name, overflow_policy_str, necessary);        
-        if (parse_result && necessary)
+        if (parse_result)
         {
-            if (overflow_policy_map.find(overflow_policy_str) != overflow_policy_map.end())
-                overflow_policy_type = overflow_policy_map[overflow_policy_str];
+            if (gStrToOverflowPolicyMap.find(overflow_policy_str) != gStrToOverflowPolicyMap.end())
+                overflow_policy_type = gStrToOverflowPolicyMap[overflow_policy_str];
             else
             {
-                TIMVX_ERROR("op %s's attr %s not support %s overflow policy type\n", op_name.c_str(),
+                TIMVX_LOG(TIMVX_LEVEL_ERROR, "op {}'s attr {} not support {} overflow policy type", op_name.c_str(),
                     attr_name.c_str(), overflow_policy_str.c_str());
                 parse_result = false;
             }
@@ -104,22 +176,19 @@ namespace TIMVX
         return parse_result;
     }
 
-    bool OpCreator::parseRoundingPolicyType(const json &op_info, const std::string &op_name, 
-            const std::string &attr_name, RoundingPolicy &rounding_policy_type, bool necessary)
+    bool OpCreator::parseRoundingPolicyType(const json& op_info, const std::string& op_name, 
+            const std::string& attr_name, RoundingPolicy& rounding_policy_type, bool necessary)
     {
         std::string rounding_policy_str;
-        std::map<std::string, RoundingPolicy>   rounding_policy_map;
-        rounding_policy_map["TO_ZERO"]    = RoundingPolicy::TO_ZERO;
-        rounding_policy_map["RTNE"]       = RoundingPolicy::RTNE;
         const char* attr_c_name = attr_name.c_str();
         bool parse_result = parseValue<std::string>(op_info, op_name, attr_name, rounding_policy_str, necessary);        
-        if (parse_result && necessary)
+        if (parse_result)
         {
-            if (rounding_policy_map.find(rounding_policy_str) != rounding_policy_map.end())
-                rounding_policy_type = rounding_policy_map[rounding_policy_str];
+            if (gStrToRoundingPolicyMap.find(rounding_policy_str) != gStrToRoundingPolicyMap.end())
+                rounding_policy_type = gStrToRoundingPolicyMap[rounding_policy_str];
             else
             {
-                TIMVX_ERROR("op %s's attr %s not support %s rounding policy type\n", op_name.c_str(),
+                TIMVX_LOG(TIMVX_LEVEL_ERROR, "op {}'s attr {} not support {} rounding policy type", op_name.c_str(),
                     attr_name.c_str(), rounding_policy_str.c_str());
                 parse_result = false;
             }
@@ -127,23 +196,19 @@ namespace TIMVX
         return parse_result;
     }
 
-    bool OpCreator::parseResizeType(const json &op_info, const std::string &op_name, 
-            const std::string &attr_name, ResizeType &resize_type, bool necessary)
+    bool OpCreator::parseResizeType(const json& op_info, const std::string& op_name, 
+            const std::string& attr_name, ResizeType& resize_type, bool necessary)
     {
         std::string resize_type_str;
-        std::map<std::string, ResizeType>   resize_type_map;
-        resize_type_map["NEAREST_NEIGHBOR"]    = ResizeType::NEAREST_NEIGHBOR;
-        resize_type_map["BILINEAR"]            = ResizeType::BILINEAR;
-        resize_type_map["AREA"]                = ResizeType::AREA;
         const char* attr_c_name = attr_name.c_str();
         bool parse_result = parseValue<std::string>(op_info, op_name, attr_name, resize_type_str, necessary);        
-        if (parse_result && necessary)
+        if (parse_result)
         {
-            if (resize_type_map.find(resize_type_str) != resize_type_map.end())
-                resize_type = resize_type_map[resize_type_str];
+            if (gStrToResizeTypeMap.find(resize_type_str) != gStrToResizeTypeMap.end())
+                resize_type = gStrToResizeTypeMap[resize_type_str];
             else
             {
-                TIMVX_ERROR("op %s's attr %s not support %s resize type\n", op_name.c_str(),
+                TIMVX_LOG(TIMVX_LEVEL_ERROR, "op {}'s attr {} not support {} resize type", op_name.c_str(),
                     attr_name.c_str(), resize_type_str.c_str());
                 parse_result = false;
             }
@@ -151,29 +216,19 @@ namespace TIMVX
         return parse_result;
     }
 
-    bool OpCreator::parseDataLayoutType(const json &op_info, const std::string &op_name, 
-            const std::string &attr_name, DataLayout &data_layout_type, bool necessary)
+    bool OpCreator::parseDataLayoutType(const json& op_info, const std::string& op_name, 
+            const std::string& attr_name, DataLayout& data_layout_type, bool necessary)
     {
         std::string data_layout_str;
-        std::map<std::string, DataLayout>   data_layout_map;
-        data_layout_map["ANY"]    = DataLayout::ANY;
-        data_layout_map["WHCN"]   = DataLayout::WHCN;
-        data_layout_map["CWHN"]   = DataLayout::CWHN;
-        data_layout_map["IcWHOc"] = DataLayout::IcWHOc;    /*TF*/
-        data_layout_map["OcIcWH"] = DataLayout::OcIcWH;    /*TVM for classic conv2d in tflite model*/
-        data_layout_map["IcOcWH"] = DataLayout::IcOcWH;    /*TVM for depthwise conv2d in tflite model*/
-        data_layout_map["WHIcOc"] = DataLayout::WHIcOc;    /*TIM-VX default*/
-        data_layout_map["WCN"]    = DataLayout::WCN;       /*for conv1d*/
-        data_layout_map["WIcOc"]  = DataLayout::WIcOc;     /*for conv1d*/        
         const char* attr_c_name = attr_name.c_str();
         bool parse_result = parseValue<std::string>(op_info, op_name, attr_name, data_layout_str, necessary);        
-        if (parse_result && necessary)
+        if (parse_result)
         {
-            if (data_layout_map.find(data_layout_str) != data_layout_map.end())
-                data_layout_type = data_layout_map[data_layout_str];
+            if (gStrToDataLayoutMap.find(data_layout_str) != gStrToDataLayoutMap.end())
+                data_layout_type = gStrToDataLayoutMap[data_layout_str];
             else
             {
-                TIMVX_ERROR("op %s's attr %s not support %s data layout type\n", op_name.c_str(),
+                TIMVX_LOG(TIMVX_LEVEL_ERROR, "op {}'s attr {} not support {} data layout type", op_name.c_str(),
                     attr_name.c_str(), data_layout_str.c_str());
                 parse_result = false;
             }
@@ -185,10 +240,10 @@ namespace TIMVX
     {
         if (m_op_creator_map.find(op_type) != m_op_creator_map.end())
         {
-            TIMVX_ERROR("%s op_creator has already added to map\n", op_type.c_str());
+            TIMVX_LOG(TIMVX_LEVEL_ERROR, "{} op_creator has already added to map", op_type.c_str());
             return false;
         }
-        TIMVX_PRINT("add %s op_creator to map\n", op_type.c_str());
+        TIMVX_LOG(TIMVX_LEVEL_INFO, "add {} op_creator to map", op_type.c_str());
         m_op_creator_map.insert(std::make_pair(op_type, creator));
         return true;
     }
@@ -203,4 +258,4 @@ namespace TIMVX
             return nullptr;
     }
 
-}  //namespace TIMVX
+}  //namespace TimVX

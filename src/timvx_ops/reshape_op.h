@@ -8,10 +8,10 @@
 using namespace tim::vx;
 using namespace std;
 
-namespace TIMVX
+namespace TimVX
 {
 
-    class ReshapeCreator : public OpCreator
+    class ReshapeOpCreator : public OpCreator
     {
     public:
         struct ReshapeOpAttr
@@ -19,13 +19,16 @@ namespace TIMVX
             std::vector<uint32_t> size;
         };
 
-        virtual Operation* onCreate(std::shared_ptr<Graph> &graph, const json &op_info) override;
+        ReshapeOpCreator(std::string op_name) : OpCreator(op_name)
+        {
+        }
+
+        virtual Operation* onCreate(std::shared_ptr<Graph>& graph, const json& op_info) override;
 
     private:
-        bool parseOpAttr(const json &op_info, ReshapeOpAttr &op_attr);
+        bool parseSizeAttr(const json& op_info, ReshapeOpAttr& op_attr);
+        bool parseOpAttr(const json& op_info, ReshapeOpAttr& op_attr);
 
-    private:
-        std::string m_op_name = "Reshape";
     };
 
-} // namespace TIMVX
+} // namespace TimVX

@@ -8,16 +8,22 @@
 using namespace tim::vx;
 using namespace std;
 
-namespace TIMVX
+namespace TimVX
 {
 
-    class EltwiseCreator : public OpCreator
+    class EltwiseOpCreator : public OpCreator
     {
     public:
-        virtual Operation* onCreate(std::shared_ptr<Graph> &graph, const json &op_info) override;
+        struct EltwiseOpAttr
+        {
+        };
 
-    private:
-        std::string m_op_name = "Eltwise";
+        EltwiseOpCreator(std::string op_name) : OpCreator(op_name)
+        {
+        }
+
+        virtual Operation* onCreate(std::shared_ptr<Graph>& graph, const json& op_info) override;
+
     };
 
-} // namespace TIMVX
+} // namespace TimVX

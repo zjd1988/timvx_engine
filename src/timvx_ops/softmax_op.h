@@ -8,25 +8,29 @@
 using namespace tim::vx;
 using namespace std;
 
-namespace TIMVX
+namespace TimVX
 {
 
-    class SoftmaxCreator : public OpCreator
+    class SoftmaxOpCreator : public OpCreator
     {
     public:
         struct SoftmaxOpAttr
         {
-            float beta;
+            float   beta;
             int32_t axis;
         };
-    
-        virtual Operation* onCreate(std::shared_ptr<Graph> &graph, const json &op_info) override;
+
+        SoftmaxOpCreator(std::string op_name) : OpCreator(op_name)
+        {
+        }
+
+        virtual Operation* onCreate(std::shared_ptr<Graph>& graph, const json& op_info) override;
 
     private:
-        bool parseOpAttr(const json &op_info, SoftmaxOpAttr &op_attr);
+        bool parseBetaAttr(const json& op_info, SoftmaxOpAttr& op_attr);
+        bool parseAxisAttr(const json& op_info, SoftmaxOpAttr& op_attr);
+        bool parseOpAttr(const json& op_info, SoftmaxOpAttr& op_attr);
 
-    private:
-        std::string m_op_name = "Softmax";
     };
 
-} // namespace TIMVX
+} // namespace TimVX

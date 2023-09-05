@@ -6,10 +6,10 @@
 #include "tim/vx/ops/elementwise.h"
 #include "timvx_ops/eltwise_op.h"
 
-namespace TIMVX
+namespace TimVX
 {
 
-    Operation* EltwiseCreator::onCreate(std::shared_ptr<Graph> &graph, const json &op_info)
+    Operation* EltwiseOpCreator::onCreate(std::shared_ptr<Graph>& graph, const json& op_info)
     {
         std::string eltwise_type;
         if (!parseValue<std::string>(op_info, m_op_name, "eltwise_type", eltwise_type))
@@ -47,13 +47,13 @@ namespace TIMVX
             if ("Multiply" == eltwise_type)
                 return graph->CreateOperation<ops::Multiply>(scale).get();
             else
-                return graph->CreateOperation<ops::Div>(scale).get();
+                return graph->CreateOperation<ops::Div>().get();
         }
         else
-            TIMVX_ERROR("unsupported elewise op type:%s, when create %s op\n", eltwise_type.c_str(), m_op_name.c_str());
+            TIMVX_LOG(TIMVX_LEVEL_ERROR, "unsupported elewise op type: {}", eltwise_type);
         return nullptr;
     }
 
-    REGISTER_OP_CREATOR(EltwiseCreator, Eltwise);
+    REGISTER_OP_CREATOR(EltwiseOpCreator, Eltwise);
 
-} // namespace TIMVX
+} // namespace TimVX

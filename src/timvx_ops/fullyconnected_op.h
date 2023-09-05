@@ -8,10 +8,10 @@
 using namespace tim::vx;
 using namespace std;
 
-namespace TIMVX
+namespace TimVX
 {
 
-    class FullyConnectedCreator : public OpCreator
+    class FullyConnectedOpCreator : public OpCreator
     {
     public:
         struct FullyConnectedOpAttr
@@ -20,13 +20,17 @@ namespace TIMVX
             uint32_t weights;
         };
 
-        virtual Operation* onCreate(std::shared_ptr<Graph> &graph, const json &op_info) override;
+        FullyConnectedOpCreator(std::string op_name) : OpCreator(op_name)
+        {
+        }
+
+        virtual Operation* onCreate(std::shared_ptr<Graph>& graph, const json& op_info) override;
 
     private:
-        bool parseOpAttr(const json &op_info, FullyConnectedOpAttr &op_attr);
+        bool parseAxisAttr(const json& op_info, FullyConnectedOpAttr& op_attr);
+        bool parseWeightsAttr(const json& op_info, FullyConnectedOpAttr& op_attr);
+        bool parseOpAttr(const json& op_info, FullyConnectedOpAttr& op_attr);
 
-    private:
-        std::string m_op_name = "FullyConnected";
     };
 
-} // namespace TIMVX
+} // namespace TimVX

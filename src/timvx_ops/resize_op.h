@@ -8,30 +8,39 @@
 using namespace tim::vx;
 using namespace std;
 
-namespace TIMVX
+namespace TimVX
 {
 
-    class ResizeCreator : public OpCreator
+    class ResizeOpCreator : public OpCreator
     {
     public:
         struct ResizeOpAttr
         {
             ResizeType type;
-            float factor;
-            bool align_corners;
-            bool half_pixel_centers;
-            int target_height;
-            int target_width;
+            float      factor;
+            bool       align_corners;
+            bool       half_pixel_centers;
+            int        target_height;
+            int        target_width;
             DataLayout layout;
         };
 
-        virtual Operation* onCreate(std::shared_ptr<Graph> &graph, const json &op_info) override;
+        ResizeOpCreator(std::string op_name) : OpCreator(op_name)
+        {
+        }
+
+        virtual Operation* onCreate(std::shared_ptr<Graph>& graph, const json& op_info) override;
 
     private:
-        bool parseOpAttr(const json &op_info, ResizeOpAttr &op_attr);
+        bool parseTypeAttr(const json& op_info, ResizeOpAttr& op_attr);
+        bool parseFactorAttr(const json& op_info, ResizeOpAttr& op_attr);
+        bool parseAlignCornersAttr(const json& op_info, ResizeOpAttr& op_attr);
+        bool parseHalfPixelCentersAttr(const json& op_info, ResizeOpAttr& op_attr);
+        bool parseTargetHeightAttr(const json& op_info, ResizeOpAttr& op_attr);
+        bool parseTargetWidthAttr(const json& op_info, ResizeOpAttr& op_attr);
+        bool parseLayoutAttr(const json& op_info, ResizeOpAttr& op_attr);
+        bool parseOpAttr(const json& op_info, ResizeOpAttr& op_attr);
 
-    private:
-        std::string m_op_name = "Resize";
     };
 
-} // namespace TIMVX
+} // namespace TimVX

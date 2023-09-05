@@ -8,10 +8,10 @@
 using namespace tim::vx;
 using namespace std;
 
-namespace TIMVX
+namespace TimVX
 {
 
-    class TransposeCreator : public OpCreator
+    class TransposeOpCreator : public OpCreator
     {
     public:
         struct TransposeOpAttr
@@ -19,13 +19,16 @@ namespace TIMVX
             std::vector<uint32_t> perm;
         };
 
-        virtual Operation* onCreate(std::shared_ptr<Graph> &graph, const json &op_info) override;
+        TransposeOpCreator(std::string op_name) : OpCreator(op_name)
+        {
+        }
+
+        virtual Operation* onCreate(std::shared_ptr<Graph>& graph, const json& op_info) override;
 
     private:
-        bool parseOpAttr(const json &op_info, TransposeOpAttr &op_attr);
+        bool parsePermAttr(const json& op_info, TransposeOpAttr& op_attr);
+        bool parseOpAttr(const json& op_info, TransposeOpAttr& op_attr);
 
-    private:
-        std::string m_op_name = "Transpose";
     };
 
-} // namespace TIMVX
+} // namespace TimVX

@@ -8,10 +8,10 @@
 using namespace tim::vx;
 using namespace std;
 
-namespace TIMVX
+namespace TimVX
 {
     
-    class Conv2dCreator : public OpCreator
+    class Conv2dOpCreator : public OpCreator
     {
     public:
         struct Conv2dOpAttr
@@ -27,23 +27,24 @@ namespace TIMVX
             DataLayout              kernel_layout;
         };
 
-        virtual Operation* onCreate(std::shared_ptr<Graph> &graph, const json &op_info) override;
+        Conv2dOpCreator(std::string op_name) : OpCreator(op_name)
+        {
+        }
+
+        virtual Operation* onCreate(std::shared_ptr<Graph>& graph, const json& op_info) override;
 
     private:
-        bool getConv2dType();
-        bool parseWeights(const json &op_info, Conv2dOpAttr &op_attr);
-        bool parsePadding(const json &op_info, Conv2dOpAttr &op_attr);
-        bool parseKsize(const json &op_info, Conv2dOpAttr &op_attr);
-        bool parseStride(const json &op_info, Conv2dOpAttr &op_attr);
-        bool parseDilation(const json &op_info, Conv2dOpAttr &op_attr);
-        bool parsePad(const json &op_info, Conv2dOpAttr &op_attr);
-        bool parseMultiplier(const json &op_info, Conv2dOpAttr &op_attr);
-        bool parseInputLayout(const json &op_info, Conv2dOpAttr &op_attr);
-        bool parseKernelLayout(const json &op_info, Conv2dOpAttr &op_attr);
-        bool parseOpAttr(const json &op_info, Conv2dOpAttr &op_attr);
+        bool parseWeightsAttr(const json& op_info, Conv2dOpAttr& op_attr);
+        bool parsePaddingAttr(const json& op_info, Conv2dOpAttr& op_attr);
+        bool parseKsizeAttr(const json& op_info, Conv2dOpAttr& op_attr);
+        bool parseStrideAttr(const json& op_info, Conv2dOpAttr& op_attr);
+        bool parseDilationAttr(const json& op_info, Conv2dOpAttr& op_attr);
+        bool parsePadAttr(const json& op_info, Conv2dOpAttr& op_attr);
+        bool parseMultiplierAttr(const json& op_info, Conv2dOpAttr& op_attr);
+        bool parseInputLayoutAttr(const json& op_info, Conv2dOpAttr& op_attr);
+        bool parseKernelLayoutAttr(const json& op_info, Conv2dOpAttr& op_attr);
+        bool parseOpAttr(const json& op_info, Conv2dOpAttr& op_attr);
 
-    private:
-        std::string m_op_name = "Conv2d";
     };
 
-} // namespace TIMVX
+} // namespace TimVX
