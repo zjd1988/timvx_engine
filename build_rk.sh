@@ -28,6 +28,7 @@ fi
 
 if [ "$2" == "clean" ];then
   rm -r ${BUILD_DIR}
+  rm -r ${ROOT_PWD}/3rd_party/TIM_VX
   exit 0
 fi
 
@@ -40,5 +41,5 @@ cmake .. -DCMAKE_C_COMPILER=${GCC_COMPILER} \
          -DCMAKE_CXX_COMPILER=${GPP_COMPILER} \
          -DBUILD_PYTHON_LIB=OFF ${@:2}
 
-make -j`nproc/2` 
-cd -
+#make -j`nproc`
+#cd -
