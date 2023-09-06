@@ -1,11 +1,11 @@
 
 ## 源码编译
 ### x64编译
-./build_x64.sh -DTIM_VX_VERSION=v1.1.32
+./build_x64.sh -DTIM_VX_GIT=https://github.com/VeriSilicon/TIM-VX.git -DTIM_VX_VERSION=v1.1.32
 
 ### rk(rv1109/rv1126/rk1808)编译
 rknpu-1.7.0  
-./build_rk.sh arm32 -DTIM_VX_GIT=https://github.com/VeriSilicon/TIM-VX.git -DTIM_VX_VERSION=v1.1.32 -DEXTERNAL_VIV_SDK=xxxxxx
+./build_rk.sh arm32 -DTIM_VX_GIT=https://github.com/VeriSilicon/TIM-VX.git -DTIM_VX_VERSION=v1.1.32 -DEXTERNAL_VIV_SDK=$PWD/rk_1.7.0_sdk  
 注: EXTERNAL_VIV_SDK可以从对应开发的sdk获取，该目录的文件构成如下  
 ```
 sdk_dir/  
