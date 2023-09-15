@@ -2,13 +2,13 @@
 ## 源码编译
 ### x64编译
 ```
-./build_x64.sh -DTIM_VX_GIT=https://github.com/VeriSilicon/TIM-VX.git -DTIM_VX_VERSION=v1.1.32
+./build_x64.sh -DTIM_VX_GIT=https://github.com/VeriSilicon/TIM-VX.git -DTIM_VX_VERSION=v1.1.34.fix
 ```
 
 ### rk(rv1109/rv1126/rk1808)编译
 ```
 #rknpu-1.7.0
-./build_rk.sh arm32 -DTIM_VX_GIT=https://github.com/VeriSilicon/TIM-VX.git -DTIM_VX_VERSION=v1.1.32 -DEXTERNAL_VIV_SDK=$PWD/rk_1.7.0_sdk  
+./build_rk.sh rv1126 -DTIM_VX_GIT=https://github.com/VeriSilicon/TIM-VX.git -DTIM_VX_VERSION=v1.1.34.fix -DEXTERNAL_VIV_SDK=$PWD/rk_1.7.0_sdk  
 ```
 
 注:  
@@ -16,6 +16,11 @@
     (2) 手动替换build_rk.sh 中交叉编译工具链的地址COMPILE_TOOL_CHAIN
 
 ```
+rknpu-1.7.0目录下对应关系:
+    linux-aarch64: RK1808
+    linux-arm: RK1806
+    linux-armhf-puma: RV1109/RV1126
+
 sdk_dir/
     drivers/
         libArchModelSw.so
