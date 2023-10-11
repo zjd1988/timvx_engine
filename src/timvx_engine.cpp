@@ -241,7 +241,7 @@ namespace TimVX
             return false;
         }
         return true;
-    }    
+    }
 
     bool TimVXEngine::createNormInfo(const json& norm_json)
     {
@@ -277,7 +277,6 @@ namespace TimVX
                     return false;
                 }
                 reorder_val = tensor_norm["reorder"].get<std::vector<int>>();
-            
                 if (reorder_val.size() != 3)
                 {
                     TIMVX_LOG(TIMVX_LEVEL_ERROR, "norm info reorder's size should be 3");
@@ -542,7 +541,7 @@ namespace TimVX
         op_node->BindOutput(out_tensor);
         return true;
     }
-    
+
     json TimVXEngine::getOpInfo(const std::string& op_name)
     {
         json op_json;
