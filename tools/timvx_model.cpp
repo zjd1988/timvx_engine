@@ -85,10 +85,8 @@ namespace TimVX
         {
             TimvxTensorAttr attr = m_output_attrs[i];
             std::vector<int> tensor_shape(&attr.dims[0], &attr.dims[0] + attr.n_dims);
-            TIMVX_LOG(TIMVX_LEVEL_INFO, "index={}, name={}, ", attr.index, attr.name);
-            TIMVX_LOG(TIMVX_LEVEL_INFO, "n_dims={}, dims=[{}], ", attr.n_dims, spdlog::fmt_lib::join(tensor_shape, ","));
-            TIMVX_LOG(TIMVX_LEVEL_INFO, "n_elems={}, size={}, ", attr.n_elems, attr.size);
-            TIMVX_LOG(TIMVX_LEVEL_INFO, "fmt={}, type={}, qnt_type={}", 
+            TIMVX_LOG(TIMVX_LEVEL_INFO, "index={}, name={}, n_dims={}, dims=[{}], n_elems={}, size={}, fmt={}, type={}, qnt_type={}", 
+                attr.index, attr.name, attr.n_dims, spdlog::fmt_lib::join(tensor_shape, ","), attr.n_elems, attr.size, 
                 getFormatString(attr.fmt), getTypeString(attr.type), getQntTypeString(attr.qnt_type));
         }
         return;
