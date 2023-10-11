@@ -22,5 +22,5 @@ cd ${BUILD_DIR}
 cmake .. -DCMAKE_C_COMPILER=${GCC_COMPILER} \
          -DCMAKE_CXX_COMPILER=${GPP_COMPILER} ${@:2}
 
-make -j`nproc/2` 
+make -j`nproc`
 cd -

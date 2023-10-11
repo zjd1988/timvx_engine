@@ -636,7 +636,7 @@ namespace TimVX
         }
 
         // call compile to binary
-        bin_size = -1;
+        bin_size = 0;
         if (false == graph->CompileToBinary(nullptr, &bin_size) || 0 >= bin_size)
         {
             TIMVX_LOG(TIMVX_LEVEL_ERROR, "graph compile to get binary buffer size fail ...");

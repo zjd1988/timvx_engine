@@ -46,9 +46,9 @@ sdk_dir/
 ```
 ## x64测试
 替换下面的localpath为本地真实路径
-1. export TIM_ENGINE_CODE=localpath/timvx_engine
-2. export VIVANTE_SDK_DIR=$TIMVX_ENGINE_PATH/3rd_party/TIM_VX/src/TIM_VX/prebuilt-sdk/x86_64_linux
-3. export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TIMVX_CODE_PATH/prebuilt-sdk/x86_64_linux/lib
+1. export TIM_ENGINE_PATH=localpath/timvx_engine
+2. export VIVANTE_SDK_DIR=$TIM_ENGINE_PATH/3rd_party/TIM_VX/src/TIM_VX/prebuilt-sdk/x86_64_linux
+3. export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$VIVANTE_SDK_DIR/lib
 4. 查看详细信息需要新增环境变量，export VSI_NN_LOG_LEVEL=5
 5. python examples/api_test/lenet.py
 
