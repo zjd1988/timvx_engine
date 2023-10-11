@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 if [ "$1" == "A311D" ] || [ "$1" == "S905D3" ] || [ "$1" == "C308X" ];then
-  COMPILE_TOOL_CHAIN=/data/zhaojd-a/gitee_codes/tool_chain/gcc-arm-8.3-2019.03-x86_64-aarch64-linux-gnu/gcc-arm-8.3-2019.03-x86_64-aarch64-linux-gnu/bin/aarch64-linux-gnu
+  COMPILE_TOOL_CHAIN=/data/zhaojd-a/github_codes/m2s_toolchains/gcc-linaro-7.3.1-2018.05-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu
 elif [ "$1" == "C305X" ];then
   COMPILE_TOOL_CHAIN=/data/zhaojd-a/gitee_codes/tool_chain/gcc-arm-8.3-2019.03-x86_64-arm-linux-gnueabihf/bin/arm-linux-gnueabihf
 else
