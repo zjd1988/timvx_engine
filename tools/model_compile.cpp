@@ -104,6 +104,8 @@ int main(int argc, char* argv[])
     if (0 != parseModelCompileOption(argc, argv, cmd_option))
         return -1;
 
+    // set load_only to true to force only load and create graph, not compile
+    cmd_option.load_only = true;
     std::shared_ptr<TimVXModel> model(new TimVXModel(cmd_option));
     if (nullptr == model.get())
         return -1;

@@ -15,9 +15,9 @@ std::map<TimvxQueryCmd, std::string> gTimvxQueryCmd2Str = {
     {TIMVX_QUERY_OUTPUT_ATTR, "TIMVX_QUERY_OUTPUT_ATTR"},
 };
 
-int timvxInit(TimvxContext* context, const char* model_para_path, const char* model_weight_path)
+int timvxInit(TimvxContext* context, const char* model_para_path, const char* model_weight_path, bool load_only)
 {
-    std::unique_ptr<TimVX::EngineInterface> engine_ins(new TimVX::EngineInterface(model_para_path, model_weight_path));
+    std::unique_ptr<TimVX::EngineInterface> engine_ins(new TimVX::EngineInterface(model_para_path, model_weight_path, load_only));
     if (nullptr == engine_ins.get() || false == engine_ins->getEngineStatus())
         return -1;
     TimVX::EngineInterface* engine_ptr = engine_ins.release();
@@ -176,7 +176,7 @@ int timvxOutputsRelease(TimvxContext context, uint32_t n_ouputs, TimvxOutput out
     return 0;
 }
 
-int timvxCompileModelAndSave(TimvxContext context, const char* weight_file, const char* para_file)
+int timvxExportGrpah(TimvxContext context, const char* weight_file, const char* para_file)
 {
     TimVX::EngineInterface* engine_ptr = (TimVX::EngineInterface*)context;
     if (nullptr == engine_ptr)
@@ -184,7 +184,20 @@ int timvxCompileModelAndSave(TimvxContext context, const char* weight_file, cons
         TIMVX_LOG(TIMVX_LEVEL_ERROR, "input context is nullptr");
         return -1;
     }
-    if (false == engine_ptr->compileModelAndSave(weight_file, para_file))
+    if (false == engine_ptr->exportGraph(weight_file, para_file))
+        return -1;
+    return 0;
+}
+
+int timvxExportNBGGrpah(TimvxContext context, const char* weight_file, const char* para_file)
+{
+    TimVX::EngineInterface* engine_ptr = (TimVX::EngineInterface*)context;
+    if (nullptr == engine_ptr)
+    {
+        TIMVX_LOG(TIMVX_LEVEL_ERROR, "input context is nullptr");
+        return -1;
+    }
+    if (false == engine_ptr->exportNBGGraph(weight_file, para_file))
         return -1;
     return 0;
 }

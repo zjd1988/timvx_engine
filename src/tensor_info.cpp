@@ -11,25 +11,51 @@ using namespace std;
 namespace TimVX
 {
 
+    std::map<DataType, std::string> gDataTypeToStrMap = {
+        {DataType::INT8,                  "INT8"},
+        {DataType::UINT8,                 "UINT8"},
+        {DataType::INT16,                 "INT16"},
+        {DataType::UINT16,                "UINT16"},
+        {DataType::INT32,                 "INT32"},
+        {DataType::UINT32,                "UINT32"},
+        {DataType::FLOAT16,               "FLOAT16"},
+        {DataType::FLOAT32,               "FLOAT32"},
+        {DataType::BOOL8,                 "BOOL8"},
+    };
+
+    std::map<std::string, DataType> gStrToDataTypeMap = {
+        {"INT8",                           DataType::INT8},
+        {"UINT8",                          DataType::UINT8},
+        {"INT16",                          DataType::INT16},
+        {"UINT16",                         DataType::UINT16},
+        {"INT32",                          DataType::INT32},
+        {"UINT32",                         DataType::UINT32},
+        {"FLOAT16",                        DataType::FLOAT16},
+        {"FLOAT32",                        DataType::FLOAT32},
+        {"BOOL8",                          DataType::BOOL8},
+    };
+
+    std::map<std::string, QuantType> gStrToQuantTypeMap = {
+        {"NONE",                           QuantType::NONE},
+        {"ASYMMETRIC",                     QuantType::ASYMMETRIC},
+        {"SYMMETRIC_PER_CHANNEL",          QuantType::SYMMETRIC_PER_CHANNEL},
+    };
+
+    std::map<QuantType, std::string> gQuantTypeToStrMap = {
+        {QuantType::NONE,                  "NONE"},
+        {QuantType::ASYMMETRIC,            "ASYMMETRIC"},
+        {QuantType::SYMMETRIC_PER_CHANNEL, "SYMMETRIC_PER_CHANNEL"},
+    };
+
     bool TensorSpecConstruct::parseTensorDataType(const json &tensor_info, const std::string &tensor_name, 
         const std::string &key_name, DataType &data_type)
     {
         std::string data_type_str;
-        std::map<std::string, DataType> data_type_map;
-        data_type_map["INT8"]     = DataType::INT8;
-        data_type_map["UINT8"]    = DataType::UINT8;
-        data_type_map["INT16"]    = DataType::INT16;
-        data_type_map["UINT16"]   = DataType::UINT16;
-        data_type_map["INT32"]    = DataType::INT32;
-        data_type_map["UINT32"]   = DataType::UINT32;
-        data_type_map["FLOAT16"]  = DataType::FLOAT16;
-        data_type_map["FLOAT32"]  = DataType::FLOAT32;
-        data_type_map["BOOL8"]    = DataType::BOOL8;
         bool parse_result = parseValue<std::string>(tensor_info, tensor_name, key_name, data_type_str);
         if (parse_result)
         {
-            if (data_type_map.find(data_type_str) != data_type_map.end())
-                data_type = data_type_map[data_type_str];
+            if (gStrToDataTypeMap.find(data_type_str) != gStrToDataTypeMap.end())
+                data_type = gStrToDataTypeMap[data_type_str];
             else
             {
                 TIMVX_LOG(TIMVX_LEVEL_ERROR, "tensor {}'s attr {} contains invalid datatype {}", tensor_name.c_str(),
@@ -69,15 +95,11 @@ namespace TimVX
         const std::string &key_name, QuantType &quant_type)
     {
         std::string quant_type_str;
-        std::map<std::string, QuantType> quant_type_map;
-        quant_type_map["NONE"]                      = QuantType::NONE;
-        quant_type_map["ASYMMETRIC"]                = QuantType::ASYMMETRIC;
-        quant_type_map["SYMMETRIC_PER_CHANNEL"]     = QuantType::SYMMETRIC_PER_CHANNEL;
         bool parse_result = parseValue<std::string>(tensor_info, tensor_name, key_name, quant_type_str);
         if (parse_result)
         {
-            if (quant_type_map.find(quant_type_str) != quant_type_map.end())
-                quant_type = quant_type_map[quant_type_str];
+            if (gStrToQuantTypeMap.find(quant_type_str) != gStrToQuantTypeMap.end())
+                quant_type = gStrToQuantTypeMap[quant_type_str];
             else
             {
                 TIMVX_LOG(TIMVX_LEVEL_ERROR, "tensor {}'s attr {} contains quant type {}", tensor_name.c_str(),

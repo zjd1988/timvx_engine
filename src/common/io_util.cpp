@@ -39,4 +39,32 @@ namespace TimVX
         return 0;
     }
 
+    int saveFileData(const std::string& file_name, const char* save_data, const size_t save_len)
+    {
+        if (nullptr == save_data)
+        {
+            TIMVX_LOG(TIMVX_LEVEL_ERROR, "data to wirte is nullptr, please check", file_name);
+            return -1;
+        }
+        if (0 >= save_len)
+        {
+            TIMVX_LOG(TIMVX_LEVEL_ERROR, "data to wirte {} bytes, please check", save_len);
+            return -1;
+        }
+        std::ofstream file_stream(file_name.c_str(), std::ios_base::binary);
+        if (!file_stream.is_open())
+        {
+            TIMVX_LOG(TIMVX_LEVEL_ERROR, "open file {} to wirte fail", file_name);
+            return -1;
+        }
+        file_stream.write(save_data, save_len);
+        if (file_stream.bad())
+        {
+            TIMVX_LOG(TIMVX_LEVEL_ERROR, "write {} bytes to file {} fail, please check",
+                save_len, file_name);
+            return -1;
+        }
+        return 0;
+    }
+
 } // namespace TimVX 

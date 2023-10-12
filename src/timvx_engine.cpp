@@ -8,10 +8,14 @@
 #include "timvx_engine.h"
 #include "tensor_info.h"
 #include "timvx_ops/op_creator.h"
+#include "common/io_uitl.h"
 #include "common/json_parse.h"
 
 namespace TimVX
 {
+
+    extern std::map<DataType, std::string> gDataTypeToStrMap;
+    extern std::map<QuantType, std::string> gQuantTypeToStrMap;
 
     #define BITS_PER_BYTE 8
     TimVXEngine::TimVXEngine(const std::string& graph_name)
@@ -199,7 +203,11 @@ namespace TimVX
                 !parseValue<int>(tensor_info, "tensor_info", "offset", tensor_data_offset)) ||
                 (tensor_info.contains("length") && 
                 !parseValue<int>(tensor_info, "tensor_info", "length", tensor_data_length)))
+            {
+                TIMVX_LOG(TIMVX_LEVEL_ERROR, "parse tensor {} data offset and length fail, please check again!", tensor_name);
                 return false;
+            }
+
             tensor_data += tensor_data_offset;
             if (tensor_data && weight_data && 
                 (tensor_data + tensor_data_length) > (weight_data + weight_len))
@@ -358,7 +366,7 @@ namespace TimVX
         return tensor->CopyDataToTensor(buffer_data, buffer_len);
     }
 
-    bool TimVXEngine::createOperation(const json& op_info)
+    bool TimVXEngine::createOperation(const json& op_info, const char* weight_data, const int weight_len)
     {
         try
         {
@@ -401,9 +409,45 @@ namespace TimVX
                 TIMVX_LOG(TIMVX_LEVEL_ERROR, "op {} creator not find!", op_type);
                 return false;
             }
+            json op_attr = op_info["op_attr"];
+            if (op_type == "NBG")
+            {
+                // if op_attr not contain 'offset' and 'length', weight_data is NBG data, weight_len is NBG data len
+                // else weight_data is model data , weight_len is model data len
+                int nbg_offset = 0;
+                int nbg_length = 0;
+                void* ngb_data = nullptr;
+                if (!op_attr.contains("offset") || !op_attr.contains("length"))
+                {
+                    TIMVX_LOG(TIMVX_LEVEL_ERROR, "NBG op {} should both contain offset and length, please check again!", op_name);
+                    return false;
+                }
+
+                if (!parseValue<int>(op_attr, "op_attr", "offset", nbg_offset) || 
+                    !parseValue<int>(op_attr, "op_attr", "length", nbg_length))
+                {
+                    TIMVX_LOG(TIMVX_LEVEL_ERROR, "parse NBG op {} offset or length fail, please check again!", op_name);
+                    return false;
+                }
+
+                if (nullptr == weight_data)
+                {
+                    TIMVX_LOG(TIMVX_LEVEL_ERROR, "input weight data is null when create op {}, please check again!", op_name);
+                    return false;
+                }
+
+                if (weight_len < nbg_offset + nbg_length)
+                {
+                    TIMVX_LOG(TIMVX_LEVEL_ERROR, "input weight data is enough contain nbg data, when create op {}, please check again!", 
+                        op_name);
+                    return false;
+                }
+                op_attr["binary"] = (size_t)ngb_data;
+            }
+
             std::string op_info_str = op_info.dump(4);
             TIMVX_LOG(TIMVX_LEVEL_DEBUG, "try to create op:{} with config:\n{}", op_name, op_info_str);
-            auto op_node = op_creator->onCreate(m_graph, op_info["op_attr"]);
+            auto op_node = op_creator->onCreate(m_graph, op_attr);
             if (nullptr != op_node && op_info.contains("rounding_policy"))
             {
                 json rounding_policy = op_info["rounding_policy"];
@@ -644,7 +688,6 @@ namespace TimVX
         }
 
         // generate binary graph does't require input data
-        TIMVX_LOG(TIMVX_LEVEL_INFO, "compie binary file size is {}", bin_size);
         nbg_buf.resize(bin_size);
         if (false == graph->CompileToBinary(nbg_buf.data(), &bin_size))
         {
@@ -659,7 +702,217 @@ namespace TimVX
         std::vector<uint8_t> nbg_buf;
         size_t bin_size;
         if (false == compileToBinary(nbg_buf, bin_size))
+        {
+            TIMVX_LOG(TIMVX_LEVEL_INFO, "compie to binary data fail");
             return false;
+        }
+        TIMVX_LOG(TIMVX_LEVEL_INFO, "compie binary file size is {}", bin_size);
+        return true;
+    }
+
+    int TimVXEngine::generateGraphWeightData(std::vector<char>& weight_data, json& tensors_json)
+    {
+        size_t offset = 0;
+        for (int i = 0; i < tensors_json.size(); i++)
+        {
+            json& tensor_json = tensors_json[i];
+            std::string tensor_name = tensor_json["name"];
+            if (m_tensors_data.end() == m_tensors_data.find(tensor_name))
+                continue;
+            TimvxTensorAttr tensor_attr;
+            if (0 != getTensorAttr(tensor_name, tensor_attr))
+                return -1;
+            size_t tensor_size = tensor_attr.size;
+            auto tensor_data = m_tensors_data[tensor_name];
+            weight_data.insert(weight_data.end(), tensor_data.get(), tensor_data.get() + tensor_size);
+            tensor_json["offset"] = offset;
+            tensor_json["length"] = tensor_size;
+            offset += tensor_size;
+        }
+        return 0;
+    }
+
+    int TimVXEngine::generateGraphNormJson(json& graph_norm)
+    {
+        graph_norm["mean"] = m_tensor_means;
+        graph_norm["std"] = m_tensor_stds;
+        graph_norm["reorder"] = m_tensor_reorders;
+        return 0;
+    }
+
+    int TimVXEngine::generateGraphInputsJson(json& graph_inputs_json)
+    {
+        for (auto i = 0; i < m_input_tensor_names.size(); i++)
+        {
+            json tensor_json;
+            std::string tensor_name = m_input_tensor_names[i];
+            if (0 != generateGraphTensorJson(tensor_name, tensor_json))
+                return -1;
+        }
+        return 0;
+    }
+
+    int TimVXEngine::generateGraphOutputsJson(json& graph_outputs_json)
+    {
+        for (auto i = 0; i < m_output_tensor_names.size(); i++)
+        {
+            json tensor_json;
+            std::string tensor_name = m_output_tensor_names[i];
+            if (0 != generateGraphTensorJson(tensor_name, tensor_json))
+                return -1;
+        }
+        return 0;
+    }
+
+    int TimVXEngine::generateGraphAliasJson(json& graph_alias_json)
+    {
+        graph_alias_json["input_alias"] = {};
+        graph_alias_json["output_alias"] = {};
+        return 0;
+    }
+
+    int TimVXEngine::generateGraphNodesJson(json& graph_nodes_json)
+    {
+        for (auto it = m_op_info.begin(); it != m_op_info.end(); it++)
+        {
+            json op_json = it->second;
+            graph_nodes_json.push_back(op_json);
+        }
+        return 0;
+    }
+
+    int TimVXEngine::generateGraphTensorJson(std::string tensor_name, json& graph_tensor_json)
+    {
+        if (m_tensors.end() == m_tensors.find(tensor_name))
+        {
+            TIMVX_LOG(TIMVX_LEVEL_ERROR, "cannot find tensor {}, when generate tensor json", tensor_name);
+            return -1;
+        }
+        json tensor_json;
+        auto tensor = m_tensors[tensor_name];
+        tensor_json["name"] = tensor_name;
+        tensor_json["attribute"] = "INPUT";
+        tensor_json["data_type"] = gDataTypeToStrMap[tensor->GetDataType()];
+        tensor_json["shape"] = tensor->GetShape();
+        auto tensor_quantinfo = tensor->GetQuantization();
+        json quant_info_json;
+        QuantType quant_type = tensor_quantinfo.Type();
+        quant_info_json["scales"] = tensor_quantinfo.Scales();
+        quant_info_json["zero_points"] = tensor_quantinfo.ZeroPoints();
+        quant_info_json["channel_dim"] = tensor_quantinfo.ChannelDim();
+        quant_info_json["quant_type"] = gQuantTypeToStrMap[quant_type];
+        tensor_json["quant_info"] = quant_info_json;
+        return 0;
+    }
+
+    int TimVXEngine::generateGraphTensorsJson(json& graph_tensors_json)
+    {
+        for (auto it = m_tensors.begin(); it != m_tensors.end(); it++)
+        {
+            json tensor_json;
+            auto tensor_name = it->first;
+            if (0 != generateGraphTensorJson(tensor_name, tensor_json))
+                return -1;
+            graph_tensors_json.push_back(tensor_json);
+        }
+        return 0;
+    }
+
+    bool TimVXEngine::exportGraph(const char* weight_file, const char* para_file)
+    {
+        json graph_json;
+        json norm_json;
+        json inputs_json;
+        json outputs_json;
+        json tensors_json;
+        json nodes_json;
+        json alias_json;
+
+        // generate norm/inputs/outputs/tensors/nodes/alias json
+        if (0 != generateGraphNormJson(norm_json) || 0 != generateGraphInputsJson(inputs_json) || 
+            0 != generateGraphOutputsJson(outputs_json) || 0 != generateGraphTensorsJson(tensors_json) || 
+            0 != generateGraphNodesJson(nodes_json) || 0 != generateGraphAliasJson(alias_json))
+        {
+            return false;
+        }
+
+        // generate graph weight data
+        std::vector<char> weight_data;
+        if (0 != generateGraphWeightData(weight_data, tensors_json))
+        {
+            return false;
+        }
+
+        // generate graph json
+        graph_json["norm"] = norm_json;
+        graph_json["inputs"] = inputs_json;
+        graph_json["outputs"] = outputs_json;
+        graph_json["nodes"] = nodes_json;
+        graph_json["tensors"] = tensors_json;
+        graph_json["alias"] = alias_json;
+
+        // save weight and json file
+        std::string json_str = graph_json.dump(4);
+        if (0 != saveFileData(para_file, json_str.c_str(), json_str.size()) || 
+            0 != saveFileData(weight_file, weight_data.data(), weight_data.size()))
+        {
+            return false;
+        }
+        return true;
+    }    
+
+    bool TimVXEngine::exportNBGGraph(const char* weight_file, const char* para_file)
+    {
+        json graph_json;
+        json norm_json;
+        json inputs_json;
+        json outputs_json;
+        json tensors_json;
+        json nodes_json;
+        json alias_json;
+
+        // generate norm/inputs/outputs/tensors/alias json
+        if (0 != generateGraphNormJson(norm_json) || 0 != generateGraphInputsJson(inputs_json) || 
+            0 != generateGraphOutputsJson(outputs_json) || 0 != generateGraphAliasJson(alias_json))
+        {
+            return false;
+        }
+
+        // generate graph weight data
+        std::vector<uint8_t> weight_data;
+        size_t weight_size;
+        if (!compileToBinary(weight_data, weight_size))
+        {
+            return false;
+        }
+
+        // prepare nbg node json
+        json nbg_op_json;
+        json nbg_op_attr;
+        nbg_op_json["op_name"] = "nbg_op";
+        nbg_op_json["op_type"] = "NBG";
+        nbg_op_attr["input_count"] = m_input_tensor_names.size();
+        nbg_op_attr["output_count"] = m_output_tensor_names.size();
+        nbg_op_attr["offset"] = 0;
+        nbg_op_attr["length"] = weight_data.size();
+        nbg_op_json["op_attr"] = nbg_op_attr;
+        nodes_json.push_back(nbg_op_json);
+
+        // generate graph json
+        graph_json["norm"] = norm_json;
+        graph_json["inputs"] = inputs_json;
+        graph_json["outputs"] = outputs_json;
+        graph_json["nodes"] = nodes_json;
+        graph_json["tensors"] = tensors_json;
+        graph_json["alias"] = alias_json;
+
+        // save weight and json file
+        std::string json_str = graph_json.dump(4);
+        if (0 != saveFileData(para_file, json_str.c_str(), json_str.size()) || 
+            0 != saveFileData(weight_file, (char*)weight_data.data(), weight_data.size()))
+        {
+            return false;
+        }
         return true;
     }
 

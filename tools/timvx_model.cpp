@@ -20,7 +20,8 @@ namespace TimVX
         // init model
         std::string weight_file = opt.weight_file;
         std::string para_file = opt.para_file;
-        if (0 != timvxInit(&m_model_context, para_file.c_str(), weight_file.c_str()))
+        bool load_only = opt.load_only;
+        if (0 != timvxInit(&m_model_context, para_file.c_str(), weight_file.c_str(), load_only))
             return;
         TIMVX_LOG(TIMVX_LEVEL_DEBUG, "init model success");
 
@@ -275,7 +276,7 @@ namespace TimVX
             return -1;
         }
 
-        return timvxCompileModelAndSave(m_model_context, m_cmd_opt.compile_weight_file.c_str(), 
+        return timvxExportNBGGrpah(m_model_context, m_cmd_opt.compile_weight_file.c_str(), 
             m_cmd_opt.compile_para_file.c_str());
     }
 

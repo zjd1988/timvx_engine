@@ -30,6 +30,8 @@ namespace TimVX
         std::string                    log_path;
         int                            log_level;
         bool                           help_flag;
+        // load and compile graph
+        bool                           load_only = false;
     } CmdLineArgOption;
 
     class ModelTensorData : public NonCopyable

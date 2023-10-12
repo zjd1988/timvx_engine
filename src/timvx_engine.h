@@ -37,7 +37,7 @@ namespace TimVX
         bool copyDataToTensor(const std::string& tensor_name, const char* buffer_data, const int buffer_len);
 
         // operation utils
-        bool createOperation(const json& op_info);
+        bool createOperation(const json& op_info, const char* weight_data=nullptr, const int weight_len=0);
         json getOpInfo(const std::string& op_name);
         bool bindInputs(const std::string& op_name, const std::vector<std::string>& input_list);
         bool bindOutputs(const std::string& op_name, const std::vector<std::string>& output_list);
@@ -55,6 +55,8 @@ namespace TimVX
         bool compileToBinary(std::vector<uint8_t>& nbg_buf, size_t& bin_size);
         bool compileToBinaryAndSave(const char* weight_file, const char* para_file);
         std::string getGraphName();
+        bool exportNBGGraph(const char* weight_file, const char* para_file);
+        bool exportGraph(const char* weight_file, const char* para_file);
 
         // get input + output tensor num
         int getInputOutputNum(TimvxInputOutputNum& io_num);
@@ -123,6 +125,16 @@ namespace TimVX
         // output data convert func
         int outputDataConvert(TimvxOutput& out_data, std::string output_name, 
             std::shared_ptr<char>& convert_data, int& convert_len);
+
+        // export graph util funcs
+        int generateGraphWeightData(std::vector<char>& weight_data, json& tensors_json);
+        int generateGraphNormJson(json& graph_norm_json);
+        int generateGraphInputsJson(json& graph_inputs_json);
+        int generateGraphOutputsJson(json& graph_outputs_json);
+        int generateGraphAliasJson(json& graph_alias_json);
+        int generateGraphNodesJson(json& graph_nodes_json);
+        int generateGraphTensorJson(std::string tensor_name, json& graph_tensor_json);
+        int generateGraphTensorsJson(json& graph_tensors_json);
 
     private:
         // operation func

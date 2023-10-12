@@ -110,7 +110,7 @@ namespace TimVX
         return 0;
     }
 
-    static int parseModelNodes(TimVXEngine* engine, const json& para_json)
+    static int parseModelNodes(TimVXEngine* engine, const json& para_json, const char* weight_data, const int weight_len)
     {
         if (nullptr == engine)
         {
@@ -130,7 +130,7 @@ namespace TimVX
         for (int i = 0; i < para_json["nodes"].size(); i++)
         {
             json node_json = para_json["nodes"][i];
-            if (!engine->createOperation(node_json))
+            if (!engine->createOperation(node_json, weight_data, weight_len))
                 return -1;
 
             // bind input/output tensors
@@ -180,7 +180,7 @@ namespace TimVX
     }
 
     int EngineInterface::loadModelFromMemory(const char* para_data, const int para_len, 
-        const char* weight_data, const int weight_len)
+        const char* weight_data, const int weight_len, bool load_only)
     {
         try
         {
@@ -196,10 +196,10 @@ namespace TimVX
             if ((0 != parseModelInputs(m_engine.get(), para_json)) || 
                 (0 != parseModelTensors(m_engine.get(), para_json, weight_data, weight_len)) || 
                 (0 != parseModelOutputs(m_engine.get(), para_json)) || 
-                (0 != parseModelNodes(m_engine.get(), para_json)) || 
+                (0 != parseModelNodes(m_engine.get(), para_json, weight_data, weight_len)) || 
                 (0 != parseModelNormInfo(m_engine.get(), para_json)))
                 return -1;
-            if (!m_engine->compileGraph())
+            if (!load_only && !m_engine->compileGraph())
             {
                 TIMVX_LOG(TIMVX_LEVEL_ERROR, "compile timvx graph fail");
                 return -1;
@@ -214,7 +214,7 @@ namespace TimVX
         return 0;
     }
 
-    int EngineInterface::loadModelFromFile(const std::string para_file, const std::string weight_file)
+    int EngineInterface::loadModelFromFile(const std::string para_file, const std::string weight_file, bool load_only)
     {
         std::shared_ptr<char> para_data;
         int para_len = 0;
@@ -223,7 +223,7 @@ namespace TimVX
         if (0 != readFileData(para_file, para_data, para_len) || 
             0 != readFileData(weight_file, weight_data, weight_len))
             return -1;
-        return loadModelFromMemory(para_data.get(), para_len, weight_data.get(), weight_len);
+        return loadModelFromMemory(para_data.get(), para_len, weight_data.get(), weight_len, load_only);
     }
 
     int EngineInterface::getInputOutputNum(TimvxInputOutputNum& io_num)
@@ -286,14 +286,19 @@ namespace TimVX
         return m_engine->runGraph() == true ? 0 : -1;
     }
 
-    bool EngineInterface::compileModelAndSave(const char* weight_file, const char* para_file)
+    bool EngineInterface::exportGraph(const char* weight_file, const char* para_file)
     {
-        return m_engine->compileToBinaryAndSave(weight_file, para_file);
+        return m_engine->exportGraph(weight_file, para_file);
     }
 
-    EngineInterface::EngineInterface(const std::string para_file, const std::string weight_file)
+    bool EngineInterface::exportNBGGraph(const char* weight_file, const char* para_file)
     {
-        if (0 == loadModelFromFile(para_file, weight_file))
+        return m_engine->exportNBGGraph(weight_file, para_file);
+    }
+
+    EngineInterface::EngineInterface(const std::string para_file, const std::string weight_file, bool load_only)
+    {
+        if (0 == loadModelFromFile(para_file, weight_file, load_only))
             m_status = true;
     }
 

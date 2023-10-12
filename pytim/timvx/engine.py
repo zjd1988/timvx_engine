@@ -306,97 +306,13 @@ class Engine():
         return outputs
 
 
-    def export_graph(self, graph_json_file:str, weight_bin_file:str, log_flag:bool=False)->bool:
-        graph_json_dict = {}
-        # init norm_info
-        engine_logger.info("prepare norm ...")
-        norm_info = {}
-        norm_info["mean"] = self.mean_value
-        norm_info["std"] = self.std_value
-        norm_info["reorder"] = self.reorder
-        graph_json_dict["norm"] = norm_info
-        if log_flag:
-            engine_logger.info(graph_json_dict["norm"])
+    def export_graph(self, weight_bin_file:str, graph_json_file:str, log_flag:bool=False)->bool:
+        assert export_graph(self.engine, weight_bin_file, graph_para_file)
+        engine_logger.info("export success.")
+        return True
 
-        # init inputs_info
-        engine_logger.info("prepare inputs ...")
-        inputs_info = []
-        for input_name in self.inputs_info.keys():
-            input_tensor = {}
-            tensor_info = self.inputs_info[input_name]
-            for item_key in tensor_info.keys():
-                item_value = tensor_info[item_key]
-                if item_key == "data_type":
-                    item_value = self.convert_np_dtype_to_tim_dtype(item_value)
-                input_tensor[item_key] = item_value
-            if log_flag:
-                engine_logger.info(input_tensor)
-            inputs_info.append(input_tensor)
-        graph_json_dict["inputs"] = inputs_info
 
-        # init outputs_info
-        engine_logger.info("prepare outputs ...")
-        outputs_info = []
-        for output_name in self.outputs_info.keys():
-            output_tensor = {}
-            tensor_info = self.outputs_info[output_name]
-            for item_key in tensor_info.keys():
-                item_value = tensor_info[item_key]
-                if item_key == "data_type":
-                    item_value = self.convert_np_dtype_to_tim_dtype(item_value)
-                output_tensor[item_key] = item_value
-            if log_flag:
-                engine_logger.info(output_tensor)
-            outputs_info.append(output_tensor)
-        graph_json_dict["outputs"] = outputs_info
-
-        # init tensors_info
-        engine_logger.info("prepare tensors ...")
-        weight_offset = 0
-        weight_bin_list = []
-        tensors_info = []
-        for index in range(len(self.tensors_info)):
-            new_tensor_info = {}
-            tensor_info = self.tensors_info[index]
-            for item_key in tensor_info.keys():
-                item_value = tensor_info[item_key]
-                if item_key == "data_type":
-                    item_value = self.convert_np_dtype_to_tim_dtype(item_value)
-                    new_tensor_info[item_key] = item_value
-                elif item_key == "data":
-                    length_item_key = "length"
-                    length_item_value = len(tensor_info[item_key].tobytes())
-                    offset_item_key = "offset"
-                    offset_item_value = weight_offset
-                    weight_offset += len(tensor_info[item_key].tobytes())
-                    weight_bin_list.append(tensor_info[item_key].tobytes())
-                    new_tensor_info[length_item_key] = length_item_value
-                    new_tensor_info[offset_item_key] = offset_item_value
-                else:
-                    new_tensor_info[item_key] = item_value
-            if log_flag:
-                engine_logger.info(new_tensor_info)
-            tensors_info.append(new_tensor_info)
-        graph_json_dict["tensors"] = tensors_info
-
-        # init nodes_info/inputs_alias/outputs_alias
-        engine_logger.info("prepare nodes/inputs_alias/outputs_alias ...")
-        graph_json_dict["nodes"] = self.nodes_info
-        graph_json_dict["inputs_alias"] = self.inputs_alias
-        graph_json_dict["outputs_alias"] = self.outputs_alias
-        if log_flag:
-            engine_logger.info(graph_json_dict["nodes"])
-            engine_logger.info(graph_json_dict["inputs_alias"])
-            engine_logger.info(graph_json_dict["outputs_alias"])
-        # dump to json file/bin file
-        engine_logger.info("write to file ...")
-        graph_json_obj = json.dumps(graph_json_dict, indent=4)
-        with open(graph_json_file, "w") as f:
-            f.write(graph_json_obj)
-
-        with open(weight_bin_file, "wb") as f:
-            for index in range(len(weight_bin_list)):
-                f.write(weight_bin_list[index])
-
+    def export_nbg_graph(self, weight_bin_file:str, graph_json_file:str, log_flag:bool=False):
+        assert export_nbg_graph(self.engine, weight_bin_file, graph_para_file)
         engine_logger.info("export success.")
         return True

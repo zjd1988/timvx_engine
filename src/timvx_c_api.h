@@ -188,7 +188,7 @@ inline static const char* getFormatString(TimvxTensorFormat fmt)
     return:
         int                             error code.
 */
-int timvxInit(TimvxContext* context, const char* model_para_path, const char* model_weight_path);
+int timvxInit(TimvxContext* context, const char* model_para_path, const char* model_weight_path, bool load_only);
 
 
 /*  timvxDestroy
@@ -277,18 +277,32 @@ int timvxOutputsGet(TimvxContext context, uint32_t n_outputs, TimvxOutput output
 int timvxOutputsRelease(TimvxContext context, uint32_t n_ouputs, TimvxOutput outputs[]);
 
 
-/*  timvxModelCompileAndSave
+/*  timvxExportGrpah
 
-    compiled model to binary data and save to file.
+    export network graph to weight and para file.
 
     input:
         TimvxContext context        the handle of context.
-        const char* weight_file     dst compile weight file.
-        const char* para_file       dst compile para file.
+        const char* weight_file     dst graph weight file.
+        const char* para_file       dst graph para file.
     return:
         int                         success:0, fail:-1
 */
-int timvxCompileModelAndSave(TimvxContext context, const char* weight_file, const char* para_file);
+int timvxExportGrpah(TimvxContext context, const char* weight_file, const char* para_file);
+
+
+/*  timvxExportGrpah
+
+    export network NBG graph to weight and para file.
+
+    input:
+        TimvxContext context        the handle of context.
+        const char* weight_file     dst NBG graph weight file.
+        const char* para_file       dst NBG graph para file.
+    return:
+        int                         success:0, fail:-1
+*/
+int timvxExportNBGGrpah(TimvxContext context, const char* weight_file, const char* para_file);
 
 
 #ifdef __cplusplus

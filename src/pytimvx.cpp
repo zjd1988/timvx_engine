@@ -308,6 +308,26 @@ void setLogLevel(int log_level)
     return;
 }
 
+bool exportGraph(TimVXEngine* timvx_engine, const char* weight_file, const char* para_file)
+{
+    if (nullptr == timvx_engine)
+    {
+        TIMVX_LOG(TIMVX_LEVEL_ERROR, "input timvx engine parameter is nullptr!");
+        return false;
+    }
+    return timvx_engine->exportGraph(weight_file, para_file);
+}
+
+bool exportNBGGraph(TimVXEngine* timvx_engine, const char* weight_file, const char* para_file)
+{
+    if (nullptr == timvx_engine)
+    {
+        TIMVX_LOG(TIMVX_LEVEL_ERROR, "input timvx engine parameter is nullptr!");
+        return false;
+    }
+    return timvx_engine->exportNBGGraph(weight_file, para_file);
+}
+
 PYBIND11_MODULE(pytimvx, m)
 {
     m.doc() = "timvx python interface, convert rknn/tflite to timvx model and run model with timvx engine";
@@ -328,6 +348,8 @@ PYBIND11_MODULE(pytimvx, m)
     m.def("get_graph_name",         &getGraphName,            "get graph's name");
     m.def("compile_to_binary",      &compileToBinary,         "compile graph to binary data");
     m.def("set_log_level",          &setLogLevel,             "set log level");
+    m.def("export_graph",           &exportGraph,             "export network graph files");
+    m.def("export_nbg_graph",       &exportNBGGraph,          "export network NBG graph files");
 
     py::class_<TimVXEngine>(m, "TimVXEngine")
     .def(py::init<const std::string>());
