@@ -208,10 +208,6 @@ class Engine():
         return compile_graph(self.engine)
 
 
-    def compile_to_binary(self)->bytearray:
-        return compile_to_binary(self.engine)
-
-
     def run_graph(self, input_dict:dict, output_name_list:list=[], pass_through:bool=True, want_float:bool=False)->list:
         for input_name in input_dict.keys():
             # check input tensor name valid

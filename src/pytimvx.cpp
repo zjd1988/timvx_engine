@@ -331,7 +331,7 @@ bool exportNBGGraph(TimVXEngine* timvx_engine, const char* weight_file, const ch
 PYBIND11_MODULE(pytimvx, m)
 {
     m.doc() = "timvx python interface, convert rknn/tflite to timvx model and run model with timvx engine";
-    m.def("get_tensor_size",        &getTensorByteSize,           "get graph's tensor size by tensor name in ");
+    m.def("get_tensor_size",        &getTensorByteSize,       "get graph's tensor size by tensor name");
     m.def("create_tensor",          &createTensor,            "create graph's tensor with tensor info");
     m.def("copy_data_from_tensor",  &copyDataFromTensor,      "copy data form graph's tensor");
     m.def("copy_data_to_tensor",    &copyDataToTensor,        "copy data to graph's tensor");
@@ -346,7 +346,6 @@ PYBIND11_MODULE(pytimvx, m)
     m.def("compile_graph",          &compileGraph,            "compile graph");
     m.def("run_graph",              &runGraph,                "run graph");
     m.def("get_graph_name",         &getGraphName,            "get graph's name");
-    m.def("compile_to_binary",      &compileToBinary,         "compile graph to binary data");
     m.def("set_log_level",          &setLogLevel,             "set log level");
     m.def("export_graph",           &exportGraph,             "export network graph files");
     m.def("export_nbg_graph",       &exportNBGGraph,          "export network NBG graph files");

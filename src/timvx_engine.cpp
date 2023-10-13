@@ -239,9 +239,9 @@ namespace TimVX
             // store tensor info
             m_tensors[tensor_name] = tensor;
             if (TensorAttribute::INPUT == tensor_spec.attr_)
-                m_input_tensor_names.push_back(tensor_name);
+                m_input_names.push_back(tensor_name);
             if (TensorAttribute::OUTPUT == tensor_spec.attr_)
-                m_output_tensor_names.push_back(tensor_name);
+                m_output_names.push_back(tensor_name);
         }
         catch(const std::exception& e)
         {
@@ -258,9 +258,9 @@ namespace TimVX
         m_tensor_reorders.clear();
         try 
         {
-            for (int i = 0; i < m_input_tensor_names.size(); i++)
+            for (int i = 0; i < m_input_names.size(); i++)
             {
-                std::string tensor_name = m_input_tensor_names[i];
+                std::string tensor_name = m_input_names[i];
                 if (!norm_json.contains(tensor_name))
                     continue;
                 json tensor_norm = norm_json[tensor_name];
@@ -742,24 +742,26 @@ namespace TimVX
 
     int TimVXEngine::generateGraphInputsJson(json& graph_inputs_json)
     {
-        for (auto i = 0; i < m_input_tensor_names.size(); i++)
+        for (auto i = 0; i < m_input_names.size(); i++)
         {
             json tensor_json;
-            std::string tensor_name = m_input_tensor_names[i];
+            std::string tensor_name = m_input_names[i];
             if (0 != generateGraphTensorJson(tensor_name, tensor_json))
                 return -1;
+            graph_inputs_json.push_back(tensor_json);
         }
         return 0;
     }
 
     int TimVXEngine::generateGraphOutputsJson(json& graph_outputs_json)
     {
-        for (auto i = 0; i < m_output_tensor_names.size(); i++)
+        for (auto i = 0; i < m_output_names.size(); i++)
         {
             json tensor_json;
-            std::string tensor_name = m_output_tensor_names[i];
+            std::string tensor_name = m_output_names[i];
             if (0 != generateGraphTensorJson(tensor_name, tensor_json))
                 return -1;
+            graph_outputs_json.push_back(tensor_json);
         }
         return 0;
     }
@@ -781,14 +783,13 @@ namespace TimVX
         return 0;
     }
 
-    int TimVXEngine::generateGraphTensorJson(std::string tensor_name, json& graph_tensor_json)
+    int TimVXEngine::generateGraphTensorJson(std::string tensor_name, json& tensor_json)
     {
         if (m_tensors.end() == m_tensors.find(tensor_name))
         {
             TIMVX_LOG(TIMVX_LEVEL_ERROR, "cannot find tensor {}, when generate tensor json", tensor_name);
             return -1;
         }
-        json tensor_json;
         auto tensor = m_tensors[tensor_name];
         tensor_json["name"] = tensor_name;
         tensor_json["attribute"] = "INPUT";
@@ -811,6 +812,9 @@ namespace TimVX
         {
             json tensor_json;
             auto tensor_name = it->first;
+            if (m_input_names.end() != std::find(m_input_names.begin(), m_input_names.end(), tensor_name) ||
+                m_output_names.end() != std::find(m_output_names.begin(), m_output_names.end(), tensor_name))
+                continue;
             if (0 != generateGraphTensorJson(tensor_name, tensor_json))
                 return -1;
             graph_tensors_json.push_back(tensor_json);
@@ -820,7 +824,7 @@ namespace TimVX
 
     bool TimVXEngine::exportGraph(const char* weight_file, const char* para_file)
     {
-        json graph_json;
+        ordered_json graph_json;
         json norm_json;
         json inputs_json;
         json outputs_json;
@@ -829,6 +833,7 @@ namespace TimVX
         json alias_json;
 
         // generate norm/inputs/outputs/tensors/nodes/alias json
+        TIMVX_LOG(TIMVX_LEVEL_DEBUG, "1 generate norm/inputs/outputs/tensors/nodes/alias json");
         if (0 != generateGraphNormJson(norm_json) || 0 != generateGraphInputsJson(inputs_json) || 
             0 != generateGraphOutputsJson(outputs_json) || 0 != generateGraphTensorsJson(tensors_json) || 
             0 != generateGraphNodesJson(nodes_json) || 0 != generateGraphAliasJson(alias_json))
@@ -837,6 +842,7 @@ namespace TimVX
         }
 
         // generate graph weight data
+        TIMVX_LOG(TIMVX_LEVEL_DEBUG, "2 generate graph weight data");
         std::vector<char> weight_data;
         if (0 != generateGraphWeightData(weight_data, tensors_json))
         {
@@ -844,14 +850,16 @@ namespace TimVX
         }
 
         // generate graph json
+        TIMVX_LOG(TIMVX_LEVEL_DEBUG, "3 generate graph para json");
         graph_json["norm"] = norm_json;
         graph_json["inputs"] = inputs_json;
         graph_json["outputs"] = outputs_json;
-        graph_json["nodes"] = nodes_json;
-        graph_json["tensors"] = tensors_json;
         graph_json["alias"] = alias_json;
+        graph_json["tensors"] = tensors_json;
+        graph_json["nodes"] = nodes_json;
 
         // save weight and json file
+        TIMVX_LOG(TIMVX_LEVEL_DEBUG, "4 save weight and para file");
         std::string json_str = graph_json.dump(4);
         if (0 != saveFileData(para_file, json_str.c_str(), json_str.size()) || 
             0 != saveFileData(weight_file, weight_data.data(), weight_data.size()))
@@ -863,7 +871,7 @@ namespace TimVX
 
     bool TimVXEngine::exportNBGGraph(const char* weight_file, const char* para_file)
     {
-        json graph_json;
+        ordered_json graph_json;
         json norm_json;
         json inputs_json;
         json outputs_json;
@@ -871,14 +879,17 @@ namespace TimVX
         json nodes_json;
         json alias_json;
 
-        // generate norm/inputs/outputs/tensors/alias json
+        // generate norm/inputs/outputs/alias json
+        TIMVX_LOG(TIMVX_LEVEL_DEBUG, "1 generate norm/inputs/outputs/alias json");
         if (0 != generateGraphNormJson(norm_json) || 0 != generateGraphInputsJson(inputs_json) || 
             0 != generateGraphOutputsJson(outputs_json) || 0 != generateGraphAliasJson(alias_json))
         {
             return false;
         }
+        tensors_json = json::array();
 
         // generate graph weight data
+        TIMVX_LOG(TIMVX_LEVEL_DEBUG, "2 generate graph weight data");
         std::vector<uint8_t> weight_data;
         size_t weight_size;
         if (!compileToBinary(weight_data, weight_size))
@@ -886,27 +897,31 @@ namespace TimVX
             return false;
         }
 
-        // prepare nbg node json
+        // generate nbg node json
+        TIMVX_LOG(TIMVX_LEVEL_DEBUG, "3 generate nbg node json");
         json nbg_op_json;
         json nbg_op_attr;
         nbg_op_json["op_name"] = "nbg_op";
         nbg_op_json["op_type"] = "NBG";
-        nbg_op_attr["input_count"] = m_input_tensor_names.size();
-        nbg_op_attr["output_count"] = m_output_tensor_names.size();
+        nbg_op_attr["input_count"] = m_input_names.size();
+        nbg_op_attr["output_count"] = m_output_names.size();
         nbg_op_attr["offset"] = 0;
         nbg_op_attr["length"] = weight_data.size();
         nbg_op_json["op_attr"] = nbg_op_attr;
         nodes_json.push_back(nbg_op_json);
 
         // generate graph json
+        TIMVX_LOG(TIMVX_LEVEL_DEBUG, "4 generate graph json");
         graph_json["norm"] = norm_json;
         graph_json["inputs"] = inputs_json;
         graph_json["outputs"] = outputs_json;
-        graph_json["nodes"] = nodes_json;
-        graph_json["tensors"] = tensors_json;
         graph_json["alias"] = alias_json;
+        graph_json["tensors"] = tensors_json;
+        graph_json["nodes"] = nodes_json;
+        
 
-        // save weight and json file
+        // save weight and para file
+        TIMVX_LOG(TIMVX_LEVEL_DEBUG, "5 save weight and para file");
         std::string json_str = graph_json.dump(4);
         if (0 != saveFileData(para_file, json_str.c_str(), json_str.size()) || 
             0 != saveFileData(weight_file, (char*)weight_data.data(), weight_data.size()))
@@ -1095,16 +1110,16 @@ namespace TimVX
             TIMVX_LOG(TIMVX_LEVEL_ERROR, "timvx graph is invalid, please create graph first");
             return -1;
         }
-        if (input_datas.size() != m_input_tensor_names.size())
+        if (input_datas.size() != m_input_names.size())
         {
             TIMVX_LOG(TIMVX_LEVEL_ERROR, "input data size {} not equalt to engine's input size {}",
-                int(input_datas.size()), int(m_input_tensor_names.size()));
+                int(input_datas.size()), int(m_input_names.size()));
             return -1;
         }
         for (int i = 0; i < input_datas.size(); i++)
         {
             TimvxInput input = input_datas[i];
-            std::string tensor_name = m_input_tensor_names[i];
+            std::string tensor_name = m_input_names[i];
             const char* buffer_data = (const char*)input.buf;
             int buffer_len = input.size;
             if (0 == input.pass_through)
@@ -1189,7 +1204,7 @@ namespace TimVX
             TimvxOutput output = output_datas[i];
             uint32_t tensor_index = output.index;
             auto out_tensor = output_tensors[tensor_index];
-            std::string tensor_name = m_output_tensor_names[tensor_index];
+            std::string tensor_name = m_output_names[tensor_index];
             int tensor_size = getTensorByteSize(tensor_name);
             // init output ptr and output size
             char* tensor_buffer_data = (char*)output.buf;
@@ -1332,13 +1347,13 @@ namespace TimVX
                 input_index, int(input_tensors.size()));
             return -1;
         }
-        if (m_input_tensor_names.size() != input_tensors.size())
+        if (m_input_names.size() != input_tensors.size())
         {
             TIMVX_LOG(TIMVX_LEVEL_ERROR, "input tensor names number:{} not equal to graph input number:{}" , 
-                m_input_tensor_names.size(), int(input_tensors.size()));
+                m_input_names.size(), int(input_tensors.size()));
             return -1;
         }
-        std::string tensor_name = m_input_tensor_names[input_index];
+        std::string tensor_name = m_input_names[input_index];
         if (0 != getTensorAttr(tensor_name, tensor_attr))
         {
             TIMVX_LOG(TIMVX_LEVEL_ERROR, "get input:{} tesnor {} attr fail" , input_index, tensor_name);
@@ -1362,13 +1377,13 @@ namespace TimVX
                 output_index, int(output_tensors.size()));
             return -1;
         }
-        if (m_output_tensor_names.size() != output_tensors.size())
+        if (m_output_names.size() != output_tensors.size())
         {
             TIMVX_LOG(TIMVX_LEVEL_ERROR, "output tensor names number:{} not equal to graph output number:{}" , 
-                m_output_tensor_names.size(), int(output_tensors.size()));
+                m_output_names.size(), int(output_tensors.size()));
             return -1;
         }
-        std::string tensor_name = m_output_tensor_names[output_index];
+        std::string tensor_name = m_output_names[output_index];
         if (0 != getTensorAttr(tensor_name, tensor_attr))
         {
             TIMVX_LOG(TIMVX_LEVEL_ERROR, "get output tesnor {} attr fail" , tensor_name);

@@ -133,14 +133,14 @@ namespace TimVX
         int generateGraphOutputsJson(json& graph_outputs_json);
         int generateGraphAliasJson(json& graph_alias_json);
         int generateGraphNodesJson(json& graph_nodes_json);
-        int generateGraphTensorJson(std::string tensor_name, json& graph_tensor_json);
+        int generateGraphTensorJson(std::string tensor_name, json& tensor_json);
         int generateGraphTensorsJson(json& graph_tensors_json);
 
     private:
         // operation func
         // tensor names
-        std::vector<std::string>                                            m_input_tensor_names;
-        std::vector<std::string>                                            m_output_tensor_names;
+        std::vector<std::string>                                            m_input_names;
+        std::vector<std::string>                                            m_output_names;
         // tensors
         std::map<std::string, std::shared_ptr<Tensor>>                      m_tensors;
         std::map<std::string, std::shared_ptr<char>>                        m_tensors_data;
