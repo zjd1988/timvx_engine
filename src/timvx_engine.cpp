@@ -16,6 +16,7 @@ namespace TimVX
 
     extern std::map<DataType, std::string> gDataTypeToStrMap;
     extern std::map<QuantType, std::string> gQuantTypeToStrMap;
+    extern std::map<TensorAttribute, std::string> gTensorAttrToStrMap;
 
     #define BITS_PER_BYTE 8
     TimVXEngine::TimVXEngine(const std::string& graph_name)
@@ -60,6 +61,12 @@ namespace TimVX
             tensor_type = TIMVX_TENSOR_UINT8;
         else if (DataType::INT16 == type)
             tensor_type = TIMVX_TENSOR_INT16;
+        else if (DataType::UINT16 == type)
+            tensor_type = TIMVX_TENSOR_UINT16;
+        else if (DataType::INT32 == type)
+            tensor_type = TIMVX_TENSOR_INT32;
+        else if (DataType::UINT32 == type)
+            tensor_type = TIMVX_TENSOR_UINT32;
         else if (DataType::FLOAT16 == type)
             tensor_type = TIMVX_TENSOR_FLOAT16;
         else if (DataType::FLOAT32 == type)
@@ -416,7 +423,7 @@ namespace TimVX
                 // else weight_data is model data , weight_len is model data len
                 int nbg_offset = 0;
                 int nbg_length = 0;
-                void* ngb_data = nullptr;
+                const void* nbg_data = nullptr;
                 if (!op_attr.contains("offset") || !op_attr.contains("length"))
                 {
                     TIMVX_LOG(TIMVX_LEVEL_ERROR, "NBG op {} should both contain offset and length, please check again!", op_name);
@@ -442,7 +449,8 @@ namespace TimVX
                         op_name);
                     return false;
                 }
-                op_attr["binary"] = (size_t)ngb_data;
+                nbg_data = (const void*)(weight_data + nbg_offset);
+                op_attr["binary"] = (size_t)nbg_data;
             }
 
             std::string op_info_str = op_info.dump(4);
@@ -791,8 +799,9 @@ namespace TimVX
             return -1;
         }
         auto tensor = m_tensors[tensor_name];
+        auto tensor_attr = tensor->GetSpec().attr_;
         tensor_json["name"] = tensor_name;
-        tensor_json["attribute"] = "INPUT";
+        tensor_json["attribute"] = gTensorAttrToStrMap[tensor_attr];
         tensor_json["data_type"] = gDataTypeToStrMap[tensor->GetDataType()];
         tensor_json["shape"] = tensor->GetShape();
         auto tensor_quantinfo = tensor->GetQuantization();
@@ -903,6 +912,8 @@ namespace TimVX
         json nbg_op_attr;
         nbg_op_json["op_name"] = "nbg_op";
         nbg_op_json["op_type"] = "NBG";
+        nbg_op_json["op_inputs"] = m_input_names;
+        nbg_op_json["op_outputs"] = m_output_names;
         nbg_op_attr["input_count"] = m_input_names.size();
         nbg_op_attr["output_count"] = m_output_names.size();
         nbg_op_attr["offset"] = 0;
@@ -1309,7 +1320,7 @@ namespace TimVX
         DataType data_type = m_tensors[tensor_name]->GetDataType();
         if (-1 == convertToTimVxDataType(data_type, tensor_info.type))
         {
-            TIMVX_LOG(TIMVX_LEVEL_ERROR, "invlid tensor data type {}", (int)data_type);
+            TIMVX_LOG(TIMVX_LEVEL_ERROR, "{} contain invlid tensor data type {}", tensor_name, (int)data_type);
             return -1;
         }
 

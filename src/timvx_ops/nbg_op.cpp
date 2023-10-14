@@ -49,7 +49,7 @@ namespace TimVX
         size_t input_count = op_attr.input_count;
         size_t output_count = op_attr.output_count;
 
-        TIMVX_LOG_BASE_DATATYPE_ATTR(TIMVX_LEVEL_DEBUG, binary);
+        TIMVX_LOG(TIMVX_LEVEL_DEBUG, "{:>20}: {:p}", "binary", fmt::ptr(binary));
         TIMVX_LOG_BASE_DATATYPE_ATTR(TIMVX_LEVEL_DEBUG, input_count);
         TIMVX_LOG_BASE_DATATYPE_ATTR(TIMVX_LEVEL_DEBUG, output_count);
         return graph->CreateOperation<ops::NBG>(binary, input_count, output_count).get();

@@ -66,6 +66,9 @@ typedef enum TimvxTensorType
     TIMVX_TENSOR_INT8,                                   /* data type is int8. */
     TIMVX_TENSOR_UINT8,                                  /* data type is uint8. */
     TIMVX_TENSOR_INT16,                                  /* data type is int16. */
+    TIMVX_TENSOR_UINT16,                                 /* data type is uint16. */
+    TIMVX_TENSOR_INT32,                                  /* data type is int32. */
+    TIMVX_TENSOR_UINT32,                                 /* data type is uint32. */
 
     TIMVX_TENSOR_TYPE_MAX
 } TimvxTensorType;
@@ -76,8 +79,9 @@ typedef enum TimvxTensorType
 typedef enum TimvxTensorQntType
 {
     TIMVX_TENSOR_QNT_NONE = 0,                           /* none. */
-    TIMVX_TENSOR_QNT_DFP,                                /* dynamic fixed point. */
     TIMVX_TENSOR_QNT_AFFINE_ASYMMETRIC,                  /* asymmetric affine. */
+    TIMVX_TENSOR_QNT_SYMMETRIC_PER_CHANNEL,              /* symmetric per channnel. */
+    TIMVX_TENSOR_QNT_DFP,                                /* dynamic fixed point. */
 
     TIMVX_TENSOR_QNT_MAX
 } TimvxTensorQntType;
@@ -159,8 +163,9 @@ inline static const char* getQntTypeString(TimvxTensorQntType type)
     switch(type)
     {
         case TIMVX_TENSOR_QNT_NONE: return "NONE";
-        case TIMVX_TENSOR_QNT_DFP: return "DFP";
         case TIMVX_TENSOR_QNT_AFFINE_ASYMMETRIC: return "AFFINE";
+        case TIMVX_TENSOR_QNT_SYMMETRIC_PER_CHANNEL: return "symmetric_per_channel";
+        case TIMVX_TENSOR_QNT_DFP: return "DFP";
         default: return "UNKNOW";
     }
 }

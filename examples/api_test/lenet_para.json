@@ -1,0 +1,516 @@
+{
+    "norm": {
+        "mean": {},
+        "reorder": {},
+        "std": {}
+    },
+    "inputs": [
+        {
+            "attribute": "INPUT",
+            "data_type": "UINT8",
+            "name": "input",
+            "quant_info": {
+                "channel_dim": -1,
+                "quant_type": "ASYMMETRIC",
+                "scales": [
+                    0.00390625
+                ],
+                "zero_points": [
+                    0
+                ]
+            },
+            "shape": [
+                28,
+                28,
+                1,
+                1
+            ]
+        }
+    ],
+    "outputs": [
+        {
+            "attribute": "OUTPUT",
+            "data_type": "FLOAT32",
+            "name": "output",
+            "quant_info": {
+                "channel_dim": -1,
+                "quant_type": "NONE",
+                "scales": [],
+                "zero_points": []
+            },
+            "shape": [
+                10,
+                1
+            ]
+        }
+    ],
+    "alias": {
+        "input_alias": null,
+        "output_alias": null
+    },
+    "tensors": [
+        {
+            "attribute": "CONSTANT",
+            "data_type": "INT32",
+            "length": 80,
+            "name": "conv1_bias",
+            "offset": 0,
+            "quant_info": {
+                "channel_dim": -1,
+                "quant_type": "ASYMMETRIC",
+                "scales": [
+                    1.3130000297678635e-05
+                ],
+                "zero_points": [
+                    0
+                ]
+            },
+            "shape": [
+                20
+            ]
+        },
+        {
+            "attribute": "TRANSIENT",
+            "data_type": "UINT8",
+            "name": "conv1_output",
+            "quant_info": {
+                "channel_dim": -1,
+                "quant_type": "ASYMMETRIC",
+                "scales": [
+                    0.01928069069981575
+                ],
+                "zero_points": [
+                    140
+                ]
+            },
+            "shape": []
+        },
+        {
+            "attribute": "CONSTANT",
+            "data_type": "UINT8",
+            "length": 500,
+            "name": "conv1_weight",
+            "offset": 80,
+            "quant_info": {
+                "channel_dim": -1,
+                "quant_type": "ASYMMETRIC",
+                "scales": [
+                    0.003362339921295643
+                ],
+                "zero_points": [
+                    119
+                ]
+            },
+            "shape": [
+                5,
+                5,
+                1,
+                20
+            ]
+        },
+        {
+            "attribute": "CONSTANT",
+            "data_type": "INT32",
+            "length": 200,
+            "name": "conv2_bias",
+            "offset": 580,
+            "quant_info": {
+                "channel_dim": -1,
+                "quant_type": "ASYMMETRIC",
+                "scales": [
+                    2.2140000510262325e-05
+                ],
+                "zero_points": [
+                    0
+                ]
+            },
+            "shape": [
+                50
+            ]
+        },
+        {
+            "attribute": "TRANSIENT",
+            "data_type": "UINT8",
+            "name": "conv2_output",
+            "quant_info": {
+                "channel_dim": -1,
+                "quant_type": "ASYMMETRIC",
+                "scales": [
+                    0.04075872153043747
+                ],
+                "zero_points": [
+                    141
+                ]
+            },
+            "shape": []
+        },
+        {
+            "attribute": "CONSTANT",
+            "data_type": "UINT8",
+            "length": 25000,
+            "name": "conv2_weight",
+            "offset": 780,
+            "quant_info": {
+                "channel_dim": -1,
+                "quant_type": "ASYMMETRIC",
+                "scales": [
+                    0.0011482000118121505
+                ],
+                "zero_points": [
+                    128
+                ]
+            },
+            "shape": [
+                5,
+                5,
+                20,
+                50
+            ]
+        },
+        {
+            "attribute": "CONSTANT",
+            "data_type": "INT32",
+            "length": 2000,
+            "name": "fc3_bias",
+            "offset": 25780,
+            "quant_info": {
+                "channel_dim": -1,
+                "quant_type": "ASYMMETRIC",
+                "scales": [
+                    2.9979999453644268e-05
+                ],
+                "zero_points": [
+                    0
+                ]
+            },
+            "shape": [
+                500
+            ]
+        },
+        {
+            "attribute": "TRANSIENT",
+            "data_type": "UINT8",
+            "name": "fc3_output",
+            "quant_info": {
+                "channel_dim": -1,
+                "quant_type": "ASYMMETRIC",
+                "scales": [
+                    0.019920889288187027
+                ],
+                "zero_points": [
+                    0
+                ]
+            },
+            "shape": []
+        },
+        {
+            "attribute": "CONSTANT",
+            "data_type": "UINT8",
+            "length": 400000,
+            "name": "fc3_weight",
+            "offset": 27780,
+            "quant_info": {
+                "channel_dim": -1,
+                "quant_type": "ASYMMETRIC",
+                "scales": [
+                    0.0007354799890890718
+                ],
+                "zero_points": [
+                    130
+                ]
+            },
+            "shape": [
+                800,
+                500
+            ]
+        },
+        {
+            "attribute": "CONSTANT",
+            "data_type": "INT32",
+            "length": 40,
+            "name": "fc4_bias",
+            "offset": 427780,
+            "quant_info": {
+                "channel_dim": -1,
+                "quant_type": "ASYMMETRIC",
+                "scales": [
+                    3.1480001780437306e-05
+                ],
+                "zero_points": [
+                    0
+                ]
+            },
+            "shape": [
+                10
+            ]
+        },
+        {
+            "attribute": "TRANSIENT",
+            "data_type": "UINT8",
+            "name": "fc4_output",
+            "quant_info": {
+                "channel_dim": -1,
+                "quant_type": "ASYMMETRIC",
+                "scales": [
+                    0.06251489371061325
+                ],
+                "zero_points": [
+                    80
+                ]
+            },
+            "shape": []
+        },
+        {
+            "attribute": "CONSTANT",
+            "data_type": "UINT8",
+            "length": 5000,
+            "name": "fc4_weight",
+            "offset": 427820,
+            "quant_info": {
+                "channel_dim": -1,
+                "quant_type": "ASYMMETRIC",
+                "scales": [
+                    0.0015804299619048834
+                ],
+                "zero_points": [
+                    135
+                ]
+            },
+            "shape": [
+                500,
+                10
+            ]
+        },
+        {
+            "attribute": "TRANSIENT",
+            "data_type": "UINT8",
+            "name": "pool1_output",
+            "quant_info": {
+                "channel_dim": -1,
+                "quant_type": "ASYMMETRIC",
+                "scales": [
+                    0.01928069069981575
+                ],
+                "zero_points": [
+                    140
+                ]
+            },
+            "shape": []
+        },
+        {
+            "attribute": "TRANSIENT",
+            "data_type": "UINT8",
+            "name": "pool2_output",
+            "quant_info": {
+                "channel_dim": -1,
+                "quant_type": "ASYMMETRIC",
+                "scales": [
+                    0.04075872153043747
+                ],
+                "zero_points": [
+                    141
+                ]
+            },
+            "shape": []
+        },
+        {
+            "attribute": "TRANSIENT",
+            "data_type": "UINT8",
+            "name": "relu_output",
+            "quant_info": {
+                "channel_dim": -1,
+                "quant_type": "ASYMMETRIC",
+                "scales": [
+                    0.019920889288187027
+                ],
+                "zero_points": [
+                    0
+                ]
+            },
+            "shape": []
+        }
+    ],
+    "nodes": [
+        {
+            "op_attr": {
+                "dilation": [
+                    1,
+                    1
+                ],
+                "input_layout": "WHCN",
+                "kernel_layout": "WHIcOc",
+                "ksize": [
+                    5,
+                    5
+                ],
+                "multiplier": 0,
+                "pad": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "padding": "VALID",
+                "stride": [
+                    1,
+                    1
+                ],
+                "weights": 20
+            },
+            "op_inputs": [
+                "input",
+                "conv1_weight",
+                "conv1_bias"
+            ],
+            "op_name": "conv1",
+            "op_outputs": [
+                "conv1_output"
+            ],
+            "op_type": "Conv2d"
+        },
+        {
+            "op_attr": {
+                "dilation": [
+                    1,
+                    1
+                ],
+                "input_layout": "WHCN",
+                "kernel_layout": "WHIcOc",
+                "ksize": [
+                    5,
+                    5
+                ],
+                "multiplier": 0,
+                "pad": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "padding": "VALID",
+                "stride": [
+                    1,
+                    1
+                ],
+                "weights": 50
+            },
+            "op_inputs": [
+                "pool1_output",
+                "conv2_weight",
+                "conv2_bias"
+            ],
+            "op_name": "conv2",
+            "op_outputs": [
+                "conv2_output"
+            ],
+            "op_type": "Conv2d"
+        },
+        {
+            "op_attr": {
+                "axis": 2,
+                "weights": 500
+            },
+            "op_inputs": [
+                "pool2_output",
+                "fc3_weight",
+                "fc3_bias"
+            ],
+            "op_name": "fc3",
+            "op_outputs": [
+                "fc3_output"
+            ],
+            "op_type": "FullyConnected"
+        },
+        {
+            "op_attr": {
+                "axis": 0,
+                "weights": 10
+            },
+            "op_inputs": [
+                "relu_output",
+                "fc4_weight",
+                "fc4_bias"
+            ],
+            "op_name": "fc4",
+            "op_outputs": [
+                "fc4_output"
+            ],
+            "op_type": "FullyConnected"
+        },
+        {
+            "op_attr": {
+                "ksize": [
+                    2,
+                    2
+                ],
+                "layout": "WHCN",
+                "padding": "NONE",
+                "round_type": "FLOOR",
+                "stride": [
+                    2,
+                    2
+                ],
+                "type": "MAX"
+            },
+            "op_inputs": [
+                "conv1_output"
+            ],
+            "op_name": "pool1",
+            "op_outputs": [
+                "pool1_output"
+            ],
+            "op_type": "Pool2d"
+        },
+        {
+            "op_attr": {
+                "ksize": [
+                    2,
+                    2
+                ],
+                "layout": "WHCN",
+                "padding": "NONE",
+                "round_type": "FLOOR",
+                "stride": [
+                    2,
+                    2
+                ],
+                "type": "MAX"
+            },
+            "op_inputs": [
+                "conv2_output"
+            ],
+            "op_name": "pool2",
+            "op_outputs": [
+                "pool2_output"
+            ],
+            "op_type": "Pool2d"
+        },
+        {
+            "op_attr": {
+                "activation_type": "Relu"
+            },
+            "op_inputs": [
+                "fc3_output"
+            ],
+            "op_name": "relu",
+            "op_outputs": [
+                "relu_output"
+            ],
+            "op_type": "Activation"
+        },
+        {
+            "op_attr": {
+                "axis": 0,
+                "beta": 1.0
+            },
+            "op_inputs": [
+                "fc4_output"
+            ],
+            "op_name": "softmax",
+            "op_outputs": [
+                "output"
+            ],
+            "op_type": "Softmax"
+        }
+    ]
+}

@@ -221,8 +221,9 @@ if __name__ == "__main__":
     export_graph = False
     if len(sys.argv) == 3:
         export_graph = True
-        graph_json_file = sys.argv[1]
-        weight_bin_file = sys.argv[2]
+        weight_bin_file = sys.argv[1]
+        graph_para_file = sys.argv[2]
+
     engine = Engine("lenet")
     assert engine.create_graph(), "engine create grah fail!"
     print("1 construct tensors begin....")
@@ -254,4 +255,4 @@ if __name__ == "__main__":
         print("{}: {:.6f}".format(index, out[index]))
 
     if export_graph:
-        engine.export_graph(graph_json_file, weight_bin_file)
+        engine.export_graph(weight_bin_file, graph_para_file)

@@ -47,6 +47,22 @@ namespace TimVX
         {QuantType::SYMMETRIC_PER_CHANNEL, "SYMMETRIC_PER_CHANNEL"},
     };
 
+    std::map<std::string, TensorAttribute> gStrToTensorAttrMap = {
+        {"CONSTANT",                      TensorAttribute::CONSTANT},
+        {"TRANSIENT",                     TensorAttribute::TRANSIENT},
+        {"VARIABLE",                      TensorAttribute::VARIABLE},
+        {"INPUT",                         TensorAttribute::INPUT},
+        {"OUTPUT",                        TensorAttribute::OUTPUT},
+    };
+
+    std::map<TensorAttribute, std::string> gTensorAttrToStrMap = {
+        {TensorAttribute::CONSTANT,       "CONSTANT"},
+        {TensorAttribute::TRANSIENT,      "TRANSIENT"},
+        {TensorAttribute::VARIABLE,       "VARIABLE"},
+        {TensorAttribute::INPUT,          "INPUT"},
+        {TensorAttribute::OUTPUT,         "OUTPUT"},
+    };
+
     bool TensorSpecConstruct::parseTensorDataType(const json &tensor_info, const std::string &tensor_name, 
         const std::string &key_name, DataType &data_type)
     {
@@ -70,17 +86,11 @@ namespace TimVX
         const std::string &key_name, TensorAttribute &tensor_attr)
     {
         std::string tensor_attr_str;
-        std::map<std::string, TensorAttribute> tensor_attr_map;
-        tensor_attr_map["CONSTANT"]     = TensorAttribute::CONSTANT;
-        tensor_attr_map["TRANSIENT"]    = TensorAttribute::TRANSIENT;
-        tensor_attr_map["VARIABLE"]     = TensorAttribute::VARIABLE;
-        tensor_attr_map["INPUT"]        = TensorAttribute::INPUT;
-        tensor_attr_map["OUTPUT"]       = TensorAttribute::OUTPUT;
         bool parse_result = parseValue<std::string>(tensor_info, tensor_name, key_name, tensor_attr_str);
         if (parse_result)
         {
-            if (tensor_attr_map.find(tensor_attr_str) != tensor_attr_map.end())
-                tensor_attr = tensor_attr_map[tensor_attr_str];
+            if (gStrToTensorAttrMap.find(tensor_attr_str) != gStrToTensorAttrMap.end())
+                tensor_attr = gStrToTensorAttrMap[tensor_attr_str];
             else
             {
                 TIMVX_LOG(TIMVX_LEVEL_ERROR, "tensor {}'s attr {} contains attribute type {}", tensor_name.c_str(),
@@ -133,42 +143,46 @@ namespace TimVX
                 TIMVX_LOG(TIMVX_LEVEL_ERROR, "tensor {}'s quant_info should be a dict item", tensor_name.c_str());
                 return false;
             }
+
             json quant_info = tensor_info["quant_info"];
+            if (quant_info.contains("scale") && quant_info.contains("scales"))
+            {
+                TIMVX_LOG(TIMVX_LEVEL_ERROR, "tensor {}'s quant_info both contain scale and scales", tensor_name.c_str());
+                return false;
+            }
+
+            if (quant_info.contains("zero_point") && quant_info.contains("zero_points"))
+            {
+                TIMVX_LOG(TIMVX_LEVEL_ERROR, "tensor {}'s quant_info both contain zero_point and zero_points", tensor_name.c_str());
+                return false;
+            }
+
+            if (!(quant_info.contains("scale") && quant_info.contains("zero_point")) &&
+                !(quant_info.contains("scales") && quant_info.contains("zero_points")))
+            {
+                TIMVX_LOG(TIMVX_LEVEL_ERROR, "tensor {}'s quant_info should both contain sacle/zero_point or scales/zero_points", tensor_name.c_str());
+                return false;
+            }
+
             if (!parseTensorQuantType(quant_info, tensor_name, "quant_type", quant_type))
                 return false;
-            if (quant_info.contains("channel_dim"))
-            {
-                if (!parseValue<int32_t>(quant_info, tensor_name, "channel_dim", channel_dim))
-                    return false;
-                if (channel_dim < 0)
-                {
-                    TIMVX_LOG(TIMVX_LEVEL_ERROR, "tensor {}'s channel_dim should be >= 0, but get {}!", 
-                        tensor_name.c_str(), channel_dim);
-                    return false;
-                }
-                if (!parseDynamicList<int32_t>(quant_info, tensor_name, "zero_points", zero_points)
-                    || !parseDynamicList<float>(quant_info, tensor_name, "scales", scales))
-                    return false;
-                // if (zero_points.size() != shape[channel_dim] || scales.size() != shape[channel_dim])
-                // {
-                //     TIMVX_LOG(TIMVX_LEVEL_ERROR, "tensor {}'s zero_points/scales len is not equal to channel dim", tensor_name.c_str());
-                //     return false;
-                // }
-            }
-            else
-            {
-                if (!parseValue<float>(quant_info, tensor_name, "scale", scale, false)
-                    || !parseValue<int32_t>(quant_info, tensor_name, "zero_point", zero_point, false))
-                    return false;
-            }
-            if (channel_dim < 0)
-            {
-                channel_dim = 1;
-                scales.clear();
-                zero_points.clear();
+
+            if (!parseValue<int32_t>(quant_info, tensor_name, "channel_dim", channel_dim, false))
+                return false;
+
+            if (!parseDynamicList<int32_t>(quant_info, tensor_name, "zero_points", zero_points, false)
+                || !parseDynamicList<float>(quant_info, tensor_name, "scales", scales, false))
+                return false;
+
+            if (!parseValue<float>(quant_info, tensor_name, "scale", scale, false)
+                || !parseValue<int32_t>(quant_info, tensor_name, "zero_point", zero_point, false))
+                return false;
+
+            if (quant_info.contains("scale"))
                 scales.push_back(scale);
+            if (quant_info.contains("zero_point"))
                 zero_points.push_back(zero_point);
-            }
+
             Quantization input_quant(quant_type, channel_dim, scales, zero_points);
             TensorSpec temp_tensor_spec(data_type, shape, tensor_attr, input_quant);
             tensorspec = temp_tensor_spec;

@@ -302,13 +302,13 @@ class Engine():
         return outputs
 
 
-    def export_graph(self, weight_bin_file:str, graph_json_file:str, log_flag:bool=False)->bool:
+    def export_graph(self, weight_bin_file:str, graph_para_file:str, log_flag:bool=False)->bool:
         assert export_graph(self.engine, weight_bin_file, graph_para_file)
         engine_logger.info("export success.")
         return True
 
 
-    def export_nbg_graph(self, weight_bin_file:str, graph_json_file:str, log_flag:bool=False):
+    def export_nbg_graph(self, weight_bin_file:str, graph_para_file:str, log_flag:bool=False):
         assert export_nbg_graph(self.engine, weight_bin_file, graph_para_file)
         engine_logger.info("export success.")
         return True
