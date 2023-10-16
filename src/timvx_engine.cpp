@@ -151,16 +151,16 @@ namespace TimVX
             TIMVX_LOG(TIMVX_LEVEL_ERROR, "tensor {} not exists", tensor_name);
             return 0;
         }
-        sz = 0;
         auto tensor = m_tensors[tensor_name];
         dim_num = tensor->GetShape().size();
         auto shape = tensor->GetShape();
         auto type = tensor->GetDataType();
-        if(0 == dim_num)
+        if (0 == dim_num)
         {
-            return sz;
+            return 0;
         }
-        for( i = 1; i < dim_num; i ++ )
+        sz = 1;
+        for (i = 0; i < dim_num; i++)
         {
             sz *= shape[i];
         }
@@ -696,25 +696,15 @@ namespace TimVX
         }
 
         // generate binary graph does't require input data
+        TIMVX_LOG(TIMVX_LEVEL_DEBUG, "graph compiled binary size: {}", bin_size);
         nbg_buf.resize(bin_size);
+        // nbg_buf = std::vector<uint8_t>(bin_size);
         if (false == graph->CompileToBinary(nbg_buf.data(), &bin_size))
         {
             TIMVX_LOG(TIMVX_LEVEL_ERROR, "graph compile to binary buffer fail ...");
             return false;
         }
-        return true;
-    }
-
-    bool TimVXEngine::compileToBinaryAndSave(const char* weight_file, const char* para_file)
-    {
-        std::vector<uint8_t> nbg_buf;
-        size_t bin_size;
-        if (false == compileToBinary(nbg_buf, bin_size))
-        {
-            TIMVX_LOG(TIMVX_LEVEL_INFO, "compie to binary data fail");
-            return false;
-        }
-        TIMVX_LOG(TIMVX_LEVEL_INFO, "compie binary file size is {}", bin_size);
+        TIMVX_LOG(TIMVX_LEVEL_DEBUG, "graph compiled binary size: {}", bin_size);
         return true;
     }
 
@@ -905,6 +895,7 @@ namespace TimVX
         {
             return false;
         }
+        TIMVX_LOG(TIMVX_LEVEL_DEBUG, "2 compile binary graph weight size: {}", weight_size);
 
         // generate nbg node json
         TIMVX_LOG(TIMVX_LEVEL_DEBUG, "3 generate nbg node json");
@@ -917,7 +908,7 @@ namespace TimVX
         nbg_op_attr["input_count"] = m_input_names.size();
         nbg_op_attr["output_count"] = m_output_names.size();
         nbg_op_attr["offset"] = 0;
-        nbg_op_attr["length"] = weight_data.size();
+        nbg_op_attr["length"] = weight_size;
         nbg_op_json["op_attr"] = nbg_op_attr;
         nodes_json.push_back(nbg_op_json);
 
@@ -935,7 +926,7 @@ namespace TimVX
         TIMVX_LOG(TIMVX_LEVEL_DEBUG, "5 save weight and para file");
         std::string json_str = graph_json.dump(4);
         if (0 != saveFileData(para_file, json_str.c_str(), json_str.size()) || 
-            0 != saveFileData(weight_file, (char*)weight_data.data(), weight_data.size()))
+            0 != saveFileData(weight_file, (char*)weight_data.data(), weight_size))
         {
             return false;
         }

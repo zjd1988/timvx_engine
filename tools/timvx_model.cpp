@@ -38,15 +38,15 @@ namespace TimVX
 
         // get input tensor attr and init input tensor data
         m_input_attrs.resize(m_io_num.n_input);
-        if (0 != timvxQuery(m_model_context, TIMVX_QUERY_INPUT_ATTR, (void*)&m_input_attrs[0], sizeof(TimvxTensorAttr)) || 
-            0 != initModelInputTensors())
+        if (0 != timvxQuery(m_model_context, TIMVX_QUERY_INPUT_ATTR, (void*)&m_input_attrs[0], 
+            m_io_num.n_input * sizeof(TimvxTensorAttr)) || 0 != initModelInputTensors())
             return;
         TIMVX_LOG(TIMVX_LEVEL_DEBUG, "get input tensor attr and init input tensor data success");
 
         // get output tensor attr and init output tensor data
         m_output_attrs.resize(m_io_num.n_output);
-        if (0 != timvxQuery(m_model_context, TIMVX_QUERY_OUTPUT_ATTR, (void*)&m_output_attrs[0], sizeof(TimvxTensorAttr)) ||
-            0 != initModelOutputTensors())
+        if (0 != timvxQuery(m_model_context, TIMVX_QUERY_OUTPUT_ATTR, (void*)&m_output_attrs[0], 
+            m_io_num.n_output * sizeof(TimvxTensorAttr)) || 0 != initModelOutputTensors())
             return;
         TIMVX_LOG(TIMVX_LEVEL_DEBUG, "get output tensor attr and init output tensor data success");
 
@@ -97,7 +97,7 @@ namespace TimVX
     {
         // parse input files
         std::map<std::string, std::string> inputs_file_map;
-        std::vector<std::string> input_files = pystring::split(m_cmd_opt.input_file, ";");
+        std::vector<std::string> input_files = pystring::split(m_cmd_opt.input_file, ",");
         if (1 == input_files.size() && 1 == m_input_attrs.size())
         {
             std::string tensor_name = m_input_attrs[0].name;
