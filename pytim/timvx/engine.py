@@ -163,8 +163,8 @@ class Engine():
         return copy_data_to_tensor(self.engine, tensor_name, np_data)
 
 
-    def create_operation(self, op_info:dict)->bool:
-        ret = create_operation(self.engine, op_info)
+    def create_operation(self, op_info:dict, np_data:np.array=np.array([]))->bool:
+        ret = create_operation(self.engine, op_info, np_data)
         op_name = op_info["op_name"]
         if ret and "op_inputs" in op_info.keys():
             op_inputs = op_info["op_inputs"]
@@ -312,3 +312,7 @@ class Engine():
         assert export_nbg_graph(self.engine, weight_bin_file, graph_para_file)
         engine_logger.info("export success.")
         return True
+
+
+    def compile_to_binary(self)->bytearray:
+        return compile_to_binary(self.engine)

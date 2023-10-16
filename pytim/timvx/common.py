@@ -721,16 +721,17 @@ def ConstructMomentsOpConfig(op_name:str, axes:list, keep_dims:bool=False,
     return op_info_dict
 
 
-def ConstructNBGOpConfig(op_name:str, binary:int, input_count:int, output_count:int, 
+def ConstructNBGOpConfig(op_name:str, offset:int, length:int, input_count:int, output_count:int, 
     op_inputs:list=[], op_outputs:list=[])->dict:
 
     op_info_dict = {}
     op_info_dict["op_name"] = op_name
     op_info_dict["op_type"] = "NBG"
     op_attr = {}
-    op_attr["binary"] = binary
     op_attr["input_count"] = input_count
     op_attr["output_count"] = output_count
+    op_attr["offset"] = offset
+    op_attr["length"] = length
     op_info_dict["op_attr"] = op_attr
     if len(op_inputs) > 0:
         op_info_dict["op_inputs"] = op_inputs

@@ -25,7 +25,7 @@ namespace TimVX
         std::string                    compile_para_file;
         std::string                    compile_weight_file;
         // model benchmark
-        int                            benchmark_times;
+        int                            benchmark_times = 0;
         // common
         std::string                    log_path;
         int                            log_level;

@@ -171,7 +171,7 @@ bool copyDataToTensor(TimVXEngine* timvx_engine, const std::string tensor_name, 
     return timvx_engine->copyDataToTensor(tensor_name, buffer_data, buffer_len);
 }
 
-bool createOperation(TimVXEngine* timvx_engine, py::dict& op_dict_info)
+bool createOperation(TimVXEngine* timvx_engine, py::dict& op_dict_info, const py::array& data_array)
 {
     if (nullptr == timvx_engine)
     {
@@ -179,7 +179,9 @@ bool createOperation(TimVXEngine* timvx_engine, py::dict& op_dict_info)
         return false;
     }
     nl::json op_json_info = op_dict_info;
-    return timvx_engine->createOperation(op_json_info);
+    size_t buffer_len = data_array.nbytes();
+    const char* buffer_data = (const char*)data_array.data();
+    return timvx_engine->createOperation(op_json_info, buffer_data, buffer_len);
 }
 
 py::dict getOpInfo(TimVXEngine* timvx_engine, const std::string op_name)
@@ -349,6 +351,7 @@ PYBIND11_MODULE(pytimvx, m)
     m.def("set_log_level",          &setLogLevel,             "set log level");
     m.def("export_graph",           &exportGraph,             "export network graph files");
     m.def("export_nbg_graph",       &exportNBGGraph,          "export network NBG graph files");
+    m.def("compile_to_binary",      &compileToBinary,         "compile graph to binary");
 
     py::class_<TimVXEngine>(m, "TimVXEngine")
     .def(py::init<const std::string>());
