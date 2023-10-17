@@ -134,5 +134,9 @@ def test_gen_binary_graph_with_simple_add():
     test_simple_add_nbg_graph(binary_data)
 
 if __name__ == "__main__":
+    # 1 export simple add NBG graph
     # export_simple_add_nbg_graph()
+    # 2 test simple add NBG graph binary file
+    # test_simple_add_nbg_graph("./simple_add.bin")
+    # 3 test NBG graph from binary data
     test_gen_binary_graph_with_simple_add()
