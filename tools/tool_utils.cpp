@@ -13,6 +13,8 @@
 
 namespace TimVX
 {
+    #define ALIGN_BYTE_SIZE 64
+    #define MEM_ALIGN(x, align) (((x) + ((align)-1)) & ~((align)-1))
 
     ModelTensorData::ModelTensorData(const char* file_name)
     {
@@ -46,7 +48,10 @@ namespace TimVX
         m_shape = shape;
         m_data_len = tensorElementCount() * tensorElementSize();
         if (m_data_len)
-            m_data = (uint8_t*)(new char[m_data_len]);
+        {
+            int aligned_size = MEM_ALIGN(m_data_len, 64);
+            m_data = (uint8_t*)aligned_alloc(64, aligned_size);
+        }
         m_tensor_valid = (nullptr != m_data) ? true : false;
         if (random_init && nullptr != m_data)
             randomInitData();
@@ -63,7 +68,8 @@ namespace TimVX
         if (nullptr == data)
         {
             m_own_flag = true;
-            m_data = (uint8_t*)(new char[m_data_len]);
+            int aligned_size = MEM_ALIGN(m_data_len, 64);
+            m_data = (uint8_t*)aligned_alloc(64, aligned_size);
         }
         else
         {
@@ -76,7 +82,7 @@ namespace TimVX
     ModelTensorData::~ModelTensorData()
     {
         if (true == m_own_flag && nullptr != m_data)
-            delete[] m_data;
+            free(m_data);
     }
 
     void ModelTensorData::randomInitData()
@@ -179,7 +185,8 @@ namespace TimVX
         }
         TIMVX_LOG(TIMVX_LEVEL_INFO, "load image from {}, h*w*c={}*{}*{}", file_name, height, width, channel);
         // stb load image as rgb, need to convert rgb to bgr
-        uint8_t* bgr_data = (uint8_t*)(new char[height * width * channel]);
+        int aligned_size = MEM_ALIGN(height * width * channel, 64);
+        uint8_t* bgr_data = (uint8_t*)aligned_alloc(64, aligned_size);
         if (nullptr == bgr_data)
         {
             TIMVX_LOG(TIMVX_LEVEL_ERROR, "malloc memory for bgr data fail when load from {}", file_name);
@@ -245,7 +252,8 @@ namespace TimVX
         }
         auto element_count = static_cast<size_t>(npy::comp_size(npy_header.shape));
         int tensor_len = item_size * element_count;
-        uint8_t* tensor_data = (uint8_t*)(new char[tensor_len]);
+        int aligned_size = MEM_ALIGN(tensor_len, 64);
+        uint8_t* tensor_data = (uint8_t*)aligned_alloc(64, aligned_size);
         if (nullptr == tensor_data)
         {
             TIMVX_LOG(TIMVX_LEVEL_ERROR, "malloc memory for tensor data fail when load from {}", file_name);
